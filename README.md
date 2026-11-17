@@ -3,21 +3,22 @@
 A portable SVG templating specification and .NET library by Bathos Labs.
 
 Templates remain ordinary SVG files with useful authored previews. Binding annotations identify
-replaceable text, images and solid RGB colors; SVG retains ownership of layout and rendering.
+replaceable text, images and paint values; SVG retains ownership of layout and rendering.
 
 This private, unreleased repository is in design preparation. No executable library, CLI or
 published format is implemented yet. `SVT` is a working format name, not an established standard.
 
 ## Boundaries
 
-- `Bathos.Graphics.SvgTemplates`: one portable library for inspection, validation and substitution.
+- `Bathos.Graphics.SvgTemplates`: one portable library for structural inspection and XML-safe
+  substitution.
 - A thin CLI will expose the same rules to external authors and agents.
 - The specification and conformance fixtures remain independent of .NET.
 - Consumers own acquisition, image preparation, rendering and application document state.
 
-See [architecture](docs/architecture.md), [specification scope](spec/README.md), and
-[conformance](conformance/README.md). Design decisions and delivery work belong in
-[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+See [architecture](docs/architecture.md), [specification](spec/README.md),
+[inspection API](docs/inspection-api.md), and [conformance](conformance/README.md). Design decisions
+and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
 ## Publication
 

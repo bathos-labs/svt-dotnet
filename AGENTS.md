@@ -22,8 +22,11 @@
 - Exclude machine paths, credentials, IDE state and generated validation evidence.
 - Keep the library BCL-only unless a demonstrated requirement justifies another dependency. No UI,
   renderer, native imaging, DI container, filesystem resolver or network dependencies in core.
-- Hosts supply bytes and typed values. Keep parsed state immutable, retain no borrowed mutable XML
+- Hosts supply bytes and binding values. Keep parsed state immutable, retain no borrowed mutable XML
   or pixel buffers, and expose no native handles. Substitution must not mutate source content.
+- Discovery preserves raw authored values. Reject structural ambiguity, not malformed SVG property
+  values. Optional interpretation must not gate discovery or binding, fetch resources or compute
+  CSS.
 - SVG owns layout. Do not introduce expressions, repetition, text fitting or arbitrary attribute
   editing without a separate agreed extension.
 - Preserve nullable analysis and validate external uncertainty at the boundary. Invalid authoring

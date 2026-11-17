@@ -6,23 +6,23 @@ describes the interchange contract; the .NET library implements it without ownin
 ## Portable core
 
 One assembly, `Bathos.Graphics.SvgTemplates`, owns controlled XML parsing, input discovery,
-validation, typed substitution and diagnostics. Separate namespaces may organize those
+structural diagnostics and XML-safe substitution. Separate namespaces may organize those
 responsibilities without adding contracts-only assemblies. The initial implementation uses the .NET
 base libraries.
 
 Hosts supply source bytes. Inspection owns an immutable document snapshot; callers do not receive a
-mutable XML tree. Binding creates an independent output, and invalid requested values must not
+mutable XML tree. Binding creates an independent output, and structurally unusable requests must not
 produce partially substituted content. Scoped hook errors must remain distinguishable from an
 unusable root document.
 
 The core does not fetch images, probe paths, decode pixels, convert color, resolve fonts or render
-SVG. Image values describe supplied replacement content; their exact public representation is still
-subject to design review. Labels are presentation metadata, not binding identity.
+SVG. [Image values](../spec/images.md) describe supplied encoded content or references. Hosts retain
+resource authority. Labels are presentation metadata, not binding identity.
 
 ## Consumers and tooling
 
-A thin CLI exposes inspection, validation and substitution with structured diagnostics. Filesystem
-input/output belongs at that boundary; output publication requires explicit caller intent.
+A thin CLI exposes inspection and substitution with structured diagnostics. Filesystem input/output
+belongs at that boundary; output publication requires explicit caller intent.
 
 Application adapters own their document references, freshness, default/unassigned/bound choices,
 image preparation, rendering and UI. The template library must not acquire those responsibilities
@@ -30,9 +30,21 @@ through callbacks or service location.
 
 ## Specification and evidence
 
-Language-neutral fixtures establish discovery, validation and substitution behavior. Renderer
-integration checks establish preview behavior for named environments. Neither guarantees identical
-pixels in every SVG viewer or preservation of annotations by every authoring tool.
+Language-neutral fixtures establish discovery, structural rejection and substitution behavior.
+Renderer integration checks establish preview behavior for named environments. Neither guarantees
+identical pixels in every SVG viewer or preservation of annotations by every authoring tool.
 
-Exact public signatures, annotation spelling, image resource policy and diagnostic locations are
-unsettled. Design work is tracked in GitHub Issues rather than represented by empty public APIs.
+The [inspection API](inspection-api.md) and [version-zero specification](../spec/README.md) define
+the first implementation boundary. Binding APIs and bounded value interpretation remain separate
+design work tracked in GitHub Issues; do not add empty public APIs for them.
+
+## Optional value interpretation
+
+Pure, opt-in helpers may interpret a documented subset of raw literals for editor controls. Keep
+them in the same assembly initially, separate from discovery and binding admission. Preserve source
+evidence and distinguish literal values, no paint, context requirements, resource references and
+unrecognized syntax. Failure to interpret is not template invalidity.
+
+Helpers do not compute CSS, fetch resources, decode images or establish effective rendered values.
+Consumers own validation, rendering and resource policy. No renderer, schema validator or
+inline-style parser is required by the core.
