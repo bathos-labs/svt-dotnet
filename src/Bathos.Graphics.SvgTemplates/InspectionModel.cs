@@ -210,6 +210,13 @@ public sealed class InspectedTemplate
         Inputs = inputs;
     }
     internal string Source { get; }
+    internal ImmutableDictionary<string, ImmutableArray<SourceLocation>> RejectedLocations { get; init; }
+        = ImmutableDictionary<string, ImmutableArray<SourceLocation>>.Empty;
+    /// <summary>Creates an independent document from explicitly supplied replacements.</summary>
+    public BindingResult Bind(IReadOnlyList<TemplateBinding> bindings,
+        BindingConfiguration? configuration = null, CancellationToken cancellationToken = default) =>
+        BindingOperation.Run(this, bindings, configuration ?? BindingConfiguration.Default, cancellationToken);
+
     /// <summary>Gets inputs in discovery order.</summary>
     public ImmutableArray<TemplateInput> Inputs { get; }
 }

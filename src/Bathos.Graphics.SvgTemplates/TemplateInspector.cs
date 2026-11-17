@@ -162,6 +162,7 @@ public static class TemplateInspector
     private static InspectionResult Discover(string source, XElement root, InspectionOptions limits, CancellationToken token)
     {
         var diagnostics = new List<Diagnostic>();
+        var hookLocations = new Dictionary<string, List<SourceLocation>>(StringComparer.Ordinal);
         var groups = new Dictionary<string, List<(string Label, TemplateTarget Target)>>(StringComparer.Ordinal);
         void Add(string code, DiagnosticSeverity severity, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
         {
@@ -195,6 +196,12 @@ public static class TemplateInspector
                 var attribute = element.Attribute("data-svt-" + Hooks[i]);
                 if (attribute is null) continue;
                 var key = attribute.Value;
+                if (!hookLocations.TryGetValue(key, out var locations))
+                {
+                    locations = [];
+                    hookLocations.Add(key, locations);
+                }
+                locations.Add(Point(attribute));
                 if (element.Name.NamespaceName != Svg || (i == 0 && element.HasElements))
                 { Add("svt.hook.target", DiagnosticSeverity.Error, key, Point(attribute)); continue; }
                 if (key.Length == 0)
@@ -230,7 +237,10 @@ public static class TemplateInspector
             var state = same ? raw is null ? InputDefaultState.Absent : InputDefaultState.Common : InputDefaultState.Mixed;
             inputs.Add(new(key, first.Label, kind, group.Select(t => t.Target).ToImmutableArray(), new(state, state == InputDefaultState.Common ? raw : null)));
         }
-        return new(new(source, inputs.ToImmutable()), diagnostics.OrderBy(d => d.Location?.Line).ThenBy(d => d.Location?.Column).ThenBy(d => d.Code, StringComparer.Ordinal).ToImmutableArray());
+        var admittedKeys = inputs.Select(input => input.Key).ToHashSet(StringComparer.Ordinal);
+        var rejected = hookLocations.Where(pair => !admittedKeys.Contains(pair.Key))
+            .ToImmutableDictionary(pair => pair.Key, pair => pair.Value.ToImmutableArray(), StringComparer.Ordinal);
+        return new(new(source, inputs.ToImmutable()) { RejectedLocations = rejected }, diagnostics.OrderBy(d => d.Location?.Line).ThenBy(d => d.Location?.Column).ThenBy(d => d.Code, StringComparer.Ordinal).ToImmutableArray());
     }
 
     private static SourceLocation PositionAt(string source, int offset)

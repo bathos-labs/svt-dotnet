@@ -4,12 +4,12 @@ The default branch is `master`. Read the [architecture](docs/architecture.md) be
 changes. Discuss grammar, public API, dependencies and ownership before implementation. Keep design
 proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
-The solution contains one BCL-only inspection library and an MSTest project running portable
-fixtures and boundary tests. No package or release workflow exists. The SDK is pinned to .NET
-10.0.403 with latest-patch roll-forward. Shared build settings require nullable analysis, warnings
-as errors, recommended analyzers, deterministic builds, central package versions and locked CI
-restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and both
-projects have lockfiles.
+The solution contains one BCL-only inspection and substitution library and an MSTest project running
+portable fixtures and boundary tests. No package or release workflow exists. The SDK is pinned to
+.NET 10.0.403 with latest-patch roll-forward. Shared build settings require nullable analysis,
+warnings as errors, recommended analyzers, deterministic builds, central package versions and locked
+CI restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and
+both projects have lockfiles.
 
 ## Validation
 
