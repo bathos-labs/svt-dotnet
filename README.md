@@ -5,8 +5,9 @@ A portable SVG templating specification and .NET library by Bathos Labs.
 Templates remain ordinary SVG files with useful authored previews. Binding annotations identify
 replaceable text, images and paint values; SVG retains ownership of layout and rendering.
 
-This private, unreleased repository is in design preparation. No executable library, CLI or
-published format is implemented yet. `SVT` is a working format name, not an established standard.
+This private, unreleased repository implements portable structural inspection with conformance
+tests. Substitution and a CLI are not implemented. `SVT` is a working format name, not an
+established standard.
 
 ## Boundaries
 
@@ -31,6 +32,6 @@ authorized or available yet.
 
 The primary branch is `master`. See [Contributing](CONTRIBUTING.md) for the documentation validation
 gate and working conventions. The .NET 10 SDK and common build policy are pinned for the first
-implementation; current CI checks documentation and repository hygiene. With Node.js 24 and Task
-installed, run `task docs:format` after edits and `task check` before committing. No executable
-projects are present yet.
+implementation; CI checks documentation, locked restore, C# formatting, Release analyzers and tests.
+With Node.js 24 and Task installed, run `task docs:format` after edits and `task check` before
+committing. The solution is `SvgTemplates.slnx`.

@@ -1,7 +1,8 @@
 # Release readiness
 
 SVT is MIT-licensed and unreleased. The repository remains private; no package publishing workflow
-or release credentials are configured. The initial CI validates repository hygiene only.
+or release credentials are configured. CI validates repository hygiene and portable structural
+inspection.
 
 Before a first release, require:
 

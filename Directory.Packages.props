@@ -1,4 +1,5 @@
 <Project>
-  <!-- Add exact test package versions here with the first implementation project.
-       Production remains BCL-only; commit each project's packages.lock.json. -->
+  <ItemGroup>
+    <PackageVersion Include="MSTest" Version="4.0.2" />
+  </ItemGroup>
 </Project>
