@@ -36,11 +36,10 @@ identical pixels in every SVG viewer or preservation of annotations by every aut
 
 The [inspection API](inspection-api.md) and [SVT specification](../spec/README.md) define the first
 implementation boundary. The agreed [binding API](binding-api.md) and
-[substitution contract](../spec/substitution.md) define the next implementation boundary.
-BindingConfiguration groups reusable immutable policy; it is not a service or mutable binding
-session. Encoded images own captured bytes; each bind produces an independent immutable document.
-Substitution is not implemented yet. Optional interpretation remains separate design work tracked in
-GitHub Issues; do not add empty public APIs for it.
+[substitution contract](../spec/substitution.md) define substitution behavior. BindingConfiguration
+groups reusable immutable policy; it is not a service or mutable binding session. Encoded images own
+captured bytes; each bind produces an independent immutable document. Optional interpretation
+remains separate design work tracked in GitHub Issues; do not add empty public APIs for it.
 
 ## Optional value interpretation
 

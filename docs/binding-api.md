@@ -1,8 +1,8 @@
 # .NET binding API
 
-This is the agreed contract for substitution, not implemented functionality. All types belong to
-`Bathos.Graphics.SvgTemplates`. The lifecycle is inspect, prepare values, bind, then consume the
-independent output. Hosts own acquisition, rendering and publication.
+This is the implemented substitution contract. All types belong to `Bathos.Graphics.SvgTemplates`.
+The lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
+acquisition, rendering and publication.
 
 ## Reusable configuration
 

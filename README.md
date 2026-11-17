@@ -5,9 +5,9 @@ A portable SVG templating specification and .NET library by Bathos Labs.
 Templates remain ordinary SVG files with useful authored previews. Binding annotations identify
 replaceable text, images and paint values; SVG retains ownership of layout and rendering.
 
-This private, unreleased repository implements portable structural inspection with conformance
-tests. Substitution and a CLI are not implemented. `SVT` is a working format name, not an
-established standard.
+This private, unreleased repository implements portable structural inspection and atomic
+substitution with conformance tests. A CLI is not implemented. `SVT` is a working format name, not
+an established standard.
 
 ## Boundaries
 
