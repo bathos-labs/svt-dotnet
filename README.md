@@ -22,11 +22,15 @@ and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-d
 
 ## Publication
 
-The intended package name is `Bathos.Graphics.SvgTemplates`. Public release and redistribution terms
-for code, specification and examples have not been authorized. See [NOTICE](NOTICE).
+The intended package name is `Bathos.Graphics.SvgTemplates`. Code, specification, documentation and
+repository-authored examples are [MIT-licensed](LICENSE). See [NOTICE](NOTICE) and
+[release readiness](RELEASING.md). The repository remains private and no package release is
+authorized or available yet.
 
 ## Development
 
 The primary branch is `master`. See [Contributing](CONTRIBUTING.md) for the documentation validation
-gate and working conventions. With Node.js 24 and Task installed, run `task docs:format` after edits
-and `task check` before committing. No executable projects are present yet.
+gate and working conventions. The .NET 10 SDK and common build policy are pinned for the first
+implementation; current CI checks documentation and repository hygiene. With Node.js 24 and Task
+installed, run `task docs:format` after edits and `task check` before committing. No executable
+projects are present yet.

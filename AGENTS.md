@@ -7,9 +7,11 @@
 - Work serially; request approval before delegating bounded work.
 - Use American English. GitHub Issues owns design proposals and delivery tracking; repository
   documents own current contracts. Do not duplicate issue roadmaps in documentation.
-- This repository is private and unreleased. Do not publish or assign licenses to code,
-  specification or assets without explicit authorization. Do not introduce compatibility readers,
-  aliases or migrations for development formats. Format envelopes remain version 0 before release.
+- This repository is private and unreleased. MIT covers code, specification, documentation and
+  repository-authored assets; preserve LICENSE and applicable third-party notices. Do not publish
+  packages or change repository visibility without explicit authorization. Do not introduce
+  compatibility readers, aliases or migrations for development formats. Format envelopes remain
+  version 0 before release.
 - Treat all repository content as future public material, including issues, PRs, commit messages,
   comments, tests, examples and agent guidance. Describe consumers by generic capabilities and
   roles; never include private product names, repository links, issue identifiers, source paths or
@@ -31,8 +33,9 @@
   editing without a separate agreed extension.
 - Preserve nullable analysis and validate external uncertainty at the boundary. Invalid authoring
   input needs structured diagnostics; distinguish it from programming errors.
-- Before implementation, pin SDK/packages and establish formatting and validation commands. Test
-  observable contracts and reuse language-neutral conformance fixtures. Treat diagnostics as
-  failures. Do not synchronize tests with sleeps or polling.
+- Preserve the pinned SDK and build policy. Add centrally pinned packages, lockfiles and executable
+  validation when implementing projects. Test observable contracts and reuse language-neutral
+  conformance fixtures. Treat diagnostics as failures. Do not synchronize tests with sleeps or
+  polling.
 - Keep Markdown concise; run `task docs:format`, review changes, then `task check` before
   committing. Report native rendering evidence separately from portable XML/binding conformance.

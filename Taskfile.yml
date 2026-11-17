@@ -1,8 +1,11 @@
 version: '3'
 
 vars:
-  # Keep CONTRIBUTING.md synchronized when upgrading.
+  # Keep CI and CONTRIBUTING.md synchronized when upgrading.
   PRETTIER_VERSION: '3.9.10'
+  REMARK_PACKAGES: >-
+    --package=remark-cli@12.0.1 --package=remark-gfm@4.0.1
+    --package=remark-validate-links@13.1.0 --package=remark-lint-no-undefined-references@5.0.2
 
 tasks:
   default:
@@ -21,9 +24,23 @@ tasks:
     cmds:
       - npx --yes prettier@{{.PRETTIER_VERSION}} --check "**/*.md"
 
+  docs:links:
+    desc: Check local Markdown files, references and heading anchors without HTTP requests
+    cmds:
+      - >-
+        npx --yes {{.REMARK_PACKAGES}} remark --rc-path .remarkrc.cjs
+        --ignore-path .prettierignore --frail --no-stdout --no-color .
+
+  docs:links:test:
+    desc: Verify link-checker configuration using disposable fixtures
+    cmds:
+      - npx --yes {{.REMARK_PACKAGES}} node eng/CheckDocumentationLinks.test.cjs
+
   check:
     desc: Check the documentation baseline (no executable projects yet)
     cmds:
       - git diff --check
       - git diff --cached --check
       - task: docs:check
+      - task: docs:links
+      - task: docs:links:test

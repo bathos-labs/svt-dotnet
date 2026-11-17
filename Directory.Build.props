@@ -1,0 +1,32 @@
+<Project>
+  <PropertyGroup>
+    <!-- Preserve the caller configuration when these projects are linked from an external solution. -->
+    <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- IDE0005 analysis also requires XML generation for engineering/test projects. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <Version>0.1.0-dev</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Bathos Pty Ltd</Authors>
+    <Company>Bathos Pty Ltd</Company>
+    <Copyright>Copyright © 2026 Bathos Pty Ltd</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/bathos-labs/svt-dotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/bathos-labs/svt-dotnet</PackageProjectUrl>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

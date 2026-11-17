@@ -55,8 +55,8 @@ The implementation consumes the [language-neutral fixture convention](../conform
 Check structured diagnostic codes/locations and raw default evidence; do not assert localized parser
 messages. Inspection must neither invoke a renderer nor probe image references.
 
-Bootstrap the .NET SDK with an explicit global.json, central test dependency versions and locked
-restore. Use the installed stable .NET 10 SDK feature band and document its pin; package selection
-is a routine implementation choice subject to restore/build validation. Extend task check with .NET
-formatting, Release build/analyzers and the test suite. Keep existing documentation checks. Do not
-add release automation or publish packages in this slice.
+Use the SDK pinned in global.json and the shared Directory.Build.props policy. Add exact test
+dependency versions to Directory.Packages.props and commit lockfiles; package selection is a routine
+implementation choice subject to restore/build validation. Extend task check with .NET formatting,
+Release build/analyzers and the test suite. Keep existing documentation checks. Do not add release
+automation or publish packages in this slice.
