@@ -6,8 +6,8 @@ Templates remain ordinary SVG files with useful authored previews. Binding annot
 replaceable text, images and paint values; SVG retains ownership of layout and rendering.
 
 This private, unreleased repository implements portable structural inspection and atomic
-substitution with conformance tests. A CLI is not implemented. `SVT` is a working format name, not
-an established standard.
+substitution with conformance tests. The [CLI contract](spec/cli.md) is agreed but not implemented.
+`SVT` is a working format name, not an established standard.
 
 ## Boundaries
 

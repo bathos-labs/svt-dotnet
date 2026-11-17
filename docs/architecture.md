@@ -22,7 +22,11 @@ resource authority. Labels are presentation metadata, not binding identity.
 ## Consumers and tooling
 
 A thin CLI exposes inspection and substitution with structured diagnostics. Filesystem input/output
-belongs at that boundary; output publication requires explicit caller intent.
+belongs at that boundary; output publication requires explicit caller intent. The agreed
+[CLI contract](../spec/cli.md) defines inspect and bind commands, typed JSON assignments, reusable
+configuration, separate result/diagnostic streams and explicit staged file publication. The CLI is
+not implemented yet. Its default refusal to publish after inspection errors is host policy; the
+portable binder continues to admit valid inputs independently of unrelated scoped inspection errors.
 
 Application adapters own their document references, freshness, default/unassigned/bound choices,
 image preparation, rendering and UI. The template library must not acquire those responsibilities
