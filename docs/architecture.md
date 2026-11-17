@@ -34,9 +34,9 @@ Language-neutral fixtures establish discovery, structural rejection and substitu
 Renderer integration checks establish preview behavior for named environments. Neither guarantees
 identical pixels in every SVG viewer or preservation of annotations by every authoring tool.
 
-The [inspection API](inspection-api.md) and [version-zero specification](../spec/README.md) define
-the first implementation boundary. Binding APIs and bounded value interpretation remain separate
-design work tracked in GitHub Issues; do not add empty public APIs for them.
+The [inspection API](inspection-api.md) and [SVT specification](../spec/README.md) define the first
+implementation boundary. Binding APIs and bounded value interpretation remain separate design work
+tracked in GitHub Issues; do not add empty public APIs for them.
 
 ## Optional value interpretation
 
