@@ -1,0 +1,35 @@
+# Agent guidance
+
+- Check Git status before editing and preserve unrelated changes. Commit only when requested.
+- Default branch: master. Follow CONTRIBUTING.md validation before a cohesive commit.
+- Read README.md, docs/architecture.md and CONTRIBUTING.md before changing boundaries. Discuss
+  consequential grammar, public API, dependency and ownership choices before implementation.
+- Work serially; request approval before delegating bounded work.
+- Use American English. GitHub Issues owns design proposals and delivery tracking; repository
+  documents own current contracts. Do not duplicate issue roadmaps in documentation.
+- This repository is private and unreleased. Do not publish or assign licenses to code,
+  specification or assets without explicit authorization. Do not introduce compatibility readers,
+  aliases or migrations for development formats. Format envelopes remain version 0 before release.
+- Treat all repository content as future public material, including issues, PRs, commit messages,
+  comments, tests, examples and agent guidance. Describe consumers by generic capabilities and
+  roles; never include private product names, repository links, issue identifiers, source paths or
+  internal implementation history. Keep consumer-specific integration tracking in the consumer's
+  repository.
+- Rewrite extracted explanations and fixtures around independent requirements. Review identifiers,
+  XML annotations, diagnostic text, asset metadata and copied snippets for private references before
+  adding them. Preserve legally required attribution; resolve licensing or attribution conflicts
+  explicitly rather than deleting notices to sanitize copied material.
+- Exclude machine paths, credentials, IDE state and generated validation evidence.
+- Keep the library BCL-only unless a demonstrated requirement justifies another dependency. No UI,
+  renderer, native imaging, DI container, filesystem resolver or network dependencies in core.
+- Hosts supply bytes and typed values. Keep parsed state immutable, retain no borrowed mutable XML
+  or pixel buffers, and expose no native handles. Substitution must not mutate source content.
+- SVG owns layout. Do not introduce expressions, repetition, text fitting or arbitrary attribute
+  editing without a separate agreed extension.
+- Preserve nullable analysis and validate external uncertainty at the boundary. Invalid authoring
+  input needs structured diagnostics; distinguish it from programming errors.
+- Before implementation, pin SDK/packages and establish formatting and validation commands. Test
+  observable contracts and reuse language-neutral conformance fixtures. Treat diagnostics as
+  failures. Do not synchronize tests with sleeps or polling.
+- Keep Markdown concise; run `task docs:format`, review changes, then `task check` before
+  committing. Report native rendering evidence separately from portable XML/binding conformance.

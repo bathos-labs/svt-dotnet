@@ -1,0 +1,29 @@
+version: '3'
+
+vars:
+  # Keep CONTRIBUTING.md synchronized when upgrading.
+  PRETTIER_VERSION: '3.9.10'
+
+tasks:
+  default:
+    desc: List development commands
+    silent: true
+    cmds:
+      - task --list
+
+  docs:format:
+    desc: Wrap Markdown prose and align tables
+    cmds:
+      - npx --yes prettier@{{.PRETTIER_VERSION}} --write "**/*.md"
+
+  docs:check:
+    desc: Verify Markdown formatting without edits
+    cmds:
+      - npx --yes prettier@{{.PRETTIER_VERSION}} --check "**/*.md"
+
+  check:
+    desc: Check the documentation baseline (no executable projects yet)
+    cmds:
+      - git diff --check
+      - git diff --cached --check
+      - task: docs:check

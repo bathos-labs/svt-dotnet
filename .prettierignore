@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+artifacts/
+publish/
+TestResults/
+coverage/
+**/node_modules/
