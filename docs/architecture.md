@@ -35,8 +35,12 @@ Renderer integration checks establish preview behavior for named environments. N
 identical pixels in every SVG viewer or preservation of annotations by every authoring tool.
 
 The [inspection API](inspection-api.md) and [SVT specification](../spec/README.md) define the first
-implementation boundary. Binding APIs and bounded value interpretation remain separate design work
-tracked in GitHub Issues; do not add empty public APIs for them.
+implementation boundary. The agreed [binding API](binding-api.md) and
+[substitution contract](../spec/substitution.md) define the next implementation boundary.
+BindingConfiguration groups reusable immutable policy; it is not a service or mutable binding
+session. Encoded images own captured bytes; each bind produces an independent immutable document.
+Substitution is not implemented yet. Optional interpretation remains separate design work tracked in
+GitHub Issues; do not add empty public APIs for it.
 
 ## Optional value interpretation
 
