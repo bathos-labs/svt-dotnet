@@ -1,8 +1,8 @@
 # .NET inspection API
 
-This is the implementation contract for the first slice, not documentation of shipped APIs. Target
-.NET 10 with one BCL-only assembly named `Bathos.Graphics.SvgTemplates`. Use the same root
-namespace. Keep parsing and mutable XML implementation types internal.
+This is the implemented inspection contract for the unreleased .NET 10 BCL-only assembly named
+`Bathos.Graphics.SvgTemplates`. The root namespace matches the assembly name. Keep parsing and
+mutable XML implementation types internal.
 
 The public entry point is synchronous CPU work over already supplied memory:
 

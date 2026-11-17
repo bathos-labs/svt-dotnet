@@ -36,11 +36,20 @@ tasks:
     cmds:
       - npx --yes {{.REMARK_PACKAGES}} node eng/CheckDocumentationLinks.test.cjs
 
+  dotnet:check:
+    desc: Verify locked restore, C# formatting, Release analyzers and tests
+    cmds:
+      - dotnet restore SvgTemplates.slnx --locked-mode
+      - dotnet format SvgTemplates.slnx --no-restore --verify-no-changes
+      - dotnet build SvgTemplates.slnx -c Release --no-restore
+      - dotnet test --solution SvgTemplates.slnx -c Release --no-build
+
   check:
-    desc: Check the documentation baseline (no executable projects yet)
+    desc: Check documentation and portable inspection
     cmds:
       - git diff --check
       - git diff --cached --check
       - task: docs:check
       - task: docs:links
       - task: docs:links:test
+      - task: dotnet:check

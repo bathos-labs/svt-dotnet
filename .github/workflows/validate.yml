@@ -15,7 +15,7 @@ env:
   DOTNET_NOLOGO: '1'
 jobs:
   validation:
-    name: Repository hygiene
+    name: Documentation and portable inspection
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
@@ -41,3 +41,14 @@ jobs:
           --ignore-path .prettierignore --frail --no-stdout --no-color .
       - name: Verify documentation link-checking configuration
         run: npx --yes $REMARK_PACKAGES node eng/CheckDocumentationLinks.test.cjs
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore SvgTemplates.slnx --locked-mode
+      - name: Verify C# formatting
+        run: dotnet format SvgTemplates.slnx --no-restore --verify-no-changes
+      - name: Build Release with analyzers
+        run: dotnet build SvgTemplates.slnx -c Release --no-restore
+      - name: Test portable inspection
+        run: dotnet test --solution SvgTemplates.slnx -c Release --no-build

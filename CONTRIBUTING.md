@@ -4,12 +4,12 @@ The default branch is `master`. Read the [architecture](docs/architecture.md) be
 changes. Discuss grammar, public API, dependencies and ownership before implementation. Keep design
 proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
-The repository currently contains documentation and preparation guidance only. There is no .NET
-build, runtime test suite, package or release workflow yet. The SDK is pinned to .NET 10.0.403 with
-latest-patch roll-forward. Shared build settings require nullable analysis, warnings as errors,
-recommended analyzers, deterministic builds, central package versions and locked CI restore. NuGet
-sources are restricted to nuget.org. Add implementation tests and per-project lockfiles when adding
-executable projects.
+The solution contains one BCL-only inspection library and an MSTest project running portable
+fixtures and boundary tests. No package or release workflow exists. The SDK is pinned to .NET
+10.0.403 with latest-patch roll-forward. Shared build settings require nullable analysis, warnings
+as errors, recommended analyzers, deterministic builds, central package versions and locked CI
+restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and both
+projects have lockfiles.
 
 ## Validation
 
@@ -31,16 +31,25 @@ requires npm registry access. Keep tool versions in this guide, Taskfile.yml and
 The configuration matches the Bathos prose convention: 100-column wrapping with embedded code
 formatting disabled. Generated output is excluded through `.prettierignore`.
 
-The current gate checks whitespace, Markdown formatting, local links and heading anchors, and the
-link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
+The documentation gate checks whitespace, Markdown formatting, local links and heading anchors, and
+the link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
 private-reference sanitization explicitly; no automated confidentiality checker is claimed.
 
 CI runs this documentation gate on pull requests and master pushes using read-only permissions,
 SHA-pinned actions, Node.js 24 and an Ubuntu 24.04 runner. It can also be dispatched manually. It
-needs no native SDK workloads, runner cleanup, secrets or dependency cache. When projects arrive,
-extend both local and hosted gates with locked restore, C# formatting, Release build/analyzers and
-tests. Add package consumption checks before release; see [release readiness](RELEASING.md).
-Portable binding tests and native rendering evidence remain distinct.
+uses the pinned .NET SDK for locked restore, formatting, Release build/analyzers and tests. No
+native SDK workloads, runner cleanup or secrets are required. The .NET commands included in
+`task check` are:
+
+```sh
+dotnet restore SvgTemplates.slnx --locked-mode
+dotnet format SvgTemplates.slnx --no-restore --verify-no-changes
+dotnet build SvgTemplates.slnx -c Release --no-restore
+dotnet test --solution SvgTemplates.slnx -c Release --no-build
+```
+
+Add package consumption checks before release; see [release readiness](RELEASING.md). Portable
+binding tests and native rendering evidence remain distinct.
 
 ## Review and publication
 

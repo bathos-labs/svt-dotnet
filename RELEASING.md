@@ -1,7 +1,8 @@
 # Release readiness
 
 SVT is MIT-licensed and unreleased. The repository remains private; no package publishing workflow
-or release credentials are configured. The initial CI validates repository hygiene only.
+or release credentials are configured. CI validates repository hygiene and portable structural
+inspection.
 
 Before a first release, require:
 
@@ -10,7 +11,7 @@ Before a first release, require:
 - Package metadata for `Bathos.Graphics.SvgTemplates`: MIT expression, repository URL, description,
   README, XML documentation, symbols and an explicitly chosen release version. Inspect the package
   and test an isolated consumer; do not publish development scaffolding.
-- A changelog and agreed specification/API stability policy. Version-zero development has no
+- A changelog and agreed specification/API stability policy. Unreleased development has no
   compatibility or migration promise. Package versions and the format marker are distinct.
 - A review of all content for redistribution rights and private references, plus an explicit
   decision to make the repository public and publish the package.
