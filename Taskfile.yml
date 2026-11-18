@@ -84,7 +84,7 @@ tasks:
       - node eng/package/consume.mjs
 
   package:prepare:
-    desc: Prepare a private handoff candidate from a clean commit with a matching gate receipt
+    desc: Prepare a development candidate from a clean commit with a matching gate receipt
     cmds:
       - node eng/package/prepare.mjs
 
@@ -92,6 +92,32 @@ tasks:
     desc: Validate the supplied package bundle through an isolated consumer
     cmds:
       - node eng/package/consume.mjs {{.CLI_ARGS}}
+
+  release:check:
+    desc: Verify release version, changelog, clean tree and branch (TAG=v<version>)
+    env:
+      RELEASE_TAG: '{{.TAG}}'
+    cmds:
+      - node eng/release/release.mjs check
+
+  release:tag:
+    desc: Validate and create one annotated local release tag (TAG=v<version>)
+    env:
+      RELEASE_TAG: '{{.TAG}}'
+    cmds:
+      - node eng/release/release.mjs tag
+
+  release:push:
+    desc: Verify actual remote ancestry and push only the explicit release tag (TAG=v<version>)
+    env:
+      RELEASE_TAG: '{{.TAG}}'
+    cmds:
+      - node eng/release/release.mjs push
+
+  release:verify:
+    desc: Verify the published package, symbols and source against a retained candidate bundle
+    cmds:
+      - node eng/package/consume.mjs {{.CLI_ARGS}} --published
 
   check:
     desc: Check documentation, library, CLI and validation tooling; record source identity

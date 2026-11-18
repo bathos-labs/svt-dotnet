@@ -1,34 +1,115 @@
-# Release readiness
+# Releasing
 
-SVT is MIT-licensed and unreleased. The repository remains private; no package publishing workflow
-or release credentials are configured. CI validates repository hygiene, portable inspection and
-substitution, CLI process/file behavior, package contents and isolated package consumption.
+SVT is public, MIT-licensed, and prerelease. `0.1.0-beta.1` is the first prepared beta; no
+publication is implied by its version or changelog entry. The API and specification may change
+between prereleases. Consumers should pin an exact version (`Version="[0.1.0-beta.1]"` in a
+PackageReference) and validate their integration. There is no stable API or format migration
+promise. The SVG marker and JSON envelopes remain version 0 independently of NuGet.
 
-Before a first release, require:
+## Version and branch policy
 
-- An implemented library with conformance tests and a clean locked restore, formatting, analyzer,
-  Release build and test gate. Keep the production library BCL-only.
-- The [repeatable native checks](eng/visual/README.md#release-candidate-checks) for the candidate:
-  macOS Inkscape round trips and Chrome/resvg comparisons on macOS and Ubuntu, with pinned tools and
-  retained evidence. Review the images and report unavailable checks. Exploratory probes have
-  separate observations and do not supply a release verdict or leave the automated result partial.
-- Package metadata for `Bathos.Graphics.SvgTemplates`: MIT expression, repository URL, description,
-  README, XML documentation, symbols and an explicitly chosen release version. Inspect the package
-  and test an isolated consumer; do not publish development scaffolding.
-- A changelog and agreed specification/API stability policy. Unreleased development has no
-  compatibility or migration promise. Package versions and the format marker are distinct.
-- A review of all content for redistribution rights and private references, plus an explicit
-  decision to make the repository public and publish the package.
-- Protected release authorization and short-lived publishing credentials. A future release workflow
-  should publish the exact artifacts that passed validation, with version/tag checks and an approved
-  publishing environment.
+`Directory.Build.props` owns the shipping version. [CHANGELOG.md](CHANGELOG.md) must have one
+`Unreleased` section and a dated, populated entry for that version as its latest release. Use
+canonical three-part versions with optional lowercase SemVer prerelease identifiers. Build metadata,
+leading-zero aliases, and development `dev`, `review`, or `preview` identities are not release
+versions.
 
-`Directory.Build.props` provides development metadata and defaults projects to non-packable. Only
-the shipping library opts into packaging. The [private preparation workflow](eng/package/README.md)
-requires a clean commit and matching gate receipt, then checks one exact artifact on Ubuntu and
-Windows before producing a private trial manifest. Review-only packages cannot be promoted to
-handoffs. Retain the tested bytes, symbols and evidence; do not rebuild under the same identity.
-Native validation and consumer application integration remain separate requirements. Do not treat a
-successful documentation CI run or a private trial manifest as public release authorization.
-Implementation and release work are tracked in
-[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+`master` can release stable or prerelease versions. `release/*` can release prereleases only.
+Feature branches can run ordinary validation but cannot prepare a release tag. An annotated
+`v<version>` tag must identify the exact checked-out commit. Publication refreshes actual branch
+refs from origin and requires that commit to be an ancestor of an eligible remote branch. Stale
+local tracking refs, unpushed commits, failed fetches, dirty trees, and mismatched metadata fail
+closed.
+
+## Candidate lifecycle
+
+1. Review the implementation, package metadata, changelog, redistribution rights, private
+   references, and known limitations. Merge through the portable Ubuntu/Windows gate. Retain LICENSE
+   and NOTICE.
+2. Optionally dispatch **NuGet release** on `master` or an eligible `release/*` branch. Dispatch is
+   a non-publishing rehearsal: it runs the full gate, prepares a development package, consumes the
+   same bytes on Ubuntu and Windows, and runs the native matrix. It never enters the publishing job.
+3. After explicit authorization to publish, update the clean local eligible branch and run:
+
+   ```sh
+   task release:check TAG=v0.1.0-beta.1
+   task release:tag TAG=v0.1.0-beta.1
+   task release:push TAG=v0.1.0-beta.1
+   ```
+
+   `release:tag` runs the full local gate and creates one annotated local tag. `release:push`
+   verifies current remote ancestry and pushes only that tag. Neither command pushes the branch. Tag
+   pushes trigger publication preparation; do not use them just to test the workflow.
+
+4. The tag workflow checks policy, then calls the ordinary validation workflow with the release tag.
+   Ubuntu builds and inspects the intended version once. Ubuntu and Windows each restore it into a
+   fresh cache and run the isolated consumer. Package, symbols, source, SDK, bundle inventory, and
+   both receipts must agree. The completed artifact is `validated-package-<version>-<attempt>`.
+5. Native jobs use that same packaged DLL in the CLI and authoring-test hosts. The macOS ARM64 job
+   runs pinned Inkscape native/Plain round trips and deliberate edits, followed by Chrome/resvg on
+   the original, saved, and edited corpora (186 comparisons). Ubuntu runs the original corpus in
+   both engines (38 comparisons). Preserve reports and images from both jobs. Exploratory probes are
+   excluded and do not supply a release verdict.
+6. Review complete-state images for content, fitting, clipping, masking, and stacking. The `nuget`
+   environment reviewer confirms that evidence, package identity, changelog, and publication intent
+   before approving the pending job. Machine checks and human visual review are separate
+   requirements.
+7. The publishing job revalidates retained evidence and remote ancestry, obtains a short-lived NuGet
+   credential through GitHub OIDC, and uploads the exact `.nupkg` and `.snupkg`. It never rebuilds
+   them. The job then restores from nuget.org with fresh caches, verifies signing and unchanged
+   original contents, runs the consumer, and downloads matching public symbols and Source Link
+   sources.
+8. After public verification succeeds, create a GitHub release for the existing tag using the
+   changelog notes and the **prerelease** flag for beta versions. Retain the candidate and evidence
+   with that release before CI artifacts expire. Consumer application validation remains separate.
+
+The tag workflow and rehearsal use SHA-pinned actions and the exact SDK in `global.json`. Native
+installation has a separate tool/font pin set. Ubuntu Chrome runs without its sandbox only in the
+trusted-fixture hosted runner, matching the existing disposable-container policy. See
+[native validation](eng/visual/README.md) and [package preparation](eng/package/README.md).
+
+## One-time owner setup
+
+These are external settings, not changes made by checking in the workflow:
+
+- Apply or review [the master ruleset](eng/master-branch.ruleset.json). It requires pull requests,
+  resolved review threads, and current **Documentation, library and CLI** and **Library and CLI on
+  Windows** checks from GitHub Actions, with no bypass actors. Zero required approving reviews keeps
+  it usable by a single maintainer. Protect release tags from updates/deletions and limit their
+  creation to release maintainers; they authorize the publishing path.
+- Create the `nuget` environment with required reviewer approval and a deployment policy accepting
+  only `v*` tags. Select reviewers who can assess the native evidence. Restrict administrator
+  bypass. A sole maintainer must be able to approve their own run; use a separate reviewer when
+  available.
+- Configure
+  [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
+  for owner `bathos-labs`, repository `svt-dotnet`, workflow `release.yml`, environment `nuget`, and
+  package `Bathos.Graphics.SvgTemplates`. Confirm package ownership/name availability and
+  organization permissions. Set the environment variable `NUGET_USER` to the NuGet account username
+  used for the trust policy, not an organization name or email address. No long-lived API-key secret
+  is required.
+- Review public repository security settings, including secret scanning/push protection and
+  reporting access. Configure them explicitly; repository files do not establish that these settings
+  are active.
+
+## Failures, retries, and evidence
+
+Registry publication is not atomic across package and symbols. `--skip-duplicate` allows retrying an
+upload of the retained candidate, but does not prove identity. Public verification must still
+compare all original package entries and the PDB with the tested candidate. NuGet repository signing
+changes ZIP bytes; record the distributed hash separately from the unsigned candidate hash.
+
+NuGet indexing and symbol availability can lag an accepted upload. Verification fails visibly rather
+than guessing that elapsed time proves availability. Retain the original bundle and rerun the failed
+publishing job or run `task release:verify -- <bundle>` after indexing completes. Re-running only
+the failed job reuses prior validated artifacts. Do not rerun successful package preparation to
+retry an upload, replace a release tag, or rebuild under a published identity. A changed candidate
+needs a new version and tag. Unlisting is not deletion or a reliable rollback for consumers who
+already restored.
+
+Candidate/native artifacts last 30 days; publication verification lasts 90 days. Failure logs have
+shorter retention. A green portable gate, development handoff, or successful upload alone is not a
+completed release. Unavailable native checks, failed public verification, and unresolved consumer
+integration must remain explicit. Windows native rendering and universal SVG/editor compatibility
+are not claimed. Known resource/CSS/layout boundaries remain documented in the specification and
+[authoring guide](docs/authoring.md).

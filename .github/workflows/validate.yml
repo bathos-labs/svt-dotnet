@@ -5,6 +5,14 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      release_tag:
+        type: string
+        default: ''
+    outputs:
+      candidate_artifact:
+        description: Validated package bundle and Ubuntu/Windows receipts
+        value: ${{ jobs.windows.outputs.candidate-artifact }}
 permissions:
   contents: read
 concurrency:
@@ -20,10 +28,12 @@ jobs:
     timeout-minutes: 10
     outputs:
       package-version: ${{ steps.package.outputs.version }}
+      transfer-artifact: package-candidate-${{ steps.package.outputs.version }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Check whitespace
         run: git show --format= --check HEAD
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -42,7 +52,14 @@ jobs:
         run: node eng/check.mjs
       - name: Prepare package from validated commit
         id: package
-        run: node eng/package/prepare.mjs
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [ -n "$RELEASE_TAG" ]; then
+            node eng/package/prepare.mjs --release "$RELEASE_TAG"
+          else
+            node eng/package/prepare.mjs
+          fi
       - name: Consume the package on Ubuntu
         run: node eng/package/consume.mjs
       - name: Stage exact bundle and Ubuntu receipt
@@ -57,7 +74,7 @@ jobs:
           JS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: package-candidate-${{ steps.package.outputs.version }}
+          name: package-candidate-${{ steps.package.outputs.version }}-${{ github.run_attempt }}
           path: artifacts/package-transfer/
           if-no-files-found: error
           retention-days: 14
@@ -76,12 +93,15 @@ jobs:
   windows:
     name: Library and CLI on Windows
     needs: validation
+    outputs:
+      candidate-artifact: ${{ steps.identity.outputs.name }}
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
@@ -101,20 +121,26 @@ jobs:
         run: dotnet test --solution SvgTemplates.slnx -c Release --no-build
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          name: package-candidate-${{ needs.validation.outputs.package-version }}
+          name: ${{ needs.validation.outputs.transfer-artifact }}
           path: artifacts/package-transfer
           digest-mismatch: error
       - name: Consume the identical package on Windows
         run: node eng/package/consume.mjs artifacts/package-transfer/bundle
-      - name: Finalize private trial evidence
+      - name: Finalize package candidate evidence
         shell: pwsh
         run: |
           $receipt = (Get-Content artifacts/package-consumption-current.json | ConvertFrom-Json).report
           Copy-Item $receipt artifacts/package-transfer/windows.json
           node eng/package/finalize.mjs artifacts/package-transfer/bundle artifacts/package-transfer/ubuntu.json artifacts/package-transfer/windows.json artifacts/package-transfer/handoff.json
+      - name: Name validated artifact
+        id: identity
+        shell: pwsh
+        env:
+          CANDIDATE_NAME: validated-package-${{ needs.validation.outputs.package-version }}-${{ github.run_attempt }}
+        run: Add-Content -Path $env:GITHUB_OUTPUT -Value "name=$env:CANDIDATE_NAME"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: private-trial-${{ needs.validation.outputs.package-version }}-${{ github.run_attempt }}
+          name: ${{ steps.identity.outputs.name }}
           path: artifacts/package-transfer/
           if-no-files-found: error
           retention-days: 30

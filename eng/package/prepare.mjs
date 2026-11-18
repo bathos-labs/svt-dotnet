@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, mkdir, copyFile, cp, rm, writeFile, appendFile } from "node:fs/promises";
 import { resolve, relative } from "node:path";
+import { verifyRelease } from "../release/policy.mjs";
 import {
   root,
   packageId,
@@ -16,16 +17,22 @@ import {
 } from "./common.mjs";
 
 assert.ok(
-  process.argv.length === 2 || (process.argv.length === 3 && process.argv[2] === "--review"),
-  "Usage: prepare.mjs [--review]",
+  process.argv.length === 2 ||
+    (process.argv.length === 3 && process.argv[2] === "--review") ||
+    (process.argv.length === 4 && process.argv[2] === "--release"),
+  "Usage: prepare.mjs [--review | --release v<version>]",
 );
 const review = process.argv[2] === "--review";
+const release =
+  process.argv[2] === "--release"
+    ? await verifyRelease({ tag: process.argv[3], remote: true, requireTag: true })
+    : null;
 const source = await sourceIdentity();
 const gate = JSON.parse(await readFile(resolve(root, "artifacts/validation/gate.json")));
 requireGate(gate, source, review);
 assert.equal(gate.sdk, sdk, "Package preparation requires a gate run with the exact SDK pin");
 assert.equal((await command("dotnet", ["--version"])).stdout.trim(), sdk);
-const version = packageVersion(source, review);
+const version = release?.version ?? packageVersion(source, review);
 const output = resolve(root, "artifacts/packages", version);
 await mkdir(resolve(root, "artifacts/packages"), { recursive: true });
 await mkdir(output); // Never overwrite an existing version or artifact.
@@ -37,6 +44,7 @@ const properties = [
   "-p:ContinuousIntegrationBuild=true",
   `-p:Version=${version}`,
   `-p:PackageVersion=${version}`,
+  `-p:DocumentationRef=${release?.tag ?? source.commit}`,
 ];
 const build = resolve(output, "build");
 for (const args of [
@@ -93,12 +101,13 @@ await writeFile(
 );
 await writeFile(
   resolve(bundle, "HANDOFF.md"),
-  `# Private package validation\n\nPackage: ${packageId} ${version}\n\nSource commit: ${source.commit}\nSource fingerprint: ${source.fingerprint}\n\n${review ? "REVIEW ONLY: built from an uncommitted development snapshot. This is not a handoff candidate." : "Prepared from a clean committed checkout after the full gate. Handoff readiness also requires matching Ubuntu and Windows consumption receipts."}\n\nThe packages directory contains the exact inspected library and portable symbols. SHA-256 values, SDK ${sdk}, net10.0, source state and file inventory are recorded in manifest.json. Do not rebuild or replace files under this version. Source Link points at the recorded commit and requires repository access. Review-only source changes are identified by the fingerprint and are not available through that commit.\n\nThe consumer directory is an independent PackageReference smoke application. From a checkout of the recorded source, run:\n\n\`\`\`sh\nnode eng/package/consume.mjs /path/to/this/bundle\n\`\`\`\n\nThe runner copies the consumer outside the checkout, uses a new cache and only this local feed, verifies the loaded assembly hash, and records a separate platform receipt. It does not rebuild the package. Review-only bundles require the reviewed tooling snapshot.\n\nOriginal SVGs, real image assets, independent expectations and binding requests are under examples/authoring. Asset rights and hashes are included; LICENSE and NOTICE cover repository-authored material. No fonts, CLI or native rendering tools are distributed in this bundle.\n\n[Specification](https://github.com/bathos-labs/svt-dotnet/tree/${source.commit}/spec), [API lifecycle](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/binding-api.md), [diagnostics and budgets](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/spec/substitution.md), [authoring guidance](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/authoring.md).\n\nPortable tests, package consumption and native rendering are distinct evidence. These package checks do not rerun authoring/rendering validation or establish application integration. Retain the applicable native reports separately. Hosts own image decoding, resource resolution, CSS behavior, fitting and rendering. This private prerelease does not establish universal rendering, released compatibility or authorization to publish.\n`,
+  `# Package validation\n\nPackage: ${packageId} ${version}\n\nSource commit: ${source.commit}\nSource fingerprint: ${source.fingerprint}\n\n${review ? "REVIEW ONLY: built from an uncommitted development snapshot. This is not a handoff candidate." : "Prepared from a clean committed checkout after the full gate. Handoff readiness also requires matching Ubuntu and Windows consumption receipts."}\n\nThe packages directory contains the exact inspected library and portable symbols. SHA-256 values, SDK ${sdk}, net10.0, source state and file inventory are recorded in manifest.json. Do not rebuild or replace files under this version. Source Link points at the recorded commit and requires repository access. Review-only source changes are identified by the fingerprint and are not available through that commit.\n\nThe consumer directory is an independent PackageReference smoke application. From a checkout of the recorded source, run:\n\n\`\`\`sh\nnode eng/package/consume.mjs /path/to/this/bundle\n\`\`\`\n\nThe runner copies the consumer outside the checkout, uses a new cache and only this local feed, verifies the loaded assembly hash, and records a separate platform receipt. It does not rebuild the package. Review-only bundles require the reviewed tooling snapshot.\n\nOriginal SVGs, real image assets, independent expectations and binding requests are under examples/authoring. Asset rights and hashes are included; LICENSE and NOTICE cover repository-authored material. No fonts, CLI or native rendering tools are distributed in this bundle.\n\n[Specification](https://github.com/bathos-labs/svt-dotnet/tree/${source.commit}/spec), [API lifecycle](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/binding-api.md), [diagnostics and budgets](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/spec/substitution.md), [authoring guidance](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/authoring.md).\n\nPortable tests, package consumption and native rendering are distinct evidence. These package checks do not rerun authoring/rendering validation or establish application integration. Retain the applicable native reports separately. Hosts own image decoding, resource resolution, CSS behavior, fitting and rendering. This prerelease does not establish universal rendering, released compatibility or authorization to publish.\n`,
 );
 assert.deepEqual(await sourceIdentity(), source, "Source changed during package preparation");
 const manifest = {
   format_version: 0,
-  purpose: review ? "review" : "handoff-candidate",
+  purpose: release ? "release-candidate" : review ? "review" : "handoff-candidate",
+  ...(release ? { release_tag: release.tag } : {}),
   source,
   sdk,
   target_framework: "net10.0",

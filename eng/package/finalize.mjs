@@ -19,7 +19,7 @@ await writeFile(
   JSON.stringify(
     {
       format_version: 0,
-      status: "ready-for-private-trial",
+      status: "package-validated",
       bundle_manifest_sha256: manifestHash,
       package: manifest.package,
       symbols: manifest.symbols,
@@ -35,5 +35,5 @@ await writeFile(
   { flag: "wx" },
 );
 console.log(
-  "Validated identical package consumption on Ubuntu and Windows; private trial manifest created.",
+  "Validated identical package consumption on Ubuntu and Windows; candidate evidence created.",
 );

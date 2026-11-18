@@ -12,7 +12,8 @@ namespace Bathos.Graphics.SvgTemplates.PackageValidation;
 
 internal sealed record InspectionReport(string PackageId, string Version, string Commit,
     string PackageSha256, string SymbolsSha256, string AssemblySha256, string[] PackageFiles,
-    string[] SymbolFiles, string[] AssemblyReferences, string[] SourceDocuments);
+    string[] SymbolFiles, string[] AssemblyReferences, string[] SourceDocuments, string SymbolKey,
+    string SymbolChecksum, string PdbSha256);
 
 internal static class PackageInspector
 {
@@ -20,6 +21,17 @@ internal static class PackageInspector
     internal const string Repository = "https://github.com/bathos-labs/svt-dotnet";
     private static readonly Guid SourceLinkKind = new("cc110556-a091-4d38-9fec-25ab9a351a6a");
     private static readonly Guid EmbeddedSourceKind = new("0e8a571b-6926-466e-b4ad-8ab04611f5fe");
+
+    // Repository signing changes ZIP bytes. All original entry names and contents must survive.
+    // Signature trust is checked separately by `dotnet nuget verify --all`.
+    internal static void ComparePublished(IReadOnlyDictionary<string, byte[]> candidate, IReadOnlyDictionary<string, byte[]> published)
+    {
+        Require(!candidate.ContainsKey(".signature.p7s"), "Candidate must be unsigned.");
+        Require(published.TryGetValue(".signature.p7s", out var signature) && signature.Length > 0, "Missing repository signature.");
+        Require(published.Count == candidate.Count + 1, "Published package file set changed.");
+        foreach (var (name, bytes) in candidate)
+            Require(published.Keys.Contains(name, StringComparer.Ordinal) && published.TryGetValue(name, out var actual) && bytes.AsSpan().SequenceEqual(actual), "Published package content changed: " + name);
+    }
 
     internal static InspectionReport Inspect(string package, string symbols, string version, string commit)
     {
@@ -48,6 +60,10 @@ internal static class PackageInspector
         Require(codeView.Length == 1, "Expected one portable debug reference.");
         var debug = assembly.ReadCodeViewDebugDirectoryData(codeView[0]);
         ValidateSourcePath(debug.Path);
+        var checksums = assembly.ReadDebugDirectory().Where(d => d.Type == DebugDirectoryEntryType.PdbChecksum).ToArray();
+        Require(checksums.Length == 1, "Expected one PDB checksum.");
+        var checksum = assembly.ReadPdbChecksumDebugDirectoryData(checksums[0]);
+        Require(checksum.AlgorithmName == "SHA256", "Expected SHA256 PDB checksum.");
 
         using var provider = MetadataReaderProvider.FromPortablePdbStream(new MemoryStream(symbolFiles["lib/net10.0/" + PackageId + ".pdb"], false));
         var pdb = provider.GetMetadataReader();
@@ -71,7 +87,9 @@ internal static class PackageInspector
         Require(mappings.Length == 1 && mappings[0].Name == "/_/*" &&
             mappings[0].Value.GetString() == $"https://raw.githubusercontent.com/bathos-labs/svt-dotnet/{commit}/*", "Unexpected Source Link mapping.");
         return new(PackageId, version, commit, FileHash(package), FileHash(symbols), Hash(assemblyBytes),
-            files.Keys.Order(StringComparer.Ordinal).ToArray(), symbolFiles.Keys.Order(StringComparer.Ordinal).ToArray(), references, documents);
+            files.Keys.Order(StringComparer.Ordinal).ToArray(), symbolFiles.Keys.Order(StringComparer.Ordinal).ToArray(), references, documents,
+            debug.Guid.ToString("N").ToUpperInvariant() + "FFFFFFFF",
+            "SHA256:" + Convert.ToHexString(checksum.Checksum.AsSpan()), Hash(symbolFiles["lib/net10.0/" + PackageId + ".pdb"]));
     }
 
     internal static Dictionary<string, byte[]> ReadArchive(string path)

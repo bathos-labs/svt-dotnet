@@ -10,6 +10,29 @@ namespace Bathos.Graphics.SvgTemplates.PackageValidation.Tests;
 [TestClass]
 public sealed class PackageInspectorTests
 {
+    /// <summary>Signing can add a signature but cannot alter any original package content.</summary>
+    [TestMethod]
+    public void PublishedPackagePreservesEveryOriginalEntry()
+    {
+        var candidate = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase) { ["library"] = [1, 2], ["README"] = [3] };
+        var published = new Dictionary<string, byte[]>(candidate, StringComparer.OrdinalIgnoreCase) { [".signature.p7s"] = [4] };
+        PackageInspector.ComparePublished(candidate, published);
+        published["library"] = [9];
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ComparePublished(candidate, published));
+        published["library"] = [1, 2];
+        published.Remove("README");
+        published["readme"] = [3];
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ComparePublished(candidate, published));
+        published.Remove("readme");
+        published["README"] = [3];
+        published["extra"] = [5];
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ComparePublished(candidate, published));
+        published.Remove("extra");
+        published[".signature.p7s"] = [];
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ComparePublished(candidate, published));
+        published.Remove(".signature.p7s");
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ComparePublished(candidate, published));
+    }
     private const string Version = "0.1.0-preview.g0123456789ab.n0123456789abcdef";
     private const string Commit = "0123456789abcdef0123456789abcdef01234567";
     private static string Metadata => $"""

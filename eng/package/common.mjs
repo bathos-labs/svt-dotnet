@@ -6,6 +6,7 @@ import { dirname, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { platform, release, arch } from "node:os";
+import { releaseVersion } from "../release/version.mjs";
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const packageId = "Bathos.Graphics.SvgTemplates";
@@ -127,21 +128,28 @@ export async function verifyBundle(folder) {
   const manifest = JSON.parse(await readFile(resolve(folder, "manifest.json")));
   assert.equal(manifest.format_version, 0);
   assert.equal(manifest.package.id, packageId);
-  assert.match(
-    manifest.package.version,
-    /^0\.1\.0-(?:preview|review)\.g[a-f0-9]{12}\.n[a-f0-9]{16}$/,
-  );
+  if (manifest.purpose === "release-candidate") {
+    releaseVersion(manifest.package.version);
+    assert.equal(manifest.release_tag, `v${manifest.package.version}`);
+    assert.equal(manifest.source.dirty, false);
+  } else {
+    assert.match(
+      manifest.package.version,
+      /^0\.1\.0-(?:preview|review)\.g[a-f0-9]{12}\.n[a-f0-9]{16}$/,
+    );
+    assert.ok(
+      manifest.package.version.startsWith(
+        `0.1.0-${manifest.purpose === "review" ? "review" : "preview"}.g${manifest.source.commit.slice(0, 12)}.`,
+      ),
+    );
+    assert.equal(manifest.release_tag, undefined);
+  }
   assert.equal(manifest.sdk, sdk, "SDK pin changed; validate with the bundle's SDK");
   assert.match(manifest.source.commit, /^[a-f0-9]{40}$/);
   assert.match(manifest.source.fingerprint, /^[a-f0-9]{64}$/);
   assert.equal(typeof manifest.source.dirty, "boolean");
   assert.equal(manifest.target_framework, "net10.0");
-  assert.ok(["review", "handoff-candidate"].includes(manifest.purpose));
-  assert.ok(
-    manifest.package.version.startsWith(
-      `0.1.0-${manifest.purpose === "review" ? "review" : "preview"}.g${manifest.source.commit.slice(0, 12)}.`,
-    ),
-  );
+  assert.ok(["review", "handoff-candidate", "release-candidate"].includes(manifest.purpose));
   assert.match(manifest.package.sha256, /^[a-f0-9]{64}$/);
   assert.match(manifest.package.assembly_sha256, /^[a-f0-9]{64}$/);
   assert.match(manifest.symbols.sha256, /^[a-f0-9]{64}$/);
@@ -186,7 +194,10 @@ export async function verifyRestoreDirectories(assets, feed, cache) {
 }
 export function validateReceipts(manifest, manifestHash, receipts) {
   assert.match(manifestHash, /^[a-f0-9]{64}$/);
-  assert.equal(manifest.purpose, "handoff-candidate", "Review packages cannot become handoffs");
+  assert.ok(
+    ["handoff-candidate", "release-candidate"].includes(manifest.purpose),
+    "Review packages cannot become candidates",
+  );
   assert.equal(manifest.source.dirty, false);
   assert.deepEqual(receipts.map((r) => r.environment.platform).sort(), ["linux", "win32"]);
   for (const receipt of receipts) {
@@ -207,6 +218,11 @@ export function validateReceipts(manifest, manifestHash, receipts) {
       "Consumption did not validate this exact artifact",
     );
     assert.equal(receipt.empty_feed_rejected, true);
+    assert.equal(
+      receipt.distribution,
+      "local-artifact",
+      "Candidate validation requires the original artifact",
+    );
     assert.deepEqual(receipt.checks, smokeChecks);
     if (receipt.environment.platform === "linux")
       assert.equal(

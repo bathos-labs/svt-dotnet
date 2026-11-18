@@ -5,9 +5,9 @@ A portable SVG templating specification and .NET library by Bathos Labs.
 Templates remain ordinary SVG files with useful authored previews. Binding annotations identify
 replaceable text, images and paint values; SVG retains ownership of layout and rendering.
 
-This private, unreleased repository implements portable structural inspection and atomic
-substitution with conformance tests and an [inspection and binding CLI](spec/cli.md). `SVT` is a
-working format name, not an established standard.
+This public, prerelease repository implements portable structural inspection and atomic substitution
+with conformance tests and an [inspection and binding CLI](spec/cli.md). `SVT` is a working format
+name, not an established standard.
 
 ## Boundaries
 
@@ -17,19 +17,25 @@ working format name, not an established standard.
 - The specification and conformance fixtures remain independent of .NET.
 - Consumers own acquisition, image preparation, rendering and application document state.
 
-See [architecture](docs/architecture.md), [specification](spec/README.md),
-[inspection API](docs/inspection-api.md), [conformance](conformance/README.md), and
-[authoring guidance](docs/authoring.md). Design decisions and delivery work belong in
-[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+See the [changelog](CHANGELOG.md), [architecture](docs/architecture.md),
+[specification](spec/README.md), [inspection API](docs/inspection-api.md),
+[conformance](conformance/README.md), and [authoring guidance](docs/authoring.md). Design decisions
+and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
 ## Publication
 
 The package name is `Bathos.Graphics.SvgTemplates`. Code, specification, documentation and
 repository-authored examples are [MIT-licensed](LICENSE). See [NOTICE](NOTICE) and
-[release readiness](RELEASING.md). The repository remains private and no package release is
-authorized yet. [Private package preparation](eng/package/README.md) builds inspected artifacts and
-validates isolated consumption without registry publication. The
-[package README](docs/package-readme.md) describes the public API lifecycle.
+[release policy](RELEASING.md). The first prepared beta is `0.1.0-beta.1`; preparation does not
+publish it. Once that version is available on NuGet, consumers can pin it explicitly:
+
+```sh
+dotnet add package Bathos.Graphics.SvgTemplates --version '[0.1.0-beta.1]'
+```
+
+Prerelease APIs and the specification may change. Package versions are independent of the template
+and JSON format markers, which remain 0. [Package preparation](eng/package/README.md) validates
+isolated consumption, and the [package README](docs/package-readme.md) describes the API lifecycle.
 
 ## Development
 
