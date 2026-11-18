@@ -31,6 +31,14 @@ requires npm registry access. Keep tool versions in this guide, Taskfile.yml and
 The configuration matches the Bathos prose convention: 100-column wrapping with embedded code
 formatting disabled. Generated output is excluded through `.prettierignore`.
 
+The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and
+`node --test eng/visual/*.test.mjs` to verify the native evidence harness without downloading or
+launching browsers. The [native validation guide](eng/visual/README.md) describes the separate
+repeatable Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release
+candidates and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are
+explicit opt-in commands; interactive capability mapping is not part of `task check` or the
+repeatable native checks.
+
 The documentation gate checks whitespace, Markdown formatting, local links and heading anchors, and
 the link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
 private-reference sanitization explicitly; no automated confidentiality checker is claimed.

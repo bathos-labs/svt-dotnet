@@ -44,6 +44,39 @@ tasks:
       - dotnet build SvgTemplates.slnx -c Release --no-restore
       - dotnet test --solution SvgTemplates.slnx -c Release --no-build
 
+  native:check:
+    desc: Verify the native evidence harness without launching renderers
+    cmds:
+      - npm ci --prefix eng/visual --ignore-scripts
+      - node --test eng/visual/*.test.mjs
+
+  native:setup:
+    desc: Install and verify pinned native validation tools
+    cmds:
+      - npm ci --prefix eng/visual --ignore-scripts
+      - node eng/visual/node_modules/puppeteer/install.mjs
+      - node eng/visual/setup.mjs
+
+  native:release:render:
+    desc: Run repeatable Chrome/resvg release checks (optional corpus and baseline arguments)
+    cmds:
+      - node eng/visual/release-render.mjs {{.CLI_ARGS}}
+
+  native:release:authoring:
+    desc: Run repeatable Inkscape release checks (supply executable path)
+    cmds:
+      - node eng/visual/release-authoring.mjs {{.CLI_ARGS}}
+
+  native:probe:render:
+    desc: Explore renderer XML-base support; does not provide a release verdict
+    cmds:
+      - node eng/visual/probe-render.mjs
+
+  native:probe:authoring:
+    desc: Explore optimized export (supply Inkscape executable); does not provide a release verdict
+    cmds:
+      - node eng/visual/probe-authoring.mjs {{.CLI_ARGS}}
+
   check:
     desc: Check documentation, library and CLI
     cmds:
@@ -53,3 +86,4 @@ tasks:
       - task: docs:links
       - task: docs:links:test
       - task: dotnet:check
+      - task: native:check

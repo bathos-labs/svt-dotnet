@@ -1,0 +1,20 @@
+{
+  "format_version": 0,
+  "bindings": [
+    {
+      "key": "accent",
+      "kind": "paint",
+      "value": "#b54053"
+    },
+    {
+      "key": "varied",
+      "kind": "paint",
+      "value": "none"
+    },
+    {
+      "key": "inherited",
+      "kind": "paint",
+      "value": "#00808080"
+    }
+  ]
+}

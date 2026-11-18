@@ -1,0 +1,10 @@
+{
+  "format_version": 0,
+  "bindings": [
+    {
+      "key": "title",
+      "kind": "text",
+      "value": "Layers & light"
+    }
+  ]
+}
