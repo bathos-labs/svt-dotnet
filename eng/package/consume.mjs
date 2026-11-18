@@ -191,7 +191,8 @@ try {
   report.status = "passed";
 } catch (error) {
   report.status = "failed";
-  report.error = redact(error.message);
+  report.error = redact((error.stdout ?? "") + (error.stderr ?? "") + error.message);
+  console.error(report.error);
   process.exitCode = 1;
 } finally {
   try {
@@ -199,6 +200,7 @@ try {
   } catch (error) {
     report.status = "failed";
     report.cleanup_error = redact(error.message);
+    console.error(report.cleanup_error);
     process.exitCode = 1;
   }
   await json(resolve(output, "report.json"), report);
