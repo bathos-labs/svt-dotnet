@@ -5,17 +5,21 @@ changes. Discuss grammar, public API, dependencies and ownership before implemen
 proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and
-two MSTest projects running portable fixtures, CLI process tests and boundary tests. No package or
-release workflow exists. The SDK is pinned to .NET 10.0.403 with latest-patch roll-forward. Shared
-build settings require nullable analysis, warnings as errors, recommended analyzers, deterministic
-builds, central package versions and locked CI restore. NuGet sources are restricted to nuget.org.
-Test dependencies are centrally pinned, and all four projects have lockfiles.
+three MSTest projects running portable fixtures, CLI process tests, boundary tests and package
+inspection checks. A BCL-only engineering executable inspects package metadata and symbols. Private
+package validation is implemented; no publishing workflow exists. The SDK is pinned to .NET 10.0.403
+with latest-patch roll-forward. Shared build settings require nullable analysis, warnings as errors,
+recommended analyzers, deterministic builds, central package versions and locked CI restore. NuGet
+sources are restricted to nuget.org. Test dependencies are centrally pinned, and all six solution
+projects have lockfiles. Only the library is packable.
 
 ## Validation
 
 Use Node.js 24 with its bundled npm/npx. Task is optional. After Markdown edits, run
-`task docs:format`, review the changes, then run `task check` before committing. The equivalent
-commands are:
+`task docs:format`, review the changes, then run `task check` before committing. `task check` and
+Ubuntu CI invoke the same `node eng/check.mjs` gate, which records a source-stamped receipt under
+`artifacts/validation/`. Package preparation rejects failed or stale receipts. The documentation
+commands in the gate are:
 
 ```sh
 npx --yes prettier@3.9.10 --write "**/*.md"
@@ -27,17 +31,17 @@ npx --yes --package=remark-cli@12.0.1 --package=remark-gfm@4.0.1 --package=remar
 ```
 
 Prettier runs at an exact version through npx, without a local package installation. A cold cache
-requires npm registry access. Keep tool versions in this guide, Taskfile.yml and CI synchronized.
-The configuration matches the Bathos prose convention: 100-column wrapping with embedded code
-formatting disabled. Generated output is excluded through `.prettierignore`.
+requires npm registry access. Keep tool versions in this guide, Taskfile.yml and eng/check.mjs
+synchronized. The configuration matches the Bathos prose convention: 100-column wrapping with
+embedded code formatting disabled. Generated output is excluded through `.prettierignore`.
 
-The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and
-`node --test eng/visual/*.test.mjs` to verify the native evidence harness without downloading or
-launching browsers. The [native validation guide](eng/visual/README.md) describes the separate
-repeatable Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release
-candidates and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are
-explicit opt-in commands; interactive capability mapping is not part of `task check` or the
-repeatable native checks.
+The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and the Node tests in
+`eng/visual/` and `eng/package/` to verify evidence handling without launching browsers. The
+[native validation guide](eng/visual/README.md) describes the separate repeatable
+Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release candidates
+and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are explicit
+opt-in commands; interactive capability mapping is not part of `task check` or the repeatable native
+checks.
 
 The documentation gate checks whitespace, Markdown formatting, local links and heading anchors, and
 the link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
@@ -46,12 +50,14 @@ private-reference sanitization explicitly; no automated confidentiality checker 
 CI runs this documentation gate on pull requests and master pushes using read-only permissions,
 SHA-pinned actions, Node.js 24 and an Ubuntu 24.04 runner. It can also be dispatched manually. It
 uses the pinned .NET SDK for locked restore, formatting, Release build/analyzers and tests. No
-native SDK workloads, runner cleanup or secrets are required. A separate Windows job performs locked
-restore, Release build/analyzers and both test suites to exercise platform-specific file and process
-behavior. Link tests explicitly report an inconclusive result if the host cannot create symbolic
-links; report such unavailable evidence rather than claiming link coverage. CLI tests use isolated
-temporary directories and deterministic staging/stream boundaries, without sleeps or polling. The
-.NET commands included in `task check` are:
+native SDK workloads, runner cleanup or secrets are required. Ubuntu prepares and inspects one
+private package after the gate and runs isolated consumption. Windows then performs locked restore,
+Release build/analyzers and all three test suites, and consumes that identical package artifact.
+Matching Ubuntu/Windows receipts produce a private trial manifest and retained CI artifact; no
+registry publication is performed. Link tests explicitly report an inconclusive result if the host
+cannot create symbolic links; report such unavailable evidence rather than claiming link coverage.
+CLI tests use isolated temporary directories and deterministic staging/stream boundaries, without
+sleeps or polling. The .NET commands included in `task check` are:
 
 ```sh
 dotnet restore SvgTemplates.slnx --locked-mode
@@ -60,8 +66,12 @@ dotnet build SvgTemplates.slnx -c Release --no-restore
 dotnet test --solution SvgTemplates.slnx -c Release --no-build
 ```
 
-Add package consumption checks before release; see [release readiness](RELEASING.md). Portable
-binding tests and native rendering evidence remain distinct.
+After the gate, run `task package:check` for a review-only package and isolated local consumption.
+Use the [package preparation guide](eng/package/README.md) for clean-commit candidates,
+exact-artifact Ubuntu/Windows checks and handoff manifests. The packaging workflow requires the
+exact SDK pin and records it; ordinary solution builds retain the SDK's configured patch
+roll-forward policy. See [release readiness](RELEASING.md). Portable binding tests, package
+consumption and native rendering evidence remain distinct.
 
 ## Review and publication
 

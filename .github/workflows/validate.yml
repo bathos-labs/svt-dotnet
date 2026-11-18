@@ -18,11 +18,8 @@ jobs:
     name: Documentation, library and CLI
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    env:
-      # Keep tool pins in sync with Taskfile.yml and CONTRIBUTING.md.
-      REMARK_PACKAGES: >-
-        --package=remark-cli@12.0.1 --package=remark-gfm@4.0.1
-        --package=remark-validate-links@13.1.0 --package=remark-lint-no-undefined-references@5.0.2
+    outputs:
+      package-version: ${{ steps.package.outputs.version }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -32,45 +29,100 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
-      - name: Check Markdown formatting
-        # Keep the pin in sync with Taskfile.yml and CONTRIBUTING.md.
-        run: npx --yes prettier@3.9.10 --check "**/*.md"
-      - name: Check local documentation links
-        run: >-
-          npx --yes $REMARK_PACKAGES remark --rc-path .remarkrc.cjs
-          --ignore-path .prettierignore --frail --no-stdout --no-color .
-      - name: Verify documentation link-checking configuration
-        run: npx --yes $REMARK_PACKAGES node eng/CheckDocumentationLinks.test.cjs
+      - name: Read exact package SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        env:
+          # Isolate the pin from newer SDKs preinstalled on the hosted runner.
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
         with:
-          global-json-file: global.json
-      - name: Restore locked dependencies
-        run: dotnet restore SvgTemplates.slnx --locked-mode
-      - name: Verify C# formatting
-        run: dotnet format SvgTemplates.slnx --no-restore --verify-no-changes
-      - name: Build Release with analyzers
-        run: dotnet build SvgTemplates.slnx -c Release --no-restore
-      - name: Test library and CLI
-        run: dotnet test --solution SvgTemplates.slnx -c Release --no-build
-      - name: Verify rendering evidence harness
+          dotnet-version: ${{ steps.sdk.outputs.version }}
+      - name: Run full validation gate
+        run: node eng/check.mjs
+      - name: Prepare package from validated commit
+        id: package
+        run: node eng/package/prepare.mjs
+      - name: Consume the package on Ubuntu
+        run: node eng/package/consume.mjs
+      - name: Stage exact bundle and Ubuntu receipt
         run: |
-          npm ci --prefix eng/visual --ignore-scripts
-          node --test eng/visual/*.test.mjs
+          node --input-type=module <<'JS'
+          import {readFile,cp,copyFile,mkdir} from 'node:fs/promises';
+          const {bundle}=JSON.parse(await readFile('artifacts/package-current.json'));
+          const {report}=JSON.parse(await readFile('artifacts/package-consumption-current.json'));
+          await mkdir('artifacts/package-transfer', {recursive:true});
+          await cp(bundle, 'artifacts/package-transfer/bundle', {recursive:true});
+          await copyFile(report, 'artifacts/package-transfer/ubuntu.json');
+          JS
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: package-candidate-${{ steps.package.outputs.version }}
+          path: artifacts/package-transfer/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain package failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: package-diagnostics-ubuntu-${{ github.run_attempt }}
+          path: |
+            artifacts/validation/gate.json
+            artifacts/packages/*/pack.log
+            artifacts/package-consumption/
+          if-no-files-found: ignore
+          retention-days: 7
 
   windows:
     name: Library and CLI on Windows
+    needs: validation
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          global-json-file: global.json
+          node-version: '24'
+      - name: Read exact package SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
+        with:
+          dotnet-version: ${{ steps.sdk.outputs.version }}
       - name: Restore locked dependencies
         run: dotnet restore SvgTemplates.slnx --locked-mode
       - name: Build Release with analyzers
         run: dotnet build SvgTemplates.slnx -c Release --no-restore
       - name: Test library and CLI
         run: dotnet test --solution SvgTemplates.slnx -c Release --no-build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: package-candidate-${{ needs.validation.outputs.package-version }}
+          path: artifacts/package-transfer
+          digest-mismatch: error
+      - name: Consume the identical package on Windows
+        run: node eng/package/consume.mjs artifacts/package-transfer/bundle
+      - name: Finalize private trial evidence
+        shell: pwsh
+        run: |
+          $receipt = (Get-Content artifacts/package-consumption-current.json | ConvertFrom-Json).report
+          Copy-Item $receipt artifacts/package-transfer/windows.json
+          node eng/package/finalize.mjs artifacts/package-transfer/bundle artifacts/package-transfer/ubuntu.json artifacts/package-transfer/windows.json artifacts/package-transfer/handoff.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: private-trial-${{ needs.validation.outputs.package-version }}-${{ github.run_attempt }}
+          path: artifacts/package-transfer/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Retain package failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: package-diagnostics-windows-${{ github.run_attempt }}
+          path: artifacts/package-consumption/
+          if-no-files-found: ignore
+          retention-days: 7

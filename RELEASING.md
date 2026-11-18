@@ -2,7 +2,7 @@
 
 SVT is MIT-licensed and unreleased. The repository remains private; no package publishing workflow
 or release credentials are configured. CI validates repository hygiene, portable inspection and
-substitution, and CLI process/file behavior.
+substitution, CLI process/file behavior, package contents and isolated package consumption.
 
 Before a first release, require:
 
@@ -23,7 +23,12 @@ Before a first release, require:
   should publish the exact artifacts that passed validation, with version/tag checks and an approved
   publishing environment.
 
-`Directory.Build.props` provides development metadata and defaults projects to non-packable. The
-shipping project must deliberately opt into packaging. Do not treat a successful documentation CI
-run as release validation. Implementation and release work are tracked in
+`Directory.Build.props` provides development metadata and defaults projects to non-packable. Only
+the shipping library opts into packaging. The [private preparation workflow](eng/package/README.md)
+requires a clean commit and matching gate receipt, then checks one exact artifact on Ubuntu and
+Windows before producing a private trial manifest. Review-only packages cannot be promoted to
+handoffs. Retain the tested bytes, symbols and evidence; do not rebuild under the same identity.
+Native validation and consumer application integration remain separate requirements. Do not treat a
+successful documentation CI run or a private trial manifest as public release authorization.
+Implementation and release work are tracked in
 [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).

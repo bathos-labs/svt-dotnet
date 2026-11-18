@@ -24,10 +24,12 @@ See [architecture](docs/architecture.md), [specification](spec/README.md),
 
 ## Publication
 
-The intended package name is `Bathos.Graphics.SvgTemplates`. Code, specification, documentation and
+The package name is `Bathos.Graphics.SvgTemplates`. Code, specification, documentation and
 repository-authored examples are [MIT-licensed](LICENSE). See [NOTICE](NOTICE) and
 [release readiness](RELEASING.md). The repository remains private and no package release is
-authorized or available yet.
+authorized yet. [Private package preparation](eng/package/README.md) builds inspected artifacts and
+validates isolated consumption without registry publication. The
+[package README](docs/package-readme.md) describes the public API lifecycle.
 
 ## Development
 

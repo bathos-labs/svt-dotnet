@@ -1,0 +1,53 @@
+# Bathos.Graphics.SvgTemplates
+
+A BCL-only .NET 10 library for inspecting SVG template annotations and atomically replacing text,
+paint, and image values. Templates remain ordinary SVG artwork with authored preview content.
+
+This is an unreleased development package for private validation. API stability and public
+publication have not been established. Code and repository-authored examples are MIT-licensed.
+
+## Lifecycle
+
+Supply SVG bytes, inspect the inputs and diagnostics, prepare typed values, then bind from the
+immutable template. Reuse a `BindingConfiguration` to apply consistent policies throughout an
+application. Each successful bind produces independently owned output; omission preserves authored
+content, while an empty text value replaces it.
+
+```csharp
+using Bathos.Graphics.SvgTemplates;
+using System.Text;
+
+var source = Encoding.UTF8.GetBytes("""
+    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+      <text data-svt-text="heading" data-svt-label="Heading">Welcome</text>
+    </svg>
+    """);
+var configuration = new BindingConfiguration();
+var inspection = TemplateInspector.Inspect(source);
+if (inspection.Template is null || !inspection.Diagnostics.IsEmpty)
+    throw new InvalidOperationException("Review the structured inspection diagnostics.");
+
+var result = inspection.Template.Bind(
+    [TemplateBinding.Text("heading", "Hello & welcome")], configuration);
+if (result.Document is null)
+    throw new InvalidOperationException("Review the structured binding diagnostics.");
+byte[] output = result.Document.ToUtf8Bytes();
+```
+
+Use `EncodedImage.Create(bytes, mediaType, configuration)` before an `ImageContent` binding. Image
+creation captures the supplied bytes, and binding rechecks its configured limits. `ImageReference`
+retains a supplied reference without fetching it. Structured diagnostics describe rejected input;
+programming errors throw, and cancellation throws `OperationCanceledException`.
+
+## Boundaries
+
+The library does not decode images, resolve resources or fonts, compute CSS, fit text, or render
+SVG. Raw authored defaults are evidence, not effective rendered styles. Hosts control acquisition,
+resource policy, rendering and output publication. A successful bind does not prove that an editor
+preserved annotations or that a renderer can display the result.
+
+See the [specification](https://github.com/bathos-labs/svt-dotnet/tree/master/spec),
+[binding API](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md), and
+[authoring examples](https://github.com/bathos-labs/svt-dotnet/tree/master/examples/authoring).
+Repository links require access while development remains private. The package contains the library,
+XML API documentation, README and license notices; the CLI and native tools are separate.
