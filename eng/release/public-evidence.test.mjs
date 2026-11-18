@@ -17,6 +17,10 @@ test("public debugging verifies the exact PDB and mapped repository source, reje
   t.mock.method(globalThis, "fetch", async (url, options) => {
     requests.push(url);
     if (url.startsWith("https://symbols.nuget.org/")) {
+      assert.equal(
+        url,
+        `https://symbols.nuget.org/download/symbols/bathos.graphics.svgtemplates.pdb/${"A".repeat(32)}FFFFFFFF/bathos.graphics.svgtemplates.pdb`,
+      );
       assert.equal(options.headers.SymbolChecksumValidationSupported, "1");
       assert.equal(options.headers.SymbolChecksum, "SHA256:" + "A".repeat(64));
       if (corruption === "unavailable") return new Response("Not indexed", { status: 404 });
