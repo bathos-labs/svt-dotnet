@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { readFile, writeFile, mkdir, lstat, readlink, readdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, lstat, readlink, readdir, realpath } from "node:fs/promises";
 import { dirname, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -170,6 +170,19 @@ export async function verifyBundle(folder) {
   assert.equal(manifest.validation.consumption, "pending");
   assert.deepEqual(manifest.validation.required_platforms, ["linux", "win32"]);
   return manifest;
+}
+export async function verifyRestoreDirectories(assets, feed, cache) {
+  // NuGet expands Windows short names; compare the actual directories, not their spellings.
+  for (const [paths, expected] of [
+    [Object.keys(assets.project.restore.sources), feed],
+    [Object.keys(assets.packageFolders), cache],
+  ]) {
+    assert.deepEqual(
+      await Promise.all(paths.map((path) => realpath(path))),
+      [await realpath(expected)],
+      "Restore used a different source or cache directory",
+    );
+  }
 }
 export function validateReceipts(manifest, manifestHash, receipts) {
   assert.match(manifestHash, /^[a-f0-9]{64}$/);

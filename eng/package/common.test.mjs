@@ -10,6 +10,7 @@ import {
   bundlePath,
   treeHashes,
   verifyBundle,
+  verifyRestoreDirectories,
   json,
   sdk,
   packageId,
@@ -223,4 +224,27 @@ test("bundle inventory refuses symbolic links", async () => {
 test("bundle paths cannot escape the validated artifact", () => {
   for (const name of ["../outside", "/absolute", "a//b", "a\\b", "C:/outside", "a/./b"])
     assert.throws(() => bundlePath(tmpdir(), name));
+});
+test("restore isolation resolves directory aliases but rejects unrelated or extra directories", async () => {
+  const folder = await mkdtemp(resolve(tmpdir(), "svt-restore-path-test-"));
+  try {
+    const feed = resolve(folder, "feed");
+    const cache = resolve(folder, "cache");
+    const alias = resolve(folder, "feed-alias");
+    await mkdir(feed);
+    await mkdir(cache);
+    await symlink(feed, alias, process.platform === "win32" ? "junction" : "dir");
+    const assets = (sources, folders) => ({
+      project: { restore: { sources: Object.fromEntries(sources.map((path) => [path, {}])) } },
+      packageFolders: Object.fromEntries(folders.map((path) => [path, {}])),
+    });
+    await verifyRestoreDirectories(assets([alias], [cache]), feed, cache);
+    await verifyRestoreDirectories(assets([feed], [cache]), alias, cache);
+    await assert.rejects(verifyRestoreDirectories(assets([cache], [cache]), feed, cache));
+    await assert.rejects(verifyRestoreDirectories(assets([feed], [feed]), feed, cache));
+    await assert.rejects(verifyRestoreDirectories(assets([feed, alias], [cache]), feed, cache));
+    await assert.rejects(verifyRestoreDirectories(assets([feed], [cache, feed]), feed, cache));
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
 });

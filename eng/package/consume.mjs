@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, writeFile, mkdir, mkdtemp, copyFile, cp, rm } from "node:fs/promises";
+import { readFile, writeFile, mkdir, mkdtemp, copyFile, cp, rm, realpath } from "node:fs/promises";
 import { resolve, join, relative } from "node:path";
 import { tmpdir, platform } from "node:os";
 import {
@@ -9,6 +9,7 @@ import {
   command,
   json,
   verifyBundle,
+  verifyRestoreDirectories,
   bundlePath,
   fileHash,
   nonce,
@@ -26,7 +27,7 @@ const bundle = process.argv[2]
 const manifest = await verifyBundle(bundle);
 const manifestHash = await fileHash(resolve(bundle, "manifest.json"));
 assert.equal((await command("dotnet", ["--version"])).stdout.trim(), sdk);
-const work = await mkdtemp(join(tmpdir(), "svt-package-consumer-"));
+const work = await realpath(await mkdtemp(join(tmpdir(), "svt-package-consumer-")));
 const output = resolve(
   root,
   "artifacts/package-consumption",
@@ -138,14 +139,7 @@ try {
   const assets = JSON.parse(await readFile(resolve(work, "consumer/obj/project.assets.json")));
   assert.deepEqual(Object.keys(assets.libraries), [`${packageId}/${manifest.package.version}`]);
   assert.equal(assets.libraries[`${packageId}/${manifest.package.version}`].type, "package");
-  assert.deepEqual(
-    Object.keys(assets.project.restore.sources).map((p) => resolve(p)),
-    [feed],
-  );
-  assert.deepEqual(
-    Object.keys(assets.packageFolders).map((p) => resolve(p)),
-    [cache],
-  );
+  await verifyRestoreDirectories(assets, feed, cache);
   assert.ok(
     Object.values(assets.project.restore.frameworks).every(
       (f) => Object.keys(f.projectReferences ?? {}).length === 0,
