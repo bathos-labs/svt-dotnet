@@ -29,12 +29,15 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
+      - name: Read exact package SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         env:
           # Isolate the pin from newer SDKs preinstalled on the hosted runner.
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
         with:
-          global-json-file: global.json
+          dotnet-version: ${{ steps.sdk.outputs.version }}
       - name: Run full validation gate
         run: node eng/check.mjs
       - name: Prepare package from validated commit
@@ -68,20 +71,23 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Read exact package SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         env:
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
         with:
-          global-json-file: global.json
+          dotnet-version: ${{ steps.sdk.outputs.version }}
       - name: Restore locked dependencies
         run: dotnet restore SvgTemplates.slnx --locked-mode
       - name: Build Release with analyzers
         run: dotnet build SvgTemplates.slnx -c Release --no-restore
       - name: Test library and CLI
         run: dotnet test --solution SvgTemplates.slnx -c Release --no-build
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: '24'
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: package-candidate-${{ needs.validation.outputs.package-version }}
