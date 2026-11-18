@@ -1,0 +1,20 @@
+{
+  "name": "svt-visual-validation",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "setup": "node setup.mjs",
+    "release:render": "node release-render.mjs",
+    "release:authoring": "node release-authoring.mjs",
+    "probe:render": "node probe-render.mjs",
+    "probe:authoring": "node probe-authoring.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "25.18.1",
+    "pngjs": "7.0.0"
+  }
+}

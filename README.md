@@ -18,8 +18,9 @@ working format name, not an established standard.
 - Consumers own acquisition, image preparation, rendering and application document state.
 
 See [architecture](docs/architecture.md), [specification](spec/README.md),
-[inspection API](docs/inspection-api.md), and [conformance](conformance/README.md). Design decisions
-and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+[inspection API](docs/inspection-api.md), [conformance](conformance/README.md), and
+[authoring guidance](docs/authoring.md). Design decisions and delivery work belong in
+[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
 ## Publication
 

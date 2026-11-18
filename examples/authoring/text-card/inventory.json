@@ -1,0 +1,67 @@
+{
+  "format_version": 0,
+  "template_available": true,
+  "inputs": [
+    {
+      "key": "heading",
+      "label": "Main heading",
+      "kind": "text",
+      "targets": [
+        {
+          "hook": "text",
+          "element_name": "text",
+          "default": {
+            "state": "present",
+            "raw": "Welcome",
+            "source": "text_content"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "Welcome"
+      }
+    },
+    {
+      "key": "caption",
+      "label": "Caption",
+      "kind": "text",
+      "targets": [
+        {
+          "hook": "text",
+          "element_name": "tspan",
+          "default": {
+            "state": "present",
+            "raw": "Leaf span",
+            "source": "text_content"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "Leaf span"
+      }
+    },
+    {
+      "key": "note",
+      "label": "Note",
+      "kind": "text",
+      "targets": [
+        {
+          "hook": "text",
+          "element_name": "text",
+          "default": {
+            "state": "present",
+            "raw": "  space  ",
+            "source": "text_content"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "  space  "
+      }
+    }
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,20 @@
+{
+  "format_version": 0,
+  "bindings": [
+    {
+      "key": "title",
+      "kind": "text",
+      "value": "Layers & light"
+    },
+    {
+      "key": "accent",
+      "kind": "paint",
+      "value": "#b54053"
+    },
+    {
+      "key": "picture",
+      "kind": "image_reference",
+      "value": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAAq0lEQVR4nO3WOxGAQBAE0TOCFxQRYwZTmAAB5GCA4PYzS1HXXTUCXjatERFVNy3rrdqxzbIBBAgQIECAAAHmAa9z796vgBZYJrQEGMFFkXJgBi6ClAIzcV6kDKjAeZASoBJnRQK0AitwFiRAgAABAgQIECDAcb7oEEA1shcnBaqQFpwcmI204kqAWUgPrgwYRXpxpUAPNAL7DPi2DAhAgAABAgQIMAAkIsrqAc8gv4IbuKYhAAAAAElFTkSuQmCC"
+    }
+  ]
+}

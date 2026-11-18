@@ -1,0 +1,67 @@
+{
+  "format_version": 0,
+  "template_available": true,
+  "inputs": [
+    {
+      "key": "crop",
+      "label": "Crop",
+      "kind": "image",
+      "targets": [
+        {
+          "hook": "image",
+          "element_name": "image",
+          "default": {
+            "state": "present",
+            "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg==",
+            "source": "href"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
+      }
+    },
+    {
+      "key": "contain",
+      "label": "Contain",
+      "kind": "image",
+      "targets": [
+        {
+          "hook": "image",
+          "element_name": "image",
+          "default": {
+            "state": "present",
+            "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg==",
+            "source": "href"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
+      }
+    },
+    {
+      "key": "reference",
+      "label": "Reference",
+      "kind": "image",
+      "targets": [
+        {
+          "hook": "image",
+          "element_name": "image",
+          "default": {
+            "state": "present",
+            "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg==",
+            "source": "href"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
+      }
+    }
+  ],
+  "diagnostics": []
+}

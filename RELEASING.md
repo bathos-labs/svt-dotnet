@@ -8,6 +8,10 @@ Before a first release, require:
 
 - An implemented library with conformance tests and a clean locked restore, formatting, analyzer,
   Release build and test gate. Keep the production library BCL-only.
+- The [repeatable native checks](eng/visual/README.md#release-candidate-checks) for the candidate:
+  macOS Inkscape round trips and Chrome/resvg comparisons on macOS and Ubuntu, with pinned tools and
+  retained evidence. Review the images and report unavailable checks. Exploratory probes have
+  separate observations and do not supply a release verdict or leave the automated result partial.
 - Package metadata for `Bathos.Graphics.SvgTemplates`: MIT expression, repository URL, description,
   README, XML documentation, symbols and an explicitly chosen release version. Inspect the package
   and test an isolated consumer; do not publish development scaffolding.

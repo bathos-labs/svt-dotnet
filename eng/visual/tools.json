@@ -1,0 +1,28 @@
+{
+  "format_version": 0,
+  "chrome": "157.0.8103.78",
+  "resvg_version": "0.47.0",
+  "resvg": {
+    "darwin-arm64": {
+      "url": "https://github.com/linebender/resvg/releases/download/v0.47.0/resvg-macos-aarch64.zip",
+      "sha256": "049f8cc5666ff6395987798feae04f7f31525b0047b063d8e07fcbb8d22f3675"
+    },
+    "linux-x64": {
+      "url": "https://github.com/linebender/resvg/releases/download/v0.47.0/resvg-linux-x86_64.tar.gz",
+      "sha256": "5c84dcbcd032fe7e8d96e616fd6807a2f9df6561d2e6582b37e91e63c6cb4fe7"
+    }
+  },
+  "font": {
+    "family": "DejaVu Sans",
+    "version": "2.37",
+    "url": "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2",
+    "sha256": "fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e846e17d7",
+    "file_sha256": "7da195a74c55bef988d0d48f9508bd5d849425c1770dba5d7bfc6ce9ed848954"
+  },
+  "inkscape": {
+    "version": "1.4.4",
+    "platform": "darwin-arm64",
+    "url": "https://media.inkscape.org/dl/resources/file/Inkscape-1.4.4_arm64.dmg",
+    "sha256": "eacca94ab01e59467cdd5452a2867c3734450f9a4cfb3346956cc9b07f34f3f1"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "format_version": 0,
+  "template_available": true,
+  "inputs": [
+    {
+      "key": "accent",
+      "label": "Accent",
+      "kind": "paint",
+      "targets": [
+        {
+          "hook": "fill",
+          "element_name": "rect",
+          "default": {
+            "state": "present",
+            "raw": "#1d6e78",
+            "source": "fill"
+          }
+        },
+        {
+          "hook": "fill",
+          "element_name": "rect",
+          "default": {
+            "state": "present",
+            "raw": "#1d6e78",
+            "source": "fill"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "#1d6e78"
+      }
+    },
+    {
+      "key": "picture",
+      "label": "Picture",
+      "kind": "image",
+      "targets": [
+        {
+          "hook": "image",
+          "element_name": "image",
+          "default": {
+            "state": "present",
+            "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg==",
+            "source": "href"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
+      }
+    },
+    {
+      "key": "title",
+      "label": "Title",
+      "kind": "text",
+      "targets": [
+        {
+          "hook": "text",
+          "element_name": "text",
+          "default": {
+            "state": "present",
+            "raw": "Original layers",
+            "source": "text_content"
+          }
+        }
+      ],
+      "default": {
+        "state": "common",
+        "raw": "Original layers"
+      }
+    }
+  ],
+  "diagnostics": []
+}

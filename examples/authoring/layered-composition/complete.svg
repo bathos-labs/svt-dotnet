@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-svt-version="0" width="480" height="320" viewBox="0 0 480 320" font-family="DejaVu Sans" font-size="18">
+<rect width="480" height="320" fill="#f6f2e9"/>
+<defs><clipPath id="arch"><path d="M0 170V60A65 60 0 0 1 130 60V170Z"/></clipPath><mask id="fade"><rect width="130" height="170" fill="white"/><circle cx="108" cy="145" r="26" fill="black"/></mask></defs>
+<g transform="translate(60 62) rotate(-8 65 85)"><g clip-path="url(#arch)"><rect width="130" height="170" fill="#b54053" data-svt-fill="accent" data-svt-label="Accent"/><image width="130" height="170" preserveAspectRatio="xMidYMid slice" mask="url(#fade)" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAAq0lEQVR4nO3WOxGAQBAE0TOCFxQRYwZTmAAB5GCA4PYzS1HXXTUCXjatERFVNy3rrdqxzbIBBAgQIECAAAHmAa9z796vgBZYJrQEGMFFkXJgBi6ClAIzcV6kDKjAeZASoBJnRQK0AitwFiRAgAABAgQIECDAcb7oEEA1shcnBaqQFpwcmI204kqAWUgPrgwYRXpxpUAPNAL7DPi2DAhAgAABAgQIMAAkIsrqAc8gv4IbuKYhAAAAAElFTkSuQmCC" data-svt-image="picture" data-svt-label="Picture"/></g><path d="M0 174H130" stroke="#262c34" stroke-width="3"/></g>
+<g transform="translate(240 80)" opacity="0.85"><rect width="180" height="120" fill="#b54053" data-svt-fill="accent" data-svt-label="Accent"/><circle cx="90" cy="60" r="42" fill="#f6f2e9"/></g>
+<rect x="24" y="246" width="432" height="50" fill="#262c34"/><text x="40" y="279" fill="white" data-svt-text="title" data-svt-label="Title">Layers &amp; light</text>
+</svg>

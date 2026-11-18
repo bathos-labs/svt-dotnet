@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-svt-version="0" width="480" height="320" viewBox="0 0 480 320" font-family="DejaVu Sans" font-size="18">
+<rect width="480" height="320" fill="#f6f2e9"/>
+<rect id="accent" x="24" y="24" width="180" height="90" fill="#b54053" data-svt-fill="accent" data-svt-label="Accent"/>
+<path d="M244 70H450" stroke="#b54053" stroke-width="12" data-svt-stroke="accent" data-svt-label="Accent"/>
+<circle cx="80" cy="180" r="35" fill="none" data-svt-fill="varied" data-svt-label="Varied"/>
+<circle cx="180" cy="180" r="35" fill="none" data-svt-fill="varied" data-svt-label="Varied"/>
+<g fill="#765d90"><rect x="280" y="150" width="140" height="60" fill="#00808080" data-svt-fill="inherited" data-svt-label="Inherited"/></g>
+<path d="M24 264H450" stroke="#262c34" stroke-width="2"/>
+<text x="24" y="294" font-size="12">Direct paint · shared keys · independent defaults</text>
+</svg>

@@ -1,0 +1,8 @@
+{
+  "format_version": 0,
+  "width": 480,
+  "height": 320,
+  "cases": ["text-card", "shared-palette", "image-fitting", "layered-composition"],
+  "font_family": "DejaVu Sans",
+  "pixel_tolerance": 0
+}

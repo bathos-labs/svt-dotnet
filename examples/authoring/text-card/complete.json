@@ -1,0 +1,20 @@
+{
+  "format_version": 0,
+  "bindings": [
+    {
+      "key": "heading",
+      "kind": "text",
+      "value": "Café & <Studio>"
+    },
+    {
+      "key": "caption",
+      "kind": "text",
+      "value": ""
+    },
+    {
+      "key": "note",
+      "kind": "text",
+      "value": "  A deliberately long line remains at its authored size and may exceed the page.  "
+    }
+  ]
+}
