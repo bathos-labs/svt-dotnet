@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>svt</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
+    <InternalsVisibleTo Include="Bathos.Graphics.SvgTemplates.Cli.Tests" />
+  </ItemGroup>
+</Project>

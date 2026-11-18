@@ -1,10 +1,10 @@
 # SVT command-line contract
 
-This is the agreed interface for a thin CLI; it is not implemented yet. The lifecycle is inspect,
-prepare values, bind, then explicitly publish. The [inspection](inspection.md) and
-[substitution](substitution.md) contracts own template and replacement semantics. The CLI owns
-bounded file acquisition, request parsing, diagnostics presentation and output publication. It does
-not render, fetch references, interpret paint, decode images or certify SVG validity.
+This is the implemented interface for the thin CLI. The lifecycle is inspect, prepare values, bind,
+then explicitly publish. The [inspection](inspection.md) and [substitution](substitution.md)
+contracts own template and replacement semantics. The CLI owns bounded file acquisition, request
+parsing, diagnostics presentation and output publication. It does not render, fetch references,
+interpret paint, decode images or certify SVG validity.
 
 ## Commands and invocation
 

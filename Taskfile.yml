@@ -45,7 +45,7 @@ tasks:
       - dotnet test --solution SvgTemplates.slnx -c Release --no-build
 
   check:
-    desc: Check documentation and portable inspection
+    desc: Check documentation, library and CLI
     cmds:
       - git diff --check
       - git diff --cached --check
