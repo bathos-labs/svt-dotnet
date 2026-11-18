@@ -77,13 +77,23 @@ tasks:
     cmds:
       - node eng/visual/probe-authoring.mjs {{.CLI_ARGS}}
 
-  check:
-    desc: Check documentation, library and CLI
+  package:check:
+    desc: Prepare and consume a review-only package after the full gate
     cmds:
-      - git diff --check
-      - git diff --cached --check
-      - task: docs:check
-      - task: docs:links
-      - task: docs:links:test
-      - task: dotnet:check
-      - task: native:check
+      - node eng/package/prepare.mjs --review
+      - node eng/package/consume.mjs
+
+  package:prepare:
+    desc: Prepare a private handoff candidate from a clean commit with a matching gate receipt
+    cmds:
+      - node eng/package/prepare.mjs
+
+  package:consume:
+    desc: Validate the supplied package bundle through an isolated consumer
+    cmds:
+      - node eng/package/consume.mjs {{.CLI_ARGS}}
+
+  check:
+    desc: Check documentation, library, CLI and validation tooling; record source identity
+    cmds:
+      - node eng/check.mjs

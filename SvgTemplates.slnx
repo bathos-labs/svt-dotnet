@@ -1,10 +1,14 @@
 <Solution>
+  <Folder Name="/eng/">
+    <Project Path="eng/PackageValidation/PackageValidation.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Bathos.Graphics.SvgTemplates.Cli/Bathos.Graphics.SvgTemplates.Cli.csproj" />
     <Project Path="src/Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Bathos.Graphics.SvgTemplates.Cli.Tests/Bathos.Graphics.SvgTemplates.Cli.Tests.csproj" />
+    <Project Path="tests/Bathos.Graphics.SvgTemplates.PackageValidation.Tests/Bathos.Graphics.SvgTemplates.PackageValidation.Tests.csproj" />
     <Project Path="tests/Bathos.Graphics.SvgTemplates.Tests/Bathos.Graphics.SvgTemplates.Tests.csproj" />
   </Folder>
 </Solution>
