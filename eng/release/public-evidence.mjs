@@ -18,8 +18,9 @@ export async function verifyPublicDebugging(bundle, manifest, output) {
   assert.match(inspection.symbol_key, /^[A-F0-9]{32}FFFFFFFF$/);
   assert.match(inspection.symbol_checksum, /^SHA256:[A-F0-9]{64}$/);
   const filename = packageId + ".pdb";
+  const symbolFilename = filename.toLowerCase();
   const pdb = await download(
-    `https://symbols.nuget.org/download/symbols/${filename}/${inspection.symbol_key}/${filename}`,
+    `https://symbols.nuget.org/download/symbols/${symbolFilename}/${inspection.symbol_key}/${symbolFilename}`,
     {
       SymbolChecksum: inspection.symbol_checksum,
       SymbolChecksumValidationSupported: "1",
