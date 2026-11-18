@@ -1,4 +1,4 @@
-# Private package preparation
+# Package preparation
 
 Prepare the library and portable symbols for an isolated consumer trial. Only
 `Bathos.Graphics.SvgTemplates` is packable. The CLI, tests, package inspector and native tools are
@@ -16,7 +16,8 @@ not included in the package. No registry publication or release credentials are 
 3. After review and commit, rerun the gate on the clean checkout, then `task package:prepare`. This
    produces `0.1.0-preview.g<commit-prefix>.n<nonce>` with the full source commit and artifact
    hashes. The nonce prevents reuse of a package identity across preparations; existing output is
-   never overwritten. These are private development versions, not an agreed public release version.
+   never overwritten. These are development versions and cannot be published by the release
+   workflow.
 4. Run `task package:consume -- <bundle>` on the exact prepared artifact. The optional argument
    defaults to the last successful preparation recorded under `artifacts/`. A separate receipt
    records each platform's result without modifying the bundle.
@@ -46,9 +47,9 @@ Source Link points to the exact repository commit. Embedded untracked sources ar
 
 The pinned SDK supplies Source Link; no additional library dependency is needed. The SDK omits
 authors/license/readme fields from symbol-package metadata, so those are checked on the library
-package. Both artifacts retain their repository identity. Source retrieval requires repository
-access while development is private. Debug information for generated source need not resolve to a
-Git file.
+package. Both artifacts retain their repository identity. Source retrieval uses the public
+repository at the recorded commit. Debug information for generated source need not resolve to a Git
+file.
 
 These executable checks support a manual rights and private-reference review; they do not claim to
 detect every sensitive string. Inspect changed documentation, identifiers and original assets before
@@ -85,11 +86,11 @@ This is package-boundary evidence, not a duplicate conformance suite or a native
 Ubuntu runs the full gate, prepares one clean-commit package, consumes it, and uploads its immutable
 bundle with the Ubuntu receipt. Windows depends on that job, runs the portable suites, downloads the
 same artifact and consumes it with a fresh cache. The Windows job then finalizes the manifest and
-uploads a private-trial artifact. Actions are SHA-pinned; no package registry or secrets are used.
-Both jobs read the exact SDK version from `global.json` and pass that version to the installer,
-without asking it to interpret the ordinary roll-forward policy. Installation uses an isolated
-runner directory so a newer preinstalled patch cannot be selected. Candidate transfers expire after
-14 days and completed trial artifacts after 30 days; retain the exact validated files privately
+uploads a validated-package artifact. Actions are SHA-pinned; no package registry or secrets are
+used. Both jobs read the exact SDK version from `global.json` and pass that version to the
+installer, without asking it to interpret the ordinary roll-forward policy. Installation uses an
+isolated runner directory so a newer preinstalled patch cannot be selected. Candidate transfers
+expire after 14 days and completed trial artifacts after 30 days; retain the exact validated files
 before expiry. Failed validation cannot create a completed trial manifest.
 
 For local Ubuntu consumption, use the existing digest-pinned validation container after building it
@@ -120,4 +121,22 @@ completion record, and explicitly distinguishes that earlier evidence from this 
 Raw native reports remain separate and are not included or rerun by this workflow. Retain the
 applicable reports with the trial separately, and record consumer integration in the consuming
 repository. No image decoding, fetching, CSS repair, fitting, universal rendering or released
-compatibility is implied. A private trial manifest does not authorize public publication.
+compatibility is implied. A candidate manifest does not authorize publication.
+
+## Public releases
+
+The [release workflow](../../RELEASING.md) reuses this pipeline with
+`node eng/package/prepare.mjs --release v<version>`. That mode requires an annotated tag, matching
+version/changelog, clean source, and eligible ancestry fetched from origin. It uses the declared
+version and a `release-candidate` manifest. Review and ordinary development bundles cannot enter the
+publishing job. Packaged README and release-note links point to the release tag; development
+packages use the source commit. Source Link always uses the commit.
+
+`node eng/package/consume.mjs <bundle> --published` restores the exact release version from
+nuget.org into a fresh cache, validates its signature and every original archive entry, runs the
+same consumer, and retrieves matching public symbols and Source Link source files. Repository
+signing changes the archive hash: the receipt records the distributed hash separately while
+requiring identical original contents and loaded assembly bytes. The candidate bundle remains
+unchanged. Registry indexing delays fail verification explicitly; rerun against the retained bundle
+after availability, without rebuilding or republishing a different artifact. Local consumption
+receipts and public-feed receipts are distinct.

@@ -15,9 +15,15 @@ import {
   nonce,
   smokeChecks,
   environment,
+  tool,
 } from "./common.mjs";
+import { verifyPublicDebugging } from "../release/public-evidence.mjs";
 
-assert.ok(process.argv.length <= 3, "Usage: consume.mjs [bundle]");
+const published = process.argv[3] === "--published";
+assert.ok(
+  process.argv.length <= 3 || (process.argv.length === 4 && published),
+  "Usage: consume.mjs [bundle [--published]]",
+);
 const bundle = process.argv[2]
   ? resolve(process.argv[2])
   : resolve(
@@ -25,6 +31,12 @@ const bundle = process.argv[2]
       JSON.parse(await readFile(resolve(root, "artifacts/package-current.json"))).bundle,
     );
 const manifest = await verifyBundle(bundle);
+if (published)
+  assert.equal(
+    manifest.purpose,
+    "release-candidate",
+    "Only release candidates can be verified on nuget.org",
+  );
 const manifestHash = await fileHash(resolve(bundle, "manifest.json"));
 assert.equal((await command("dotnet", ["--version"])).stdout.trim(), sdk);
 const work = await realpath(await mkdtemp(join(tmpdir(), "svt-package-consumer-")));
@@ -44,6 +56,7 @@ const report = {
   purpose: manifest.purpose,
   sdk,
   environment: await environment(),
+  distribution: published ? "nuget.org" : "local-artifact",
 };
 const redact = (text) =>
   String(text).replaceAll(work, "<consumer>").replaceAll(root, "<repository>");
@@ -123,7 +136,8 @@ try {
       error.code === 1 && !error.killed && !error.signal && /NU1101/.test(error.stdout ?? ""),
   );
   report.empty_feed_rejected = true;
-  await configure(feed);
+  const publicFeed = "https://api.nuget.org/v3/index.json";
+  await configure(published ? publicFeed : feed);
   await execute([
     "restore",
     project,
@@ -139,7 +153,13 @@ try {
   const assets = JSON.parse(await readFile(resolve(work, "consumer/obj/project.assets.json")));
   assert.deepEqual(Object.keys(assets.libraries), [`${packageId}/${manifest.package.version}`]);
   assert.equal(assets.libraries[`${packageId}/${manifest.package.version}`].type, "package");
-  await verifyRestoreDirectories(assets, feed, cache);
+  if (published) {
+    assert.deepEqual(Object.keys(assets.project.restore.sources), [publicFeed]);
+    assert.deepEqual(
+      await Promise.all(Object.keys(assets.packageFolders).map((path) => realpath(path))),
+      [cache],
+    );
+  } else await verifyRestoreDirectories(assets, feed, cache);
   assert.ok(
     Object.values(assets.project.restore.frameworks).every(
       (f) => Object.keys(f.projectReferences ?? {}).length === 0,
@@ -151,7 +171,20 @@ try {
     manifest.package.version,
     `${packageId.toLowerCase()}.${manifest.package.version}.nupkg`,
   );
-  assert.equal(await fileHash(restored), manifest.package.sha256, "Restored package bytes differ");
+  if (published) {
+    await execute(["nuget", "verify", restored, "--all"]);
+    await execute([tool, "compare-published", artifact, restored]);
+    report.published_package_sha256 = await fileHash(restored);
+    report.repository_signature = "passed";
+    report.original_contents = "passed";
+    await copyFile(restored, resolve(output, `${packageId}.${manifest.package.version}.nupkg`));
+    report.debugging = await verifyPublicDebugging(bundle, manifest, output);
+  } else
+    assert.equal(
+      await fileHash(restored),
+      manifest.package.sha256,
+      "Restored package bytes differ",
+    );
   await execute([
     "restore",
     project,

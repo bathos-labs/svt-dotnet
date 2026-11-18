@@ -9,10 +9,21 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <DebugType>portable</DebugType>
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <DocumentationRef Condition="'$(DocumentationRef)' == ''">v$(Version)</DocumentationRef>
+    <PackageReleaseNotes>https://github.com/bathos-labs/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="../../docs/package-readme.md" Pack="true" PackagePath="README.md" />
     <None Include="../../LICENSE" Pack="true" PackagePath="/" />
     <None Include="../../NOTICE" Pack="true" PackagePath="/" />
   </ItemGroup>
+  <Target Name="PreparePackageReadme" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_PackageReadme>$(IntermediateOutputPath)package/README.md</_PackageReadme>
+      <_PackageReadmeText>$([MSBuild]::Escape($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../../docs/package-readme.md').Replace('/master/', '/$(DocumentationRef)/'))))</_PackageReadmeText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_PackageReadme)" Lines="$(_PackageReadmeText)" Overwrite="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <None Include="$(_PackageReadme)" Pack="true" PackagePath="README.md" />
+    </ItemGroup>
+  </Target>
 </Project>

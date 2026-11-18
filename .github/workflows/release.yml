@@ -1,0 +1,169 @@
+name: NuGet release
+on:
+  push:
+    tags: ['v*']
+  # Exercises the candidate/native path without publishing or acquiring credentials.
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+jobs:
+  policy:
+    name: Verify release policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      release-tag: ${{ steps.policy.outputs.tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Check branch, version, changelog and tag
+        id: policy
+        env:
+          RELEASE_REF: ${{ github.ref }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_EVENT: ${{ github.event_name }}
+        run: |
+          node --input-type=module <<'JS'
+          import {appendFile} from 'node:fs/promises';
+          import {verifyRelease} from './eng/release/policy.mjs';
+          const tagged = process.env.RELEASE_EVENT === 'push' && process.env.RELEASE_REF.startsWith('refs/tags/');
+          await verifyRelease(tagged ? {tag: process.env.RELEASE_TAG, remote: true, requireTag: true} : {});
+          await appendFile(process.env.GITHUB_OUTPUT, `tag=${tagged ? process.env.RELEASE_TAG : ''}\n`);
+          JS
+  validate:
+    needs: policy
+    uses: ./.github/workflows/validate.yml
+    with:
+      release_tag: ${{ needs.policy.outputs.release-tag }}
+  native:
+    name: Native candidate on ${{ matrix.os }}
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Read exact SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
+        with:
+          dotnet-version: ${{ steps.sdk.outputs.version }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ${{ needs.validate.outputs.candidate_artifact }}
+          path: artifacts/package-transfer
+          digest-mismatch: error
+      - name: Build native test hosts
+        run: |
+          dotnet restore SvgTemplates.slnx --locked-mode
+          dotnet build SvgTemplates.slnx -c Release --no-restore
+      - name: Install pinned renderers and font
+        run: |
+          npm ci --prefix eng/visual --ignore-scripts
+          node eng/visual/node_modules/puppeteer/install.mjs
+          node eng/visual/setup.mjs
+      - name: Run candidate authoring and rendering matrix
+        # Hosted Ubuntu's AppArmor policy blocks Chrome's unprivileged sandbox.
+        # Only repository-controlled fixtures are loaded in this disposable runner.
+        env:
+          SVT_CHROME_NO_SANDBOX: ${{ runner.os == 'Linux' && '1' || '0' }}
+        run: node eng/release/native.mjs artifacts/package-transfer/bundle
+      - name: Retain native reports and images for review
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: native-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            artifacts/native-candidate-*.json
+            artifacts/native-release-check-*/
+          if-no-files-found: error
+          retention-days: 30
+  publish:
+    name: Approve and publish validated beta
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: [policy, validate, native]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Read exact SDK pin
+        id: sdk
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
+        with:
+          dotnet-version: ${{ steps.sdk.outputs.version }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ${{ needs.validate.outputs.candidate_artifact }}
+          path: artifacts/package-transfer
+          digest-mismatch: error
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: native-*
+          path: artifacts/native-evidence
+          digest-mismatch: error
+      - name: Verify retained candidate evidence
+        run: node eng/release/verify-candidate.mjs artifacts/package-transfer artifacts/native-evidence
+      - name: Require NuGet identity
+        env:
+          NUGET_USER: ${{ vars.NUGET_USER }}
+        run: test -n "$NUGET_USER"
+      - name: Exchange GitHub identity for short-lived NuGet credentials
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish the validated package and symbols without rebuilding
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push 'artifacts/package-transfer/bundle/packages/*.nupkg' --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push 'artifacts/package-transfer/bundle/packages/*.snupkg' --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Build only the package inspector
+        run: |
+          dotnet restore eng/PackageValidation/PackageValidation.csproj --locked-mode
+          dotnet build eng/PackageValidation/PackageValidation.csproj -c Release --no-restore
+      - name: Verify public restore, signatures, contents, symbols and Source Link
+        run: node eng/package/consume.mjs artifacts/package-transfer/bundle --published
+      - name: Retain publication verification
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: publication-verification-${{ github.run_attempt }}
+          path: artifacts/package-consumption/
+          if-no-files-found: ignore
+          retention-days: 90

@@ -21,6 +21,14 @@ const remark = [
 const checks = [
   ["git", ["diff", "--check"]],
   ["git", ["diff", "--cached", "--check"]],
+  [
+    "node",
+    [
+      "--input-type=module",
+      "-e",
+      "import {metadata} from './eng/release/policy.mjs'; console.log(await metadata());",
+    ],
+  ],
   ["npx", ["--yes", "prettier@3.9.10", "--check", "**/*.md"]],
   [
     "npx",
@@ -49,7 +57,7 @@ const checks = [
       "--test",
       ...(
         await Promise.all(
-          ["eng/visual", "eng/package"].map(async (folder) =>
+          ["eng/visual", "eng/package", "eng/release"].map(async (folder) =>
             (await readdir(resolve(root, folder)))
               .filter((name) => name.endsWith(".test.mjs"))
               .sort()

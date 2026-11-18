@@ -65,6 +65,7 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
       ...(platform === "linux" ? { distribution: { id: "ubuntu", version: "24.04" } } : {}),
     },
     empty_feed_rejected: true,
+    distribution: "local-artifact",
     checks: [...smokeChecks],
   }));
   validateReceipts(manifest, manifestHash, receipts);
@@ -76,6 +77,9 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
     { format_version: 1 },
     { environment: { platform: "linux" } },
     { empty_feed_rejected: false },
+    { distribution: undefined },
+    { distribution: "nuget.org" },
+    { distribution: "unknown" },
     { checks: [] },
     { checks: Array(6).fill("unknown-check") },
     { source: { ...source, fingerprint: "other" } },
@@ -91,8 +95,8 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
     ]),
   );
 });
-async function createBundle(folder) {
-  const version = packageVersion(source, true);
+async function createBundle(folder, purpose = "review") {
+  const version = purpose === "release-candidate" ? "0.1.0-beta.1" : packageVersion(source, true);
   const packageFile = `packages/${packageId}.${version}.nupkg`;
   const symbolFile = `packages/${packageId}.${version}.snupkg`;
   await mkdir(resolve(folder, "packages"));
@@ -102,7 +106,8 @@ async function createBundle(folder) {
     format_version: 0,
     sdk,
     target_framework: "net10.0",
-    purpose: "review",
+    purpose,
+    ...(purpose === "release-candidate" ? { release_tag: `v${version}` } : {}),
     source,
     package: {
       id: packageId,
@@ -142,6 +147,25 @@ async function refreshManifest(folder, manifest) {
   delete manifest.files["manifest.json"];
   await json(resolve(folder, "manifest.json"), manifest);
 }
+test("release bundles require a public version, matching tag and clean source", async () => {
+  const folder = await mkdtemp(resolve(tmpdir(), "svt-release-bundle-test-"));
+  try {
+    const manifest = await createBundle(folder, "release-candidate");
+    await verifyBundle(folder);
+    for (const change of [
+      { release_tag: undefined },
+      { release_tag: "v0.1.0-beta.2" },
+      { source: { ...source, dirty: true } },
+      { purpose: "handoff-candidate" },
+      { package: { ...manifest.package, version: packageVersion(source, false) } },
+    ]) {
+      await json(resolve(folder, "manifest.json"), { ...manifest, ...change });
+      await assert.rejects(verifyBundle(folder));
+    }
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+});
 test("bundle integrity detects modified, added and removed files before consumption", async () => {
   const folder = await mkdtemp(resolve(tmpdir(), "svt-bundle-test-"));
   try {
