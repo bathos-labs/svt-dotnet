@@ -86,9 +86,10 @@ Ubuntu runs the full gate, prepares one clean-commit package, consumes it, and u
 bundle with the Ubuntu receipt. Windows depends on that job, runs the portable suites, downloads the
 same artifact and consumes it with a fresh cache. The Windows job then finalizes the manifest and
 uploads a private-trial artifact. Actions are SHA-pinned; no package registry or secrets are used.
-Candidate transfers expire after 14 days and completed trial artifacts after 30 days; retain the
-exact validated files privately before expiry. Failed validation cannot create a completed trial
-manifest.
+Both jobs install the pinned SDK into an isolated runner directory so a newer preinstalled patch
+cannot be selected by the repository's ordinary roll-forward policy. Candidate transfers expire
+after 14 days and completed trial artifacts after 30 days; retain the exact validated files
+privately before expiry. Failed validation cannot create a completed trial manifest.
 
 For local Ubuntu consumption, use the existing digest-pinned validation container after building it
 as described in the [native guide](../visual/README.md#ubuntu-container). Supply a bundle created on
