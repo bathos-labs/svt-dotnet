@@ -14,6 +14,27 @@ CI restore. NuGet sources are restricted to nuget.org. Test dependencies are cen
 all seven solution projects have lockfiles. Only the library is packable. A BCL-only engineering
 executable measures completed-document export allocations and throughput.
 
+## Null-aware boundaries
+
+All projects use nullable reference analysis with warnings as errors, including tests, engineering
+tools and isolated consumers. Do not disable it locally or suppress nullable warnings to obtain a
+clean build. Types must represent possible absence at public API, XML, JSON, serialization,
+reflection and framework boundaries. Validate, reject or normalize those values at the boundary,
+then use non-null contracts within trusted domain code. Preserve meaningful null states such as a
+rejected result or an absent authored value; do not replace them with misleading empty strings.
+
+For each boundary, review omitted values, explicit nulls, nullable collection entries and partially
+initialized external objects. Required programmer arguments fail deliberately; malformed authored
+content follows structured diagnostics. Optional configuration must have documented defaults.
+Reflectively populated fields model the state observable during loading; validate required
+combinations separately before admitting the object. Null-forgiving suppression is only appropriate
+for a verified external initialization invariant that the type system cannot express, with the
+invariant documented. Tests may deliberately pass suppressed nulls to exercise rejection contracts.
+
+Verify important boundary behavior through focused tests; compiler analysis alone cannot prove
+runtime inputs are non-null. Avoid redundant defensive checks after successful validation or tests
+that merely enforce wording in documentation.
+
 ## Validation
 
 Use Node.js 24 with its bundled npm/npx. Task is optional. After Markdown edits, run

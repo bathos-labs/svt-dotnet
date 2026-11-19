@@ -33,8 +33,14 @@
   CSS.
 - SVG owns layout. Do not introduce expressions, repetition, text fitting or arbitrary attribute
   editing without a separate agreed extension.
-- Preserve nullable analysis and validate external uncertainty at the boundary. Invalid authoring
-  input needs structured diagnostics; distinguish it from programming errors.
+- Keep nullable analysis enabled and warnings fatal across all projects. Represent absence
+  explicitly at XML, JSON, reflection, framework and public API boundaries; validate and narrow
+  there before using non-null internal contracts. Preserve nullable fields with domain meaning.
+  Never use null-forgiving suppression just to silence analysis; a verified external initialization
+  invariant must be documented if it cannot be expressed in the type system. Reflectively populated
+  fields describe their observable loading state, with required combinations validated separately.
+  Invalid authoring input needs structured diagnostics; distinguish it from programming errors. See
+  the boundary review policy in CONTRIBUTING.md.
 - Preserve the pinned SDK and build policy. Add centrally pinned packages, lockfiles and executable
   validation when implementing projects. Test observable contracts and reuse language-neutral
   conformance fixtures. Treat diagnostics as failures. Do not synchronize tests with sleeps or
