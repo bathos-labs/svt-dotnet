@@ -8,6 +8,8 @@ exact package version while evaluating them.
 - Add `BoundSvg.Utf8ByteCount` and `TryWriteUtf8Bytes` for exact sizing and allocation-free UTF-8
   export into caller-owned storage. Insufficient capacity leaves storage unchanged; successful
   writes preserve its unused suffix. Binding budgets and serialization remain unchanged.
+- Document pooled output lifetime through downstream consumption, with an executable consumer
+  example, and distinguish export allocations from retained representations and end-to-end costs.
 
 ## [0.1.0-beta.1] - 2026-11-18
 

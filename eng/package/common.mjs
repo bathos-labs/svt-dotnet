@@ -23,6 +23,7 @@ export const smokeChecks = [
   "loaded-package-identity",
   "inspection-text-omission-empty-ownership",
   "caller-owned-utf8-output",
+  "pooled-output-consumption-lifetime",
   "raw-paint-shared-and-default-evidence",
   "encoded-images-references-and-policy-recheck",
   "structured-rejection-budgets-and-policy",
