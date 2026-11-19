@@ -49,6 +49,11 @@ do not. Prefer internal construction for result objects over public constructors
 inconsistent combinations. Internal representation and record/class choices remain implementation
 decisions.
 
+The [interpretation API](interpretation-api.md) consumes individual TemplateTarget instances
+explicitly after inspection. Its results retain those same instances and never change this model,
+raw Common/Mixed/Absent summaries, diagnostics or admission. Interpretation does not add parsed
+color/URI properties to TemplateTarget or TemplateInput.
+
 ## Presentation metadata extension
 
 Resolve the [metadata contract](../spec/metadata.md) during inspection, after structural input

@@ -73,6 +73,15 @@ and nullable Order. Ungrouped inputs appear in a final section with null group K
 admitted input remains visible. These presentation hints do not impose binding requirements or
 change raw defaults. Metadata support is new in source and is not in `0.1.0-beta.1`.
 
+For typed editor controls, explicitly call `DefaultInterpreter.InterpretPaint(target)` on a fill or
+stroke target, or `InterpretImage(target)` on an image target. Literal paints expose normalized
+double-precision sRGB and alpha; context dependencies and paint-server references remain
+unevaluated. Image interpretation classifies reference text and reads bounded data-URI headers
+without examining payloads. Results retain the original target, and optional InterpretationOptions
+bound the work. Raw evidence and binding admission remain unchanged. See the
+[interpretation API](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/interpretation-api.md).
+These operations are new in source and are not in `0.1.0-beta.1`.
+
 ## Boundaries
 
 The library does not decode images, resolve resources or fonts, compute CSS, fit text, or render

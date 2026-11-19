@@ -90,6 +90,10 @@ await copyFile(
   resolve(root, "eng/package/consumer/Program.cs"),
   resolve(bundle, "consumer/Program.cs"),
 );
+await copyFile(
+  resolve(root, "examples/editor/PaintEditorAdapter.cs"),
+  resolve(bundle, "consumer/PaintEditorAdapter.cs"),
+);
 const template = await readFile(
   resolve(root, "eng/package/consumer/PackageConsumer.csproj.in"),
   "utf8",

@@ -15,9 +15,10 @@ mutable XML tree. Binding creates an independent output, and structurally unusab
 produce partially substituted content. Scoped hook errors must remain distinguishable from an
 unusable root document.
 
-The core does not fetch images, probe paths, decode pixels, convert color, resolve fonts or render
-SVG. [Image values](../spec/images.md) describe supplied encoded content or references. Hosts retain
-resource authority. Labels are presentation metadata, not binding identity.
+The core does not fetch images, probe paths, decode pixels, perform color management, resolve fonts
+or render SVG. Optional authored-literal interpretation may calculate sRGB components from the
+specified HSL subset. [Image values](../spec/images.md) describe supplied encoded content or
+references. Hosts retain resource authority. Labels are presentation metadata, not binding identity.
 
 The [central metadata contract](../spec/metadata.md) extends inspection with optional labels,
 descriptions, ordering and one level of groups. The specified RDF/XML envelope attaches one
@@ -60,15 +61,22 @@ The [inspection API](inspection-api.md) and [SVT specification](../spec/README.m
 implementation boundary. The agreed [binding API](binding-api.md) and
 [substitution contract](../spec/substitution.md) define substitution behavior. BindingConfiguration
 groups reusable immutable policy; it is not a service or mutable binding session. Encoded images own
-captured bytes; each bind produces an independent immutable document. Optional interpretation
-remains separate design work tracked in GitHub Issues; do not add empty public APIs for it.
+captured bytes; each bind produces an independent immutable document. The
+[interpretation API](interpretation-api.md) provides explicit per-target operations after
+inspection.
 
 ## Optional value interpretation
 
-Pure, opt-in helpers may interpret a documented subset of raw literals for editor controls. Keep
-them in the same assembly initially, separate from discovery and binding admission. Preserve source
-evidence and distinguish literal values, no paint, context requirements, resource references and
-unrecognized syntax. Failure to interpret is not template invalidity.
+The [interpretation contract](../spec/interpretation.md) defines pure, opt-in operations over one
+inspected target at a time, in the existing assembly. Results retain the original immutable target
+and distinguish literal values, no paint, context requirements, resource references and unrecognized
+syntax. Discovery and binding do not invoke interpretation. Failure or a parsing limit affects only
+that interpretation result, not template validity or binding admission.
+
+Literal colors use normalized double-precision sRGB and unpremultiplied alpha. Image interpretation
+classifies references and reads bounded data-URI headers without scanning payloads. There is no
+aggregate interpreted Common/Mixed summary, approximate color equality, automatic canonicalization,
+new service, assembly, dependency or CLI output change.
 
 Helpers do not compute CSS, fetch resources, decode images or establish effective rendered values.
 Consumers own validation, rendering and resource policy. No renderer, schema validator or

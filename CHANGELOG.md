@@ -5,6 +5,13 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Add optional per-target paint and image interpretation with immutable results and bounded parsing.
+  Supported color literals produce sRGB with alpha; context and paint references remain unevaluated.
+  Image classification reads data-URI headers without examining payloads. Raw evidence and binding
+  admission remain unchanged; interpreted aggregation is deferred. An executable host-owned editor
+  example separates authored evidence, presentation and chooser state, preserving default intent
+  across initialization and unchanged/canceled interactions.
+
 - Add optional RDF/XML document metadata for central input labels, descriptions, ordering and
   single-level groups. Inspection exposes label provenance and a separate immutable presentation
   view; CLI discovery includes those fields and ordered key references. SVG metadata subtrees are
