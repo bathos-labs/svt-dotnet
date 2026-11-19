@@ -36,22 +36,22 @@ synchronized. The configuration matches the Bathos prose convention: 100-column 
 embedded code formatting disabled. Generated output is excluded through `.prettierignore`.
 
 The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and the Node tests in
-`eng/visual/`, `eng/package/`, and `eng/release/` to verify evidence handling without launching
-browsers. The [native validation guide](eng/visual/README.md) describes the separate repeatable
-Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release candidates
-and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are explicit
-opt-in commands; interactive capability mapping is not part of `task check` or the repeatable native
-checks.
+`eng/visual/`, `eng/package/`, `eng/release/`, and `eng/coverage/` to verify evidence handling
+without launching browsers. The [native validation guide](eng/visual/README.md) describes the
+separate repeatable Inkscape/Chrome/resvg release checks and their generated evidence. Run these for
+release candidates and relevant implementation/tool changes.
+[Exploratory probes](eng/visual/probes.md) are explicit opt-in commands; interactive capability
+mapping is not part of `task check` or the repeatable native checks.
 
 The documentation gate checks whitespace, Markdown formatting, local links and heading anchors, and
 the link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
 private-reference sanitization explicitly; no automated confidentiality checker is claimed.
 
-CI runs this documentation gate on pull requests and master pushes using read-only permissions,
-SHA-pinned actions, Node.js 24 and an Ubuntu 24.04 runner. It can also be dispatched manually. It
-uses the pinned .NET SDK for locked restore, formatting, Release build/analyzers and tests. No
-native SDK workloads, runner cleanup or secrets are required. Ubuntu prepares and inspects one
-development package after the gate and runs isolated consumption. Windows then performs locked
+CI runs this documentation gate on pull requests and master pushes using read-only repository
+permissions, SHA-pinned actions, Node.js 24 and an Ubuntu 24.04 runner. It can also be dispatched
+manually. It uses the pinned .NET SDK for locked restore, formatting, Release build/analyzers and
+tests. No native SDK workloads, runner cleanup or secrets are required. Ubuntu prepares and inspects
+one development package after the gate and runs isolated consumption. Windows then performs locked
 restore, Release build/analyzers and all three test suites, and consumes that identical package
 artifact. Matching Ubuntu/Windows receipts produce a candidate manifest and retained CI artifact; no
 registry publication is performed by ordinary CI. The separate release workflow reuses these checks,
@@ -67,6 +67,12 @@ dotnet format SvgTemplates.slnx --no-restore --verify-no-changes
 dotnet build SvgTemplates.slnx -c Release --no-restore
 dotnet test --solution SvgTemplates.slnx -c Release --no-build
 ```
+
+Run `task test:coverage` for production line and branch coverage using the centrally pinned
+`coverlet.MTP` extension and MSTest. Ubuntu and Windows CI collect and verify fresh reports before a
+separate upload job sends both platforms to Codecov. That job uses short-lived OIDC credentials for
+trusted runs and public tokenless uploads for fork PRs. Percentages remain informational; collection
+and upload failures fail CI. See the [coverage guide](eng/coverage/README.md).
 
 After the gate, run `task package:check` for a review-only package and isolated local consumption.
 Use the [package preparation guide](eng/package/README.md) for clean-commit candidates,

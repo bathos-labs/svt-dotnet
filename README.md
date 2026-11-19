@@ -1,5 +1,9 @@
 # SVT — Scalable Vector Templates
 
+[![NuGet](https://img.shields.io/nuget/vpre/Bathos.Graphics.SvgTemplates?label=NuGet)](https://www.nuget.org/packages/Bathos.Graphics.SvgTemplates)
+[![Validation](https://github.com/bathos-labs/svt-dotnet/actions/workflows/validate.yml/badge.svg?branch=master)](https://github.com/bathos-labs/svt-dotnet/actions/workflows/validate.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/bathos-labs/svt-dotnet?branch=master)](https://app.codecov.io/gh/bathos-labs/svt-dotnet)
+
 A portable SVG templating specification and .NET library by Bathos Labs.
 
 Templates remain ordinary SVG files with useful authored previews. Binding annotations identify
@@ -26,8 +30,9 @@ and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-d
 
 The package name is `Bathos.Graphics.SvgTemplates`. Code, specification, documentation and
 repository-authored examples are [MIT-licensed](LICENSE). See [NOTICE](NOTICE) and
-[release policy](RELEASING.md). The first prepared beta is `0.1.0-beta.1`; preparation does not
-publish it. Once that version is available on NuGet, consumers can pin it explicitly:
+[release policy](RELEASING.md). The published beta is
+[`0.1.0-beta.1`](https://github.com/bathos-labs/svt-dotnet/releases/tag/v0.1.0-beta.1). Consumers
+can pin it explicitly:
 
 ```sh
 dotnet add package Bathos.Graphics.SvgTemplates --version '[0.1.0-beta.1]'
@@ -44,6 +49,11 @@ gate and working conventions. The .NET 10 SDK and common build policy are pinned
 implementation; CI checks documentation, locked restore, C# formatting, Release analyzers and tests.
 With Node.js 24 and Task installed, run `task docs:format` after edits and `task check` before
 committing. The solution is `SvgTemplates.slnx`.
+
+Run `task test:coverage` for library and CLI line/branch evidence. CI uploads both Ubuntu and
+Windows reports to Codecov after validation succeeds. Percentages are informational; missing or
+invalid reports fail validation. See the [coverage guide](eng/coverage/README.md). Native rendering
+evidence remains separate.
 
 ## Command-line use
 
