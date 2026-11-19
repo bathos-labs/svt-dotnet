@@ -30,6 +30,7 @@ Array.Fill(outputBytes, (byte)0);
 Check(changed.ToUtf8Bytes()[0] == (byte)'<', "Output bytes are not independent.");
 Check(File.ReadAllBytes(textPath).SequenceEqual(original), "Source file mutated.");
 checks.Add("inspection-text-omission-empty-ownership");
+checks.Add("caller-owned-utf8-output");
 
 var palette = Inspect(File.ReadAllBytes(Path.Combine(sampleRoot, "shared-palette/input.svg")));
 Check(palette.Inputs.Single(i => i.Key == "accent").Default.State == InputDefaultState.Common, "Common default.");
@@ -96,7 +97,25 @@ static InspectedTemplate Inspect(byte[] bytes)
 static BoundSvg Success(BindingResult result)
 {
     Check(result.Diagnostics.IsEmpty, "Unexpected binding diagnostics.");
-    return result.Document ?? throw new InvalidOperationException("Binding failed.");
+    var document = result.Document ?? throw new InvalidOperationException("Binding failed.");
+    VerifyExport(document);
+    return document;
+}
+static void VerifyExport(BoundSvg document)
+{
+    var expected = document.ToUtf8Bytes();
+    Check(document.Utf8ByteCount == expected.Length && expected.Length == Encoding.UTF8.GetByteCount(document.Xml), "UTF-8 byte count.");
+    var storage = new byte[expected.Length + 13];
+    Array.Fill(storage, (byte)0xcc);
+    Check(!document.TryWriteUtf8Bytes(default, out var written) && written == 0, "Default span.");
+    Check(!document.TryWriteUtf8Bytes(storage.AsSpan(3, expected.Length - 1), out written) && written == 0, "Insufficient span.");
+    Check(storage.AsSpan().IndexOfAnyExcept((byte)0xcc) < 0, "Short span changed storage.");
+    Check(document.TryWriteUtf8Bytes(storage.AsSpan(3, expected.Length + 5), out written) && written == expected.Length, "Oversized span.");
+    Check(storage.AsSpan(3, written).SequenceEqual(expected), "Export bytes differ.");
+    Check(storage.AsSpan(0, 3).IndexOfAnyExcept((byte)0xcc) < 0 && storage.AsSpan(3 + written).IndexOfAnyExcept((byte)0xcc) < 0, "Export changed surrounding storage.");
+    Array.Clear(storage);
+    Check(document.TryWriteUtf8Bytes(storage.AsSpan(0, expected.Length), out written) && written == expected.Length, "Repeated exact span.");
+    Check(storage.AsSpan(0, written).SequenceEqual(expected) && document.ToUtf8Bytes().AsSpan().SequenceEqual(expected), "Document changed after export mutation.");
 }
 static XElement Find(XElement root, string key) => root.Descendants().Single(e => (string?)e.Attribute("data-svt-text") == key);
 static void Reject(BindingResult result, string code, string? limit = null) => Check(result.Document is null && result.Diagnostics.Length == 1 && result.Diagnostics[0].Code == code && result.Diagnostics[0].Limit == limit, "Structured rejection: " + code);

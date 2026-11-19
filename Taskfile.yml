@@ -50,6 +50,11 @@ tasks:
       - npm ci --prefix eng/visual --ignore-scripts
       - node --test eng/visual/*.test.mjs
 
+  perf:export:
+    desc: Measure UTF-8 export allocation and throughput with source-stamped evidence
+    cmds:
+      - node eng/ExportPerformance/run.mjs
+
   test:coverage:
     desc: Collect and verify library and CLI line/branch coverage on this host
     cmds:

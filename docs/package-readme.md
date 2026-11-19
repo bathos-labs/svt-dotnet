@@ -34,6 +34,25 @@ if (result.Document is null)
 byte[] output = result.Document.ToUtf8Bytes();
 ```
 
+When the host owns destination storage, use `Utf8ByteCount` for its exact required capacity and
+`TryWriteUtf8Bytes(destination, out bytesWritten)` to encode directly without an intermediate array.
+The example below allocates the destination once; a host may instead supply a slice of its existing
+or pooled storage and retain responsibility for that storage's lifetime.
+
+```csharp
+var document = result.Document;
+Span<byte> destination = new byte[document.Utf8ByteCount];
+if (!document.TryWriteUtf8Bytes(destination, out int bytesWritten))
+    throw new InvalidOperationException("Destination capacity is insufficient.");
+// Consume destination[..bytesWritten] before returning or reusing the host buffer.
+```
+
+An insufficient span returns false with zero bytes written and leaves memory unchanged. Success
+leaves the unused suffix unchanged. Neither operation retains the destination; the immutable
+document remains reusable. Export is synchronous, has no cancellation token, and does not guarantee
+atomic publication by a later renderer or transport. These members are new in source and are not
+available in the previously published `0.1.0-beta.1` package.
+
 Use `EncodedImage.Create(bytes, mediaType, configuration)` before an `ImageContent` binding. Image
 creation captures the supplied bytes, and binding rechecks its configured limits. `ImageReference`
 retains a supplied reference without fetching it. Structured diagnostics describe rejected input;

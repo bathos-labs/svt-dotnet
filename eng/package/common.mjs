@@ -22,6 +22,7 @@ export const nonce = () => randomUUID().replaceAll("-", "").slice(0, 16);
 export const smokeChecks = [
   "loaded-package-identity",
   "inspection-text-omission-empty-ownership",
+  "caller-owned-utf8-output",
   "raw-paint-shared-and-default-evidence",
   "encoded-images-references-and-policy-recheck",
   "structured-rejection-budgets-and-policy",

@@ -75,9 +75,10 @@ references or ambient package folders. It checks restored archive bytes and the 
 then executes inspect → prepare values → bind → consume-output checks. Coverage includes reusable
 configuration, raw Common/Mixed/Absent defaults, text/paint/image values, omission/empty values,
 image and output ownership, structured rejection, stricter policy rechecks, budgets and
-cancellation. It restores again in locked mode before building and running without restore.
-Temporary projects and caches are removed; sanitized logs and a platform receipt stay under ignored
-artifacts.
+cancellation. Completed documents also exercise exact UTF-8 sizing, caller-buffer export,
+insufficient-capacity preservation, sliced destinations and independent reuse. It restores again in
+locked mode before building and running without restore. Temporary projects and caches are removed;
+sanitized logs and a platform receipt stay under ignored artifacts.
 
 This is package-boundary evidence, not a duplicate conformance suite or a native rendering check.
 

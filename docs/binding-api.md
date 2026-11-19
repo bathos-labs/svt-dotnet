@@ -1,9 +1,10 @@
 # .NET binding API
 
-This is the agreed substitution contract. All types belong to `Bathos.Graphics.SvgTemplates`. The
-lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
-acquisition, rendering and publication. Inspection and binding are implemented; the caller-buffer
-members in [output export](#output-export) are agreed but not yet implemented, tracked in
+This is the implemented substitution contract. All types belong to `Bathos.Graphics.SvgTemplates`.
+The lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
+acquisition, rendering and publication. The caller-buffer members in [output export](#output-export)
+are implemented in source for the next beta; they are not present in the published `0.1.0-beta.1`
+package. Release acceptance is tracked in
 [issue #16](https://github.com/bathos-labs/svt-dotnet/issues/16).
 
 ## Reusable configuration
@@ -99,10 +100,9 @@ public sealed class BoundSvg
 }
 ```
 
-`Utf8ByteCount` and `TryWriteUtf8Bytes` are the agreed extension; `Xml` and `ToUtf8Bytes` already
-exist. Xml remains immutable serialized XML without an XML declaration. Both byte exports produce
-exactly its UTF-8 encoding, without a BOM or terminator. Neither export binds again, normalizes
-values, reparses XML or changes serialization.
+Xml remains immutable serialized XML without an XML declaration. Both byte exports produce exactly
+its UTF-8 encoding, without a BOM or terminator. Neither export binds again, normalizes values,
+reparses XML or changes serialization.
 
 `Utf8ByteCount` is the exact number of bytes each successful export writes, equal to
 `ToUtf8Bytes().Length`, not the UTF-16 character count or a maximum estimate. Capture it from
@@ -120,12 +120,14 @@ references exactly as serialized.
 
 A default or empty span follows the insufficient-capacity rule. On failure, callers use
 `Utf8ByteCount` for required capacity; bytesWritten does not report the required size. Slices are
-valid destinations, and bytes outside the supplied slice are untouched. Destination capacity does
-not count toward binding budgets: a larger buffer neither causes rejection nor changes output. Check
-exact capacity before any write; the BCL encoding try-method's failure result alone does not
-guarantee unchanged memory. False means only insufficient capacity, not an input diagnostic or a
-converted programming/runtime failure. There is no general rollback guarantee for unexpected
-exceptions or invalid memory access.
+valid destinations. The byte export touches only the supplied slice; bytesWritten is a separate
+output. Its storage must not overlap destination memory (an ordinary local variable satisfies this
+requirement). Aliasing it into the span would make reporting the count overwrite destination bytes.
+Destination capacity does not count toward binding budgets: a larger buffer neither causes rejection
+nor changes output. Check exact capacity before any write; the BCL encoding try-method's failure
+result alone does not guarantee unchanged memory. False means only insufficient capacity, not an
+input diagnostic or a converted programming/runtime failure. There is no general rollback guarantee
+for unexpected exceptions or invalid memory access.
 
 Writing encodes directly into the supplied span without a temporary output-sized array or managed
 allocations by SVT during normal calls. Keep the immutable XML and recorded count; do not add a

@@ -259,6 +259,7 @@ public sealed class BindingTests
             Assert.IsNotNull(inspection.Template);
             Array.Fill(bytes, (byte)0);
             var output = Success(inspection.Template.Bind([]));
+            BoundSvgTests.AssertExports(output);
             var expected = XDocument.Parse(body, LoadOptions.PreserveWhitespace);
             // XML serialization can replace CDATA with equivalent character data.
             foreach (var cdata in expected.DescendantNodes().OfType<XCData>().ToArray()) cdata.ReplaceWith(new XText(cdata.Value));
@@ -384,7 +385,10 @@ public sealed class BindingTests
             }, JsonOptions);
             Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "expected.json"))), actual), directory);
             if (result.Document is { } output)
+            {
                 Assert.IsTrue(XNode.DeepEquals(XDocument.Parse(File.ReadAllText(Path.Combine(directory, "output.svg")), LoadOptions.PreserveWhitespace), XDocument.Parse(output.Xml, LoadOptions.PreserveWhitespace)), directory);
+                BoundSvgTests.AssertExports(output);
+            }
         }
     }
 }
