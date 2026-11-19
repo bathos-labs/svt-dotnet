@@ -34,6 +34,60 @@ test("inventory ignores coordinates but preserves raw defaults and labels", () =
   report.inputs[0].targets[0].default.raw = "x";
   assert.throws(() => assertInventory(expected, report));
 });
+test("inventory detects metadata loss and changed presentation membership or order", () => {
+  const expected = {
+    inputs: [
+      {
+        key: "a",
+        label: "Central",
+        label_source: "metadata",
+        description: "Help",
+        order: 20,
+        targets: [],
+      },
+      {
+        key: "b",
+        label: "Inline",
+        label_source: "element",
+        description: null,
+        order: 10,
+        targets: [],
+      },
+    ],
+    input_groups: [
+      { key: "g", label: "Group", description: "Group help", order: 0, input_keys: ["b", "a"] },
+    ],
+  };
+  const original = { template_available: true, ...expected };
+  assertInventory(expected, original);
+  for (const mutate of [
+    (report) => {
+      report.inputs[0].description = null;
+    },
+    (report) => {
+      report.inputs[0].label_source = "element";
+    },
+    (report) => {
+      report.input_groups = [];
+    },
+    (report) => {
+      delete report.input_groups;
+    },
+    (report) => {
+      report.input_groups[0].input_keys.reverse();
+    },
+    (report) => {
+      report.input_groups[0].description = null;
+    },
+    (report) => {
+      report.input_groups[0].order = null;
+    },
+  ]) {
+    const changed = structuredClone(original);
+    mutate(changed);
+    assert.throws(() => assertInventory(expected, changed));
+  }
+});
 test("comparison checks decoded samples, alpha, dimensions and exact differences", () => {
   const image = new PNG({ width: 2, height: 1 });
   image.data.fill(255);

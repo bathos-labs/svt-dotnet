@@ -39,11 +39,80 @@ public sealed class CliTests
             var report = JsonNode.Parse(result.Output);
             Assert.IsNotNull(report);
             Assert.IsTrue(JsonNode.DeepEquals(expected["inputs"], report["inputs"]), folder);
+            Assert.IsTrue(JsonNode.DeepEquals(expected["input_groups"], report["input_groups"]), folder);
             Assert.IsTrue(JsonNode.DeepEquals(expected["template_available"], report["template_available"]), folder);
             CheckDiagnostics(expected["diagnostics"], result.Diagnostics);
             var expectedExit = expected["diagnostics"]?.AsArray().Any(d => (string?)d?["severity"] == "error") == true ? 1 : 0;
             Assert.AreEqual(expectedExit, result.ExitCode, folder);
         }
+    }
+
+    /// <summary>Metadata warnings preserve usable inputs and do not prevent ordinary binding publication.</summary>
+    [TestMethod]
+    public async Task MetadataWarningsAndResolvedTextLabels()
+    {
+        using var workspace = new Workspace();
+        var source = workspace.Write("metadata.svg", """
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://bathos-labs.github.io/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal"><s:input key="heading" label="Headline" order="bad"/><s:input key="missing"/></s:inputs></r:Description></r:RDF></metadata>
+            <text data-svt-text="heading" data-svt-label="Inline">Before</text>
+            </svg>
+            """);
+        var request = workspace.Write("metadata-bindings.json", """
+            {"format_version":0,"bindings":[{"key":"heading","kind":"text","value":"After"}]}
+            """);
+        var inspect = await workspace.Process("inspect", source, "--diagnostics", "json");
+        Assert.AreEqual(0, inspect.ExitCode);
+        StringAssert.Contains(inspect.Output, "Headline");
+        Assert.HasCount(2, inspect.Diagnostics);
+        Assert.IsTrue(inspect.Diagnostics.All(d => (string?)d?["severity"] == "warning"));
+        var bound = await workspace.Process("bind", source, "--bindings", request, "--output", "-", "--diagnostics", "json");
+        Assert.AreEqual(0, bound.ExitCode);
+        Assert.HasCount(2, bound.Diagnostics);
+        var document = XDocument.Parse(bound.Output);
+        Assert.AreEqual("After", document.Descendants(XName.Get("text", "http://www.w3.org/2000/svg")).Single().Value);
+        Assert.AreEqual("bad", (string?)document.Descendants(XName.Get("input", "https://bathos-labs.github.io/svt")).First().Attribute("order"));
+    }
+
+    /// <summary>JSON and human diagnostics retain the library's specific metadata rule explanations.</summary>
+    [TestMethod]
+    public async Task MetadataRuleMessagesThroughCli()
+    {
+        using var workspace = new Workspace();
+        const string xml = """
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://bathos-labs.github.io/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+              <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal">
+                <s:input key="a" order="-1"/>
+                <s:input key="b"><s:description>Before<g/>After</s:description></s:input>
+                <s:input key="c"><s:description>One</s:description><s:description>Two</s:description></s:input>
+              </s:inputs></r:Description></r:RDF></metadata>
+              <g data-svt-fill="a"/><g data-svt-fill="b"/><g data-svt-fill="c"/>
+            </svg>
+            """;
+        var source = workspace.Write("metadata-rules.svg", xml);
+        var api = TemplateInspector.Inspect(Encoding.UTF8.GetBytes(xml));
+        Assert.HasCount(3, api.Diagnostics);
+        var json = await workspace.Process("inspect", source, "--format", "json", "--diagnostics", "json");
+        Assert.AreEqual(0, json.ExitCode);
+        CollectionAssert.AreEqual(api.Diagnostics.Select(d => d.Message).ToArray(),
+            json.Diagnostics.Select(d => (string?)d?["message"]).ToArray());
+        CollectionAssert.AreEqual(api.Diagnostics.Select(d => d.Key).ToArray(), json.Diagnostics.Select(d => (string?)d?["key"]).ToArray());
+        Assert.IsTrue(json.Diagnostics.All(d => (string?)d?["code"] == "svt.metadata.invalid" && (string?)d?["severity"] == "warning"));
+        var related = json.Diagnostics[2]?["related_locations"]?.AsArray();
+        Assert.IsNotNull(related);
+        Assert.HasCount(1, related);
+        var human = await workspace.Process("inspect", source);
+        Assert.AreEqual(0, human.ExitCode);
+        foreach (var phrase in new[] { "ASCII digits", "0 through 2147483647", "without child elements", "At most one", "all descriptions" })
+        {
+            StringAssert.Contains(human.Error, phrase);
+            Assert.IsFalse(human.Output.Contains(phrase, StringComparison.Ordinal));
+        }
+        var bound = await workspace.Process("bind", source, "--bindings", workspace.PathOf("bindings.json"), "--output", "-", "--diagnostics", "json");
+        Assert.AreEqual(0, bound.ExitCode);
+        CollectionAssert.AreEqual(api.Diagnostics.Select(d => d.Message).ToArray(),
+            bound.Diagnostics.Select(d => (string?)d?["message"]).ToArray());
+        Assert.IsTrue(XNode.DeepEquals(XElement.Parse(xml), XElement.Parse(bound.Output)));
     }
 
     /// <summary>Binding fixtures reuse typed requests and preserve semantic XML output.</summary>

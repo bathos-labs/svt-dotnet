@@ -218,6 +218,23 @@ Diagnostics appear only on stderr, not in this discovery object. A root rejectio
 `template_available: false` and an empty inputs array. A scoped error may accompany usable inputs.
 If inspection never runs because acquisition or request validation failed, stdout is empty.
 
+[Metadata](metadata.md) fields are included on every discovery report, with `format_version: 0`:
+
+- Each input also contains `description`, `label_source` (`key`, `element` or `metadata`) and
+  `order`. `label` is the resolved effective label. Description and order use explicit nulls when
+  absent or discarded. Inputs and targets retain structural discovery order.
+- The root also contains ordered `input_groups`. Each entry contains `key`, `label`, `description`,
+  `order` and ordered `input_keys`. The keys reference the existing inputs; do not repeat full input
+  objects. Group order, input order, omissions and unnamed-section nulls follow the
+  [presentation model](../docs/inspection-api.md#presentation-metadata-extension).
+- A root rejection or usable template with no inputs has an empty `input_groups` array. A usable
+  hook-only template with inputs has one unnamed section. Every admitted key appears exactly once
+  across the groups, with exact case-sensitive spelling.
+
+Text reports continue to use structural discovery order and display the resolved input labels. This
+extension does not add a form renderer or change binding JSON, exit codes or diagnostic streams.
+Metadata warnings alone do not fail inspect or block bind.
+
 ### Diagnostic JSON
 
 ```json

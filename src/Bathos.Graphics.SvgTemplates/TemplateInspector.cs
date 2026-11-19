@@ -163,10 +163,14 @@ public static class TemplateInspector
     {
         var diagnostics = new List<Diagnostic>();
         var hookLocations = new Dictionary<string, List<SourceLocation>>(StringComparer.Ordinal);
-        var groups = new Dictionary<string, List<(string Label, TemplateTarget Target)>>(StringComparer.Ordinal);
-        void Add(string code, DiagnosticSeverity severity, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
+        var groups = new Dictionary<string, List<(string? Label, TemplateTarget Target)>>(StringComparer.Ordinal);
+        void Report(string code, DiagnosticSeverity severity, string message, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
         {
             Check(diagnostics.Count + 1, limits.MaxDiagnostics, nameof(limits.MaxDiagnostics));
+            diagnostics.Add(new(code, severity, message, key, location, related?.ToImmutableArray() ?? [], null));
+        }
+        void Add(string code, DiagnosticSeverity severity, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
+        {
             var message = code switch
             {
                 "svt.hook.target" => "The hook requires a compatible SVG element.",
@@ -177,9 +181,9 @@ public static class TemplateInspector
                 "svt.version.nested" => "Descendant version marker ignored.",
                 _ => throw new InvalidOperationException("Unknown diagnostic code."),
             };
-            diagnostics.Add(new(code, severity, message, key, location, related?.ToImmutableArray() ?? [], null));
+            Report(code, severity, message, key, location, related);
         }
-        foreach (var element in root.DescendantsAndSelf())
+        foreach (var element in BindingElements(root, token))
         {
             token.ThrowIfCancellationRequested();
             foreach (var attribute in element.Attributes())
@@ -206,8 +210,7 @@ public static class TemplateInspector
                 { Add("svt.hook.target", DiagnosticSeverity.Error, key, Point(attribute)); continue; }
                 if (key.Length == 0)
                 { Add("svt.hook.key", DiagnosticSeverity.Error, key, Point(attribute)); continue; }
-                var label = ((string?)element.Attribute("data-svt-label"))?.Trim(' ', '\t', '\r', '\n');
-                if (string.IsNullOrEmpty(label)) label = key;
+                var label = InputMetadata.Trim((string?)element.Attribute("data-svt-label"));
                 string? raw;
                 DefaultSource? origin;
                 if (i == 0) { raw = element.Value; origin = DefaultSource.TextContent; }
@@ -222,7 +225,7 @@ public static class TemplateInspector
                 group.Add((label, target));
             }
         }
-        var inputs = ImmutableArray.CreateBuilder<TemplateInput>();
+        var admittedKeys = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (key, group) in groups)
         {
             token.ThrowIfCancellationRequested();
@@ -230,17 +233,63 @@ public static class TemplateInspector
             var kind = Kind(first.Target.Hook);
             if (group.Any(t => Kind(t.Target.Hook) != kind) || (kind != InputKind.Paint && group.Count > 1))
             { Add("svt.input.ambiguous", DiagnosticSeverity.Error, key, first.Target.Location, group.Skip(1).Select(t => t.Target.Location)); continue; }
-            var differing = group.Where(t => t.Label != first.Label).Select(t => t.Target.Location).ToArray();
-            if (differing.Length > 0) Add("svt.input.labels", DiagnosticSeverity.Warning, key, first.Target.Location, differing);
+            admittedKeys.Add(key);
+        }
+        var metadata = InputMetadata.Resolve(root, admittedKeys,
+            (code, message, key, node, related) => Report(code, DiagnosticSeverity.Warning, message, key, Point(node), related?.Select(Point)), token);
+        var inputs = ImmutableArray.CreateBuilder<TemplateInput>();
+        foreach (var (key, group) in groups)
+        {
+            token.ThrowIfCancellationRequested();
+            if (!admittedKeys.Contains(key)) continue;
+            var first = group[0];
+            metadata.Inputs.TryGetValue(key, out var fields);
+            if (fields?.Label is null)
+            {
+                var differing = group.Where(t => (t.Label ?? key) != (first.Label ?? key)).Select(t => t.Target.Location).ToArray();
+                if (differing.Length > 0) Add("svt.input.labels", DiagnosticSeverity.Warning, key, first.Target.Location, differing);
+            }
             var raw = first.Target.Default.Raw;
             var same = group.All(t => t.Target.Default.Raw == raw);
             var state = same ? raw is null ? InputDefaultState.Absent : InputDefaultState.Common : InputDefaultState.Mixed;
-            inputs.Add(new(key, first.Label, kind, group.Select(t => t.Target).ToImmutableArray(), new(state, state == InputDefaultState.Common ? raw : null)));
+            inputs.Add(new(key, fields?.Label ?? first.Label ?? key, Kind(first.Target.Hook), group.Select(t => t.Target).ToImmutableArray(),
+                new(state, state == InputDefaultState.Common ? raw : null), fields?.Description,
+                fields?.Label is not null ? InputLabelSource.Metadata : first.Label is not null ? InputLabelSource.Element : InputLabelSource.Key,
+                fields?.Order));
         }
-        var admittedKeys = inputs.Select(input => input.Key).ToHashSet(StringComparer.Ordinal);
         var rejected = hookLocations.Where(pair => !admittedKeys.Contains(pair.Key))
             .ToImmutableDictionary(pair => pair.Key, pair => pair.Value.ToImmutableArray(), StringComparer.Ordinal);
-        return new(new(source, inputs.ToImmutable()) { RejectedLocations = rejected }, diagnostics.OrderBy(d => d.Location?.Line).ThenBy(d => d.Location?.Column).ThenBy(d => d.Code, StringComparer.Ordinal).ToImmutableArray());
+        var resolvedInputs = inputs.ToImmutable();
+        var presentation = metadata.Present(resolvedInputs, token);
+        InspectionOrder.Sort(diagnostics, (a, b) =>
+        {
+            var line = Nullable.Compare(a.Location?.Line, b.Location?.Line);
+            if (line != 0) return line;
+            var column = Nullable.Compare(a.Location?.Column, b.Location?.Column);
+            return column != 0 ? column : StringComparer.Ordinal.Compare(a.Code, b.Code);
+        }, token);
+        return new(new(source, resolvedInputs, presentation) { RejectedLocations = rejected }, diagnostics.ToImmutableArray());
+    }
+
+    private static IEnumerable<XElement> BindingElements(XElement root, CancellationToken token)
+    {
+        // Traverse once without recursion or repeated ancestor scans; skip whole metadata subtrees.
+        XNode? node = root;
+        while (node is not null)
+        {
+            token.ThrowIfCancellationRequested();
+            if (node is XElement element && element.Name != InputMetadata.SvgMetadata)
+            {
+                yield return element;
+                if (element.FirstNode is { } child) { node = child; continue; }
+            }
+            while (node is not null && node != root && node.NextNode is null)
+            {
+                token.ThrowIfCancellationRequested();
+                node = node.Parent;
+            }
+            node = node == root ? null : node?.NextNode;
+        }
     }
 
     private static SourceLocation PositionAt(string source, int offset)

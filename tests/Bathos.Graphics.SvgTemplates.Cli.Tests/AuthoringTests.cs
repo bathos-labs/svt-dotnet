@@ -38,6 +38,7 @@ public sealed class AuthoringTests
             var inventory = ReadJson(Path.Combine(folder, "inventory.json"));
             var actual = JsonSerializer.SerializeToNode(result.Template.Inputs, JsonOptions);
             Assert.IsTrue(JsonNode.DeepEquals(inventory["inputs"], WithoutLocations(actual)), name + " API inventory");
+            Assert.IsTrue(JsonNode.DeepEquals(inventory["input_groups"], Presentation(result.Template)), name + " API presentation");
             using var workspace = new Workspace();
             var discovery = await workspace.Process("inspect", sourcePath, "--format", "json", "--diagnostics", "json");
             Assert.AreEqual(0, discovery.ExitCode, discovery.Error);
@@ -45,6 +46,7 @@ public sealed class AuthoringTests
             var discovered = JsonNode.Parse(discovery.Output);
             Assert.IsTrue(discovered?["template_available"]?.GetValue<bool>());
             Assert.IsTrue(JsonNode.DeepEquals(inventory["inputs"], WithoutLocations(discovered?["inputs"])), name + " CLI inventory");
+            Assert.IsTrue(JsonNode.DeepEquals(inventory["input_groups"], discovered?["input_groups"]), name + " CLI presentation");
             foreach (var mode in new[] { "empty", "partial", "complete" })
             {
                 var requestPath = Path.Combine(folder, mode + ".json");
@@ -63,6 +65,7 @@ public sealed class AuthoringTests
                 Assert.IsNotNull(reinspected.Template);
                 Assert.IsEmpty(reinspected.Diagnostics);
                 CollectionAssert.AreEqual(result.Template.Inputs.Select(i => i.Key).ToArray(), reinspected.Template.Inputs.Select(i => i.Key).ToArray());
+                Assert.IsTrue(JsonNode.DeepEquals(Presentation(result.Template), Presentation(reinspected.Template)), name + " bound presentation");
             }
             CollectionAssert.AreEqual(original, source, name + " caller buffer");
             CollectionAssert.AreEqual(original, await File.ReadAllBytesAsync(sourcePath), name + " source file");
@@ -133,6 +136,15 @@ public sealed class AuthoringTests
             CollectionAssert.AreEqual(source, await File.ReadAllBytesAsync(path), name + " source file");
         }
     }
+
+    private static JsonNode? Presentation(InspectedTemplate template) => JsonSerializer.SerializeToNode(template.InputGroups.Select(group => new
+    {
+        group.Key,
+        group.Label,
+        group.Description,
+        group.Order,
+        InputKeys = group.Inputs.Select(input => input.Key),
+    }), JsonOptions);
 
     private static TemplateBinding CreateBinding(JsonNode? entry)
     {

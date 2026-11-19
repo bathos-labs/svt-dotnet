@@ -20,7 +20,10 @@
       "default": {
         "state": "common",
         "raw": "Welcome"
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     },
     {
       "key": "caption",
@@ -40,7 +43,10 @@
       "default": {
         "state": "common",
         "raw": "Leaf span"
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     },
     {
       "key": "note",
@@ -60,8 +66,24 @@
       "default": {
         "state": "common",
         "raw": "  space  "
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "input_groups": [
+    {
+      "key": null,
+      "label": null,
+      "description": null,
+      "order": null,
+      "input_keys": [
+        "heading",
+        "caption",
+        "note"
+      ]
+    }
+  ]
 }

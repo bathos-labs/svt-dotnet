@@ -8,7 +8,7 @@ They and the geometric PNG/JPEG illustrations are MIT-licensed under the reposit
 | Directory             | Intent                                                                                       |
 | --------------------- | -------------------------------------------------------------------------------------------- |
 | `text-card`           | Leaf text/span inputs, Unicode, literal XML characters, whitespace, empty and long text      |
-| `shared-palette`      | Shared fill/stroke, mixed and absent defaults, none and transparent paint                    |
+| `shared-palette`      | Shared fill/stroke, raw defaults, central labels/descriptions and ordered groups             |
 | `image-fitting`       | Portrait, landscape and transparent square images; crop and contain; href/XLink              |
 | `layered-composition` | Clipping, masking, transforms, opacity and foreground order                                  |
 | `hazards`             | Separate expected structural findings, silent hook loss, CSS overrides and missing resources |

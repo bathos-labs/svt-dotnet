@@ -13,6 +13,17 @@ public enum InputKind
     Paint,
 }
 
+/// <summary>The source of an input's effective display label.</summary>
+public enum InputLabelSource
+{
+    /// <summary>The binding key supplies the label.</summary>
+    Key,
+    /// <summary>The first admitted target supplies an inline label.</summary>
+    Element,
+    /// <summary>Central metadata supplies the label.</summary>
+    Metadata,
+}
+
 /// <summary>Identifies TargetHook values.</summary>
 public enum TargetHook
 {
@@ -138,13 +149,17 @@ public sealed class TemplateTarget
 /// <summary>Immutable TemplateInput evidence.</summary>
 public sealed class TemplateInput
 {
-    internal TemplateInput(string key, string label, InputKind kind, ImmutableArray<TemplateTarget> targets, InputDefault @default)
+    internal TemplateInput(string key, string label, InputKind kind, ImmutableArray<TemplateTarget> targets, InputDefault @default,
+        string? description, InputLabelSource labelSource, int? order)
     {
         Key = key;
         Label = label;
         Kind = kind;
         Targets = targets;
         Default = @default;
+        Description = description;
+        LabelSource = labelSource;
+        Order = order;
     }
     /// <summary>Gets the Key.</summary>
     public string Key { get; }
@@ -156,6 +171,35 @@ public sealed class TemplateInput
     public ImmutableArray<TemplateTarget> Targets { get; }
     /// <summary>Gets the Default.</summary>
     public InputDefault Default { get; }
+    /// <summary>Gets optional authored help text, without markup interpretation.</summary>
+    public string? Description { get; }
+    /// <summary>Gets the source of the effective label.</summary>
+    public InputLabelSource LabelSource { get; }
+    /// <summary>Gets the optional presentation order within this input's group.</summary>
+    public int? Order { get; }
+}
+
+/// <summary>A nonempty presentation group referencing the structurally discovered input objects.</summary>
+public sealed class TemplateInputGroup
+{
+    internal TemplateInputGroup(string? key, string? label, string? description, int? order, ImmutableArray<TemplateInput> inputs)
+    {
+        Key = key;
+        Label = label;
+        Description = description;
+        Order = order;
+        Inputs = inputs;
+    }
+    /// <summary>Gets the exact group key, or null for the final unnamed section.</summary>
+    public string? Key { get; }
+    /// <summary>Gets the effective group label, or null for the unnamed section.</summary>
+    public string? Label { get; }
+    /// <summary>Gets optional authored help text.</summary>
+    public string? Description { get; }
+    /// <summary>Gets optional group order; the unnamed section is always last.</summary>
+    public int? Order { get; }
+    /// <summary>Gets the same input instances as structural discovery, in presentation order.</summary>
+    public ImmutableArray<TemplateInput> Inputs { get; }
 }
 
 /// <summary>Immutable Diagnostic evidence.</summary>
@@ -204,10 +248,11 @@ public sealed class InspectionResult
 /// <summary>An independently owned source snapshot and discovered inputs.</summary>
 public sealed class InspectedTemplate
 {
-    internal InspectedTemplate(string source, ImmutableArray<TemplateInput> inputs)
+    internal InspectedTemplate(string source, ImmutableArray<TemplateInput> inputs, ImmutableArray<TemplateInputGroup> inputGroups)
     {
         Source = source;
         Inputs = inputs;
+        InputGroups = inputGroups;
     }
     internal string Source { get; }
     internal ImmutableDictionary<string, ImmutableArray<SourceLocation>> RejectedLocations { get; init; }
@@ -219,4 +264,6 @@ public sealed class InspectedTemplate
 
     /// <summary>Gets inputs in discovery order.</summary>
     public ImmutableArray<TemplateInput> Inputs { get; }
+    /// <summary>Gets resolved nonempty groups in presentation order, including any final unnamed section.</summary>
+    public ImmutableArray<TemplateInputGroup> InputGroups { get; }
 }

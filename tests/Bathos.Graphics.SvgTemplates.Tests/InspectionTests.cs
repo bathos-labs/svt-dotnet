@@ -50,6 +50,14 @@ public sealed class InspectionTests
                 FormatVersion = 0,
                 TemplateAvailable = result.Template is not null,
                 Inputs = result.Template?.Inputs ?? [],
+                InputGroups = result.Template?.InputGroups.Select(group => new
+                {
+                    group.Key,
+                    group.Label,
+                    group.Description,
+                    group.Order,
+                    InputKeys = group.Inputs.Select(input => input.Key),
+                }).ToArray() ?? [],
                 Diagnostics = result.Diagnostics.Select(d => new { d.Code, d.Severity, d.Key, d.Location, d.RelatedLocations, d.Limit }),
             }, JsonOptions);
             var expected = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "expected.json")));

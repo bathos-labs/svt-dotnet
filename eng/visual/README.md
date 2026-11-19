@@ -59,12 +59,19 @@ node eng/visual/release-authoring.mjs /path/to/Inkscape.app/Contents/MacOS/inksc
 ```
 
 The authoring runner creates native and Plain SVG corpora, opens/exports every original and expected
-variant, then reopens/exports in a fresh process. It compares independent inventories, runs API/CLI
-binding assertions and checks geometry/direct-fill actions in both save modes. Each deliberate edit
-also gets empty, partial and complete API/CLI binding checks against independent expected artwork;
-the filtered runner requires at least one executed test. Optimized export and interactive editing
-are excluded from this command. It waits for its child processes to exit and does not create an
-interactive editing session or close a user's existing editor windows.
+variant, then reopens/exports in a fresh process. It compares independent inventories (including
+label provenance, descriptions, orders and group membership), runs API/CLI binding assertions and
+checks geometry/direct-fill actions in both save modes. Each deliberate edit also gets empty,
+partial and complete API/CLI binding checks against independent expected artwork; the filtered
+runner requires at least one executed test. Optimized export and interactive editing are excluded
+from this command. It waits for its child processes to exit and does not create an interactive
+editing session or close a user's existing editor windows.
+
+The shared-palette template carries its SVT declarations in the specified RDF/XML document metadata
+envelope. Both save modes must preserve its resolved fields and groups through reopening and
+direct-paint edits. The runner records stderr per operation and completes preservation checks, but
+any tool diagnostics still fail the authoring release verdict. Passing rendering or preservation
+checks do not override that verdict; no warning suppression is applied.
 
 Use the printed artifact directory to render both saved corpora against the pre-save examples:
 

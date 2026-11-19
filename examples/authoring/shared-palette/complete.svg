@@ -1,4 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-svt-version="0" width="480" height="320" viewBox="0 0 480 320" font-family="DejaVu Sans" font-size="18">
+<metadata xmlns:svt="https://bathos-labs.github.io/svt" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:RDF><rdf:Description rdf:about=""><svt:inputs rdf:parseType="Literal">
+<svt:group key="appearance" label="Appearance" order="20"><svt:description>Direct colors in the artwork.</svt:description></svt:group>
+<svt:group key="advanced" label="Inherited paint" order="10"/>
+<svt:input key="accent" label="Primary accent" group="appearance" order="20"><svt:description>One color shared by the panel and line.</svt:description></svt:input>
+<svt:input key="varied" label="Circle colors" group="appearance" order="10"><svt:description>Replacing this input unifies both circles.</svt:description></svt:input>
+<svt:input key="inherited" group="advanced" order="0"/>
+</svt:inputs></rdf:Description></rdf:RDF>
+</metadata>
 <rect width="480" height="320" fill="#f6f2e9"/>
 <rect id="accent" x="24" y="24" width="180" height="90" fill="#b54053" data-svt-fill="accent" data-svt-label="Accent"/>
 <path d="M244 70H450" stroke="#b54053" stroke-width="12" data-svt-stroke="accent" data-svt-label="Accent"/>
