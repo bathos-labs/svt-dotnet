@@ -95,6 +95,8 @@ public sealed class MetadataTests
         Assert.IsNull(diagnostic.Key);
         Assert.IsEmpty(diagnostic.RelatedLocations);
         Assert.AreEqual(DiagnosticSeverity.Warning, diagnostic.Severity);
+        StringAssert.Contains(diagnostic.Message, "rdf:parseType=\"Literal\"");
+        StringAssert.Contains(diagnostic.Message, "container is ignored");
         var position = marker.StartsWith("r:", StringComparison.Ordinal)
             ? xml.IndexOf(marker, StringComparison.Ordinal) + 1
             : xml.IndexOf("<s:inputs", StringComparison.Ordinal) + 2;
@@ -118,6 +120,8 @@ public sealed class MetadataTests
         var diagnostic = result.Diagnostics.Single();
         Assert.AreEqual("svt.metadata.invalid", diagnostic.Code);
         Assert.IsNull(diagnostic.Key);
+        StringAssert.Contains(diagnostic.Message, anchor == "r:about=''" ? "Only 'rdf:about'" : "Only 'rdf:parseType'");
+        StringAssert.Contains(diagnostic.Message, "container is ignored");
         Assert.AreEqual(xml.IndexOf(attribute, StringComparison.Ordinal) + 1, diagnostic.Location?.Column);
         Assert.AreEqual("Inline", Template(result).Inputs[0].Label);
     }
@@ -364,6 +368,57 @@ public sealed class MetadataTests
         Assert.IsNull(input.Description);
         Assert.AreEqual("Central", input.Label);
         Assert.AreEqual(7, input.Order);
+    }
+
+    /// <summary>Warnings sharing a code explain the failed rule and the precise recovery to authors.</summary>
+    [TestMethod]
+    [DataRow("input")]
+    [DataRow("group")]
+    public void MetadataMessagesExplainOrderAndDescriptionRules(string kind)
+    {
+        var cases = new[]
+        {
+            (Attribute: "order='bad'", Content: "", Rule: "'order'", Requirement: "ASCII digits", Recovery: "this order is ignored", Related: 0),
+            (Attribute: "", Content: "<s:description>Before<g/>After</s:description>", Rule: "'svt:description'", Requirement: "without child elements", Recovery: "this description is ignored", Related: 0),
+            (Attribute: "", Content: "<s:description>One</s:description><s:description>Two</s:description>", Rule: "'svt:description'", Requirement: "At most one", Recovery: "all descriptions for this declaration are ignored", Related: 1)
+        };
+        var messages = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in cases)
+        {
+            var result = Inspect(Xml($"<s:{kind} key='a' label='Central' {item.Attribute}>{item.Content}</s:{kind}>"));
+            var diagnostic = result.Diagnostics.Single();
+            Assert.AreEqual("svt.metadata.invalid", diagnostic.Code);
+            Assert.AreEqual(DiagnosticSeverity.Warning, diagnostic.Severity);
+            Assert.AreEqual(kind == "input" ? "a" : null, diagnostic.Key);
+            Assert.IsNotNull(diagnostic.Location);
+            Assert.HasCount(item.Related, diagnostic.RelatedLocations);
+            StringAssert.Contains(diagnostic.Message, item.Rule);
+            StringAssert.Contains(diagnostic.Message, item.Requirement);
+            StringAssert.Contains(diagnostic.Message, item.Recovery);
+            if (item.Attribute.Length > 0) StringAssert.Contains(diagnostic.Message, "0 through 2147483647");
+            messages.Add(diagnostic.Message);
+            Assert.IsNotNull(Template(result).Bind([TemplateBinding.Paint("a", "blue")]).Document);
+        }
+        Assert.HasCount(3, messages);
+    }
+
+    /// <summary>Identity, reference and text failures identify their rule instead of a generic invalid-metadata message.</summary>
+    [TestMethod]
+    [DataRow("<s:input/>", "'key'", "nonempty", "declaration is ignored")]
+    [DataRow("<s:group key=''/>", "'key'", "nonempty", "declaration is ignored")]
+    [DataRow("<s:input key='a' group=''/>", "'group'", "nonempty", "remains ungrouped")]
+    [DataRow("unexpected text", "'svt:inputs'", "Only whitespace", "character data is ignored")]
+    [DataRow("<s:input key='a'>unexpected text</s:input>", "'svt:input'", "Only whitespace", "character data is ignored")]
+    [DataRow("<s:group key='g'>unexpected text</s:group>", "'svt:group'", "Only whitespace", "character data is ignored")]
+    public void MetadataMessagesExplainOtherInvalidRules(string declarations, string field, string rule, string recovery)
+    {
+        var result = Inspect(Xml(declarations));
+        var diagnostic = result.Diagnostics.Single();
+        Assert.AreEqual("svt.metadata.invalid", diagnostic.Code);
+        StringAssert.Contains(diagnostic.Message, field);
+        StringAssert.Contains(diagnostic.Message, rule);
+        StringAssert.Contains(diagnostic.Message, recovery);
+        Assert.HasCount(2, Template(result).Inputs);
     }
 
     /// <summary>Only exact namespaces/placements participate; foreign payloads are opaque.</summary>

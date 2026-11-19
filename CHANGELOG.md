@@ -8,7 +8,8 @@ exact package version while evaluating them.
 - Add optional RDF/XML document metadata for central input labels, descriptions, ordering and
   single-level groups. Inspection exposes label provenance and a separate immutable presentation
   view; CLI discovery includes those fields and ordered key references. SVG metadata subtrees are
-  nonbinding content.
+  nonbinding content. Metadata warnings explain the failed rule and its recovery in API and CLI
+  diagnostics.
 
 - Add `BoundSvg.Utf8ByteCount` and `TryWriteUtf8Bytes` for exact sizing and allocation-free UTF-8
   export into caller-owned storage. Insufficient capacity leaves storage unchanged; successful

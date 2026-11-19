@@ -21,12 +21,12 @@ internal sealed class InputMetadata
     }
 
     internal static InputMetadata Resolve(XElement root, HashSet<string> admitted,
-        Action<string, string?, XObject, IEnumerable<XObject>?> report, CancellationToken token)
+        Action<string, string, string?, XObject, IEnumerable<XObject>?> report, CancellationToken token)
     {
         var result = new InputMetadata();
         var containers = new List<(XElement Element, XElement Subject)>();
         var unknownProperties = new List<XElement>();
-        void Warn(string code, string? key, XObject node, IEnumerable<XObject>? related = null) => report(code, key, node, related);
+        void Warn(string code, string message, string? key, XObject node, IEnumerable<XObject>? related = null) => report(code, message, key, node, related);
         foreach (var child in root.Elements())
         {
             token.ThrowIfCancellationRequested();
@@ -50,14 +50,15 @@ internal sealed class InputMetadata
         }
         if (containers.Count > 1)
         {
-            Warn("svt.metadata.container", null, containers[0].Element, containers.Skip(1).Select(entry => entry.Element));
+            Warn("svt.metadata.container", "At most one 'svt:inputs' property is allowed across document RDF descriptions; all central metadata is ignored.",
+                null, containers[0].Element, containers.Skip(1).Select(entry => entry.Element));
             return result;
         }
         // Cardinality is resolved before envelope diagnostics consume the shared warning budget.
         foreach (var property in unknownProperties)
         {
             token.ThrowIfCancellationRequested();
-            Warn("svt.metadata.unknown", null, property);
+            Warn("svt.metadata.unknown", "Only 'svt:inputs' is supported as an SVT property of 'rdf:Description'; this element and its subtree are ignored.", null, property);
         }
         if (containers.Count == 0) return result;
 
@@ -67,13 +68,16 @@ internal sealed class InputMetadata
         var literal = container.Attribute(Rdf + "parseType");
         if (literal?.Value != "Literal")
         {
-            Warn("svt.metadata.invalid", null, literal ?? (XObject)container);
+            Warn("svt.metadata.invalid", "The 'svt:inputs' property requires rdf:parseType=\"Literal\"; this metadata container is ignored.", null, literal ?? (XObject)container);
             return result;
         }
         var invalidEnvelope = UnexpectedRdfAttribute(descriptionSubject, "about") ?? UnexpectedRdfAttribute(container, "parseType");
         if (invalidEnvelope is not null)
         {
-            Warn("svt.metadata.invalid", null, invalidEnvelope);
+            var rule = invalidEnvelope.Parent == descriptionSubject
+                ? "Only 'rdf:about' is supported as an RDF attribute on 'rdf:Description'"
+                : "Only 'rdf:parseType' is supported as an RDF attribute on 'svt:inputs'";
+            Warn("svt.metadata.invalid", rule + "; this metadata container is ignored.", null, invalidEnvelope);
             return result;
         }
         var inputs = new Dictionary<string, List<XElement>>(StringComparer.Ordinal);
@@ -86,7 +90,7 @@ internal sealed class InputMetadata
             var key = element.Attribute("key");
             if (key is null || key.Value.Length == 0)
             {
-                Warn("svt.metadata.invalid", null, key ?? (XObject)element);
+                Warn("svt.metadata.invalid", $"'svt:{element.Name.LocalName}' requires a nonempty, unnamespaced 'key' attribute; this declaration is ignored.", null, key ?? (XObject)element);
                 return;
             }
             var declarations = isInput ? inputs : groups;
@@ -114,10 +118,16 @@ internal sealed class InputMetadata
                 token.ThrowIfCancellationRequested();
                 var inputKey = isInput ? key : null;
                 var element = entries[0];
-                if (entries.Count > 1) { Warn("svt.metadata.duplicate", inputKey, element, entries.Skip(1)); continue; }
+                if (entries.Count > 1)
+                {
+                    Warn("svt.metadata.duplicate", $"Each 'svt:{element.Name.LocalName}' key must be unique; all declarations of this {(isInput ? "input" : "group")} key are ignored.",
+                        inputKey, element, entries.Skip(1));
+                    continue;
+                }
                 if (isInput && !admitted.Contains(key))
                 {
-                    Warn("svt.metadata.input", key, element.Attribute("key") ?? (XObject)element);
+                    Warn("svt.metadata.input", "The 'key' must reference an admitted artwork input; this declaration is ignored because the input is unknown or rejected.",
+                        key, element.Attribute("key") ?? (XObject)element);
                     continue;
                 }
                 Attributes(element, inputKey, isInput ? ["key", "label", "order", "group"] : ["key", "label", "order"]);
@@ -127,13 +137,15 @@ internal sealed class InputMetadata
                     var value = orderAttribute.Value;
                     if (value.Length > 0 && value.All(c => c is >= '0' and <= '9') &&
                         int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var number)) order = number;
-                    else Warn("svt.metadata.invalid", inputKey, orderAttribute);
+                    else Warn("svt.metadata.invalid", "The 'order' attribute must contain only ASCII digits representing an integer from 0 through 2147483647, without signs or whitespace; this order is ignored.", inputKey, orderAttribute);
                 }
                 string? group = null;
                 if (isInput && element.Attribute("group") is { } groupAttribute)
                 {
-                    if (groupAttribute.Value.Length == 0) Warn("svt.metadata.invalid", key, groupAttribute);
-                    else if (!result.Groups.ContainsKey(groupAttribute.Value)) Warn("svt.metadata.group", key, groupAttribute);
+                    if (groupAttribute.Value.Length == 0)
+                        Warn("svt.metadata.invalid", "The 'group' attribute must contain a nonempty group key; the input remains ungrouped.", key, groupAttribute);
+                    else if (!result.Groups.ContainsKey(groupAttribute.Value))
+                        Warn("svt.metadata.group", "The 'group' attribute must reference a uniquely declared group; the input remains ungrouped because that group is unknown or discarded.", key, groupAttribute);
                     else group = groupAttribute.Value;
                 }
                 var descriptions = new List<XElement>();
@@ -144,11 +156,13 @@ internal sealed class InputMetadata
                 });
                 string? description = null;
                 if (descriptions.Count > 1)
-                    Warn("svt.metadata.invalid", inputKey, descriptions[0], descriptions.Skip(1));
+                    Warn("svt.metadata.invalid", $"At most one 'svt:description' child is allowed on 'svt:{element.Name.LocalName}'; all descriptions for this declaration are ignored.",
+                        inputKey, descriptions[0], descriptions.Skip(1));
                 else if (descriptions.Count == 1)
                 {
                     var child = descriptions[0];
-                    if (child.HasElements) Warn("svt.metadata.invalid", inputKey, child);
+                    if (child.HasElements)
+                        Warn("svt.metadata.invalid", "'svt:description' must contain plain text or CDATA without child elements; this description is ignored.", inputKey, child);
                     else
                     {
                         Attributes(child, inputKey);
@@ -167,7 +181,7 @@ internal sealed class InputMetadata
                 if (attribute.IsNamespaceDeclaration) continue;
                 if (attribute.Name.Namespace == Namespace ||
                     (attribute.Name.NamespaceName.Length == 0 && !allowed.Contains(attribute.Name.LocalName, StringComparer.Ordinal)))
-                    Warn("svt.metadata.unknown", key, attribute);
+                    Warn("svt.metadata.unknown", $"This attribute is not supported on 'svt:{element.Name.LocalName}'; it is ignored. Recognized presentation fields must use unnamespaced attributes.", key, attribute);
             }
         }
         void Children(XElement element, string? key, Action<XElement> visit)
@@ -180,13 +194,14 @@ internal sealed class InputMetadata
                 else if (node is XText text && !unexpectedText && Trim(text.Value) is not null)
                 {
                     unexpectedText = true;
-                    Warn("svt.metadata.invalid", key, element);
+                    Warn("svt.metadata.invalid", $"Only whitespace is allowed between child elements of 'svt:{element.Name.LocalName}'; this character data is ignored.", key, element);
                 }
             }
         }
         void Unknown(XElement element, string? key)
         {
-            if (element.Name.Namespace == Namespace) Warn("svt.metadata.unknown", key, element);
+            if (element.Name.Namespace == Namespace)
+                Warn("svt.metadata.unknown", "This SVT element is not supported in this position; the element and its entire subtree are ignored.", key, element);
         }
     }
 

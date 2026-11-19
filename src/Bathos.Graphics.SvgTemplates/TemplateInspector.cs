@@ -164,9 +164,13 @@ public static class TemplateInspector
         var diagnostics = new List<Diagnostic>();
         var hookLocations = new Dictionary<string, List<SourceLocation>>(StringComparer.Ordinal);
         var groups = new Dictionary<string, List<(string? Label, TemplateTarget Target)>>(StringComparer.Ordinal);
-        void Add(string code, DiagnosticSeverity severity, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
+        void Report(string code, DiagnosticSeverity severity, string message, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
         {
             Check(diagnostics.Count + 1, limits.MaxDiagnostics, nameof(limits.MaxDiagnostics));
+            diagnostics.Add(new(code, severity, message, key, location, related?.ToImmutableArray() ?? [], null));
+        }
+        void Add(string code, DiagnosticSeverity severity, string? key, SourceLocation location, IEnumerable<SourceLocation>? related = null)
+        {
             var message = code switch
             {
                 "svt.hook.target" => "The hook requires a compatible SVG element.",
@@ -175,15 +179,9 @@ public static class TemplateInspector
                 "svt.input.labels" => "Labels differ; the first target supplies the label.",
                 "svt.annotation.unknown" => "Unknown SVT annotation ignored.",
                 "svt.version.nested" => "Descendant version marker ignored.",
-                "svt.metadata.container" => "Multiple input metadata containers; central metadata ignored.",
-                "svt.metadata.duplicate" => "Duplicate metadata identity; all its declarations ignored.",
-                "svt.metadata.input" => "Metadata references no admitted input; declaration ignored.",
-                "svt.metadata.group" => "Metadata group reference cannot be resolved; input remains ungrouped.",
-                "svt.metadata.invalid" => "Invalid metadata envelope, identity, field or text ignored.",
-                "svt.metadata.unknown" => "Unknown metadata element or attribute ignored.",
                 _ => throw new InvalidOperationException("Unknown diagnostic code."),
             };
-            diagnostics.Add(new(code, severity, message, key, location, related?.ToImmutableArray() ?? [], null));
+            Report(code, severity, message, key, location, related);
         }
         foreach (var element in BindingElements(root, token))
         {
@@ -238,7 +236,7 @@ public static class TemplateInspector
             admittedKeys.Add(key);
         }
         var metadata = InputMetadata.Resolve(root, admittedKeys,
-            (code, key, node, related) => Add(code, DiagnosticSeverity.Warning, key, Point(node), related?.Select(Point)), token);
+            (code, message, key, node, related) => Report(code, DiagnosticSeverity.Warning, message, key, Point(node), related?.Select(Point)), token);
         var inputs = ImmutableArray.CreateBuilder<TemplateInput>();
         foreach (var (key, group) in groups)
         {
