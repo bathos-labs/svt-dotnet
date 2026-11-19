@@ -3,5 +3,5 @@
 artifacts/
 publish/
 TestResults/
-coverage/
+/coverage/
 **/node_modules/

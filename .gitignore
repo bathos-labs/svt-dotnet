@@ -3,7 +3,7 @@
 artifacts/
 publish/
 TestResults/
-coverage/
+/coverage/
 *.binlog
 *.trx
 *.coverage

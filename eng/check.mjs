@@ -57,7 +57,7 @@ const checks = [
       "--test",
       ...(
         await Promise.all(
-          ["eng/visual", "eng/package", "eng/release"].map(async (folder) =>
+          ["eng/visual", "eng/package", "eng/release", "eng/coverage"].map(async (folder) =>
             (await readdir(resolve(root, folder)))
               .filter((name) => name.endsWith(".test.mjs"))
               .sort()

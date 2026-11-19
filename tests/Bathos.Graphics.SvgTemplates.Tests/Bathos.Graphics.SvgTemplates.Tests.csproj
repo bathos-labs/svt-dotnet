@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MSTest" />
+    <PackageReference Include="coverlet.MTP" PrivateAssets="all" />
     <ProjectReference Include="../../src/Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <None Include="../../conformance/substitution/**/*" Link="BindingFixtures/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

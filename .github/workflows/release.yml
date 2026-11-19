@@ -2,7 +2,7 @@ name: NuGet release
 on:
   push:
     tags: ['v*']
-  # Exercises the candidate/native path without publishing or acquiring credentials.
+  # Exercises the candidate/native path without publishing or acquiring NuGet credentials.
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,6 +42,9 @@ jobs:
           await appendFile(process.env.GITHUB_OUTPUT, `tag=${tagged ? process.env.RELEASE_TAG : ''}\n`);
           JS
   validate:
+    permissions:
+      contents: read
+      id-token: write
     needs: policy
     uses: ./.github/workflows/validate.yml
     with:

@@ -50,6 +50,13 @@ tasks:
       - npm ci --prefix eng/visual --ignore-scripts
       - node --test eng/visual/*.test.mjs
 
+  test:coverage:
+    desc: Collect and verify library and CLI line/branch coverage on this host
+    cmds:
+      - dotnet restore SvgTemplates.slnx --locked-mode
+      - dotnet build SvgTemplates.slnx -c Release --no-restore
+      - node eng/coverage/run.mjs
+
   native:setup:
     desc: Install and verify pinned native validation tools
     cmds:
