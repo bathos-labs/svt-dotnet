@@ -5,6 +5,10 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Specify optional per-target paint and image interpretation, preserving raw evidence with bounded
+  parsing and immutable results. The contract is agreed; implementation is pending and interpreted
+  aggregation is deferred.
+
 - Add optional RDF/XML document metadata for central input labels, descriptions, ordering and
   single-level groups. Inspection exposes label provenance and a separate immutable presentation
   view; CLI discovery includes those fields and ordered key references. SVG metadata subtrees are
