@@ -47,3 +47,25 @@ delegate/timing overhead, and throughput depends on runtime, host load and hardw
 steady-state export costs, not cold JIT behavior, total process allocation, binding costs, host
 buffer acquisition or downstream renderer copies. Neither instrumentation nor a debugger should be
 attached when collecting comparison evidence.
+
+## Allocation is not retained memory
+
+The thread allocation counter measures new managed bytes during each operation. It does not measure
+live retained memory, unused pool capacity, object overhead, native allocations, or peak working
+set. The runner uses preallocated arrays, not an `ArrayPool`; its zero-allocation results say
+nothing about a cold or depleted pool, or whether a warm pool will satisfy a later rent without
+allocating.
+
+BoundSvg retains UTF-16 XML. Keeping it for deferred or repeated export may retain a different
+amount of memory than exporting once and retaining only independently owned UTF-8 bytes. The
+[API guidance](../../docs/binding-api.md#allocation-scope-and-retained-representations) illustrates
+payload sizes and explains that host choice. The large measurement case deliberately keeps both
+representations and a destination alive, so its isolated allocation totals cannot be read as a total
+application memory footprint.
+
+For an end-to-end evaluation, measure preparation/binding/serialization, cold and warm buffer
+acquisition, completed-document export, and downstream parsing/rendering/copies as separate phases.
+Label retained-memory and peak-working-set observations separately from allocation-per-operation
+results. Keep those additional phases outside this runner's export comparison. The
+[pooled consumption example](../../docs/binding-api.md#pooled-output-and-downstream-lifetime) is an
+executable lifetime illustration, not an additional benchmark or throughput claim.

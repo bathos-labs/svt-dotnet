@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -31,6 +32,8 @@ Check(changed.ToUtf8Bytes()[0] == (byte)'<', "Output bytes are not independent."
 Check(File.ReadAllBytes(textPath).SequenceEqual(original), "Source file mutated.");
 checks.Add("inspection-text-omission-empty-ownership");
 checks.Add("caller-owned-utf8-output");
+VerifyPooledConsumption(changed);
+checks.Add("pooled-output-consumption-lifetime");
 
 var palette = Inspect(File.ReadAllBytes(Path.Combine(sampleRoot, "shared-palette/input.svg")));
 Check(palette.Inputs.Single(i => i.Key == "accent").Default.State == InputDefaultState.Common, "Common default.");
@@ -88,6 +91,66 @@ static void Check(bool condition, string message)
 {
     if (!condition) throw new InvalidOperationException(message);
 }
+
+static void ConsumePooled(BoundSvg document, ArrayPool<byte> pool,
+    Action<ReadOnlySpan<byte>> consume)
+{
+    byte[] rented = pool.Rent(document.Utf8ByteCount);
+    try
+    {
+        if (!document.TryWriteUtf8Bytes(rented, out int bytesWritten))
+            throw new InvalidOperationException("The rented buffer is too small.");
+
+        // The consumer must finish reading before it returns, including when it throws.
+        consume(rented.AsSpan(0, bytesWritten));
+    }
+    finally
+    {
+        pool.Return(rented);
+    }
+}
+static void VerifyPooledConsumption(BoundSvg document)
+{
+    var expected = document.ToUtf8Bytes();
+    var pool = new TrackingBytePool(document.Utf8ByteCount + 13);
+    void Consume(ReadOnlySpan<byte> utf8)
+    {
+        Check(pool.IsRented, "The loan was returned before consumption finished.");
+        Check(utf8.Length == document.Utf8ByteCount && utf8.SequenceEqual(expected),
+            "The consumer did not receive exactly the written prefix.");
+        pool.Events.Add("consume");
+    }
+
+    ConsumePooled(document, pool, Consume);
+    Check(!pool.IsRented && pool.ReturnCount == 1, "Successful consumption did not return the loan.");
+    Check(pool.Events.SequenceEqual(["rent", "consume", "return"]), "Successful consumption lifetime order.");
+
+    pool.Events.Clear();
+    var failure = new InvalidOperationException("Controlled consumer failure.");
+    try
+    {
+        ConsumePooled(document, pool, utf8 =>
+        {
+            Consume(utf8);
+            throw failure;
+        });
+        throw new InvalidOperationException("Consumer failure did not propagate.");
+    }
+    catch (InvalidOperationException error) when (ReferenceEquals(error, failure))
+    {
+        Check(!pool.IsRented && pool.ReturnCount == 2, "Failed consumption did not return the loan.");
+        Check(pool.Events.SequenceEqual(["rent", "consume", "return"]), "Failed consumption lifetime order.");
+    }
+
+    // All readers have finished, so this same loan may now be reused after either outcome.
+    ConsumePooled(document, pool, Consume);
+    Check(!pool.IsRented && pool.ReturnCount == 3, "Reuse after consumption failure.");
+    ConsumePooled(document, ArrayPool<byte>.Shared, utf8 =>
+    {
+        var parsed = XElement.Parse(Encoding.UTF8.GetString(utf8));
+        Check(XNode.DeepEquals(parsed, XElement.Parse(document.Xml)), "Synchronous parsing of pooled output.");
+    });
+}
 static InspectedTemplate Inspect(byte[] bytes)
 {
     var result = TemplateInspector.Inspect(bytes);
@@ -124,4 +187,37 @@ static void Cancelled(Action action)
     try { action(); }
     catch (OperationCanceledException) { return; }
     throw new InvalidOperationException("Cancellation did not throw.");
+}
+
+// A deterministic host pool proves lifetime ordering and oversized-buffer handling without timing.
+internal sealed class TrackingBytePool(int capacity) : ArrayPool<byte>
+{
+    private readonly byte[] _buffer = new byte[capacity];
+    private int _requested;
+    internal bool IsRented { get; private set; }
+    internal int ReturnCount { get; private set; }
+    internal List<string> Events { get; } = [];
+
+    public override byte[] Rent(int minimumLength)
+    {
+        if (IsRented || minimumLength > _buffer.Length)
+            throw new InvalidOperationException("Invalid test pool rental.");
+        Array.Fill(_buffer, (byte)0xcc);
+        _requested = minimumLength;
+        IsRented = true;
+        Events.Add("rent");
+        return _buffer;
+    }
+
+    public override void Return(byte[] array, bool clearArray = false)
+    {
+        if (!IsRented || !ReferenceEquals(array, _buffer))
+            throw new InvalidOperationException("The loan must be returned exactly once to its owner.");
+        if (array.AsSpan(_requested).IndexOfAnyExcept((byte)0xcc) >= 0)
+            throw new InvalidOperationException("Unused pool capacity was modified.");
+        if (clearArray) Array.Clear(array);
+        IsRented = false;
+        ReturnCount++;
+        Events.Add("return");
+    }
 }

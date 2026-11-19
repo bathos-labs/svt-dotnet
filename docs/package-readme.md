@@ -53,6 +53,13 @@ document remains reusable. Export is synchronous, has no cancellation token, and
 atomic publication by a later renderer or transport. These members are new in source and are not
 available in the previously published `0.1.0-beta.1` package.
 
+For pooled storage, follow the complete
+[downstream lifetime example](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md#pooled-output-and-downstream-lifetime).
+The
+[allocation and retention guidance](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md#allocation-scope-and-retained-representations)
+explains how retaining the XML document, acquiring buffers, and downstream work differ from the
+allocation-free export itself.
+
 Use `EncodedImage.Create(bytes, mediaType, configuration)` before an `ImageContent` binding. Image
 creation captures the supplied bytes, and binding rechecks its configured limits. `ImageReference`
 retains a supplied reference without fetching it. Structured diagnostics describe rejected input;
