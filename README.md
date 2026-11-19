@@ -67,14 +67,18 @@ dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll inspect 
 dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll bind template.svg --bindings bindings.json --output result.svg
 ```
 
-A minimal binding file is:
+A minimum useful binding file is:
 
 ```json
 {
-  "format_version": 0,
   "bindings": [{ "key": "heading", "kind": "text", "value": "Hello" }]
 }
 ```
+
+Omit `format_version` to use format 0, or supply the explicit integer `0`. A binding file containing
+`{}` makes no assignments and preserves authored values through normal inspection, binding and
+serialization; it is not a byte-for-byte copy. `--bindings` and `--output` are still required.
+Configuration `{}` selects all defaults. Explicit nulls and unknown properties remain errors.
 
 Use `--help` for command syntax and [the CLI contract](spec/cli.md) for typed image values,
 configuration, budgets, diagnostics and publication policies. `--diagnostics json` emits a separate

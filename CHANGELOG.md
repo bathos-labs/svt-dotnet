@@ -5,6 +5,10 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Default omitted CLI binding/configuration `format_version` to 0 and omitted `bindings` to an empty
+  array. `{}` is a valid no-assignment request; strict explicit-value validation, processing budgets
+  and publication protections still apply. Machine-output envelopes retain explicit markers.
+
 - Add optional per-target paint and image interpretation with immutable results and bounded parsing.
   Supported color literals produce sRGB with alpha; context and paint references remain unevaluated.
   Image classification reads data-URI headers without examining payloads. Raw evidence and binding

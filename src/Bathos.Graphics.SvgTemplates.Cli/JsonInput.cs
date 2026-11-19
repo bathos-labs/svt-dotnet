@@ -89,7 +89,7 @@ internal sealed class JsonInput : IDisposable
     }
     internal void Version()
     {
-        var value = Required(Root, "format_version");
+        if (!Root.TryGetProperty("format_version", out var value)) return;
         if (value.ValueKind != JsonValueKind.Number || value.GetRawText() != "0")
             throw Error("Expected integer format_version 0.", "/format_version");
     }

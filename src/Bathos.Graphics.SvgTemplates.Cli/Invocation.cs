@@ -15,7 +15,8 @@ internal sealed record Invocation(string? Command, string? Template, string? Bin
           svt bind --help
           svt --version
         Use - for one template/bindings stdin input or for SVG stdout. Use -- to end options.
-        Binding JSON: {"format_version":0,"bindings":[{"key":"heading","kind":"text","value":"Hello"}]}
+        Binding JSON: {"bindings":[{"key":"heading","kind":"text","value":"Hello"}]}
+        Omitted format_version means 0; omitted bindings means no assignments ({}).
         Configuration is explicit; omitted settings use library defaults. Existing output requires --overwrite.
         """;
 
