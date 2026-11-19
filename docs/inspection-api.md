@@ -4,9 +4,6 @@ This is the implemented inspection contract for the unreleased .NET 10 BCL-only 
 `Bathos.Graphics.SvgTemplates`. The root namespace matches the assembly name. Keep parsing and
 mutable XML implementation types internal.
 
-The [presentation metadata extension](#presentation-metadata-extension) below is agreed but pending
-implementation. Other sections describe the existing API.
-
 The public entry point is synchronous CPU work over already supplied memory:
 
 ```csharp
@@ -55,7 +52,7 @@ decisions.
 ## Presentation metadata extension
 
 Resolve the [metadata contract](../spec/metadata.md) during inspection, after structural input
-admission. Add these public members in the existing assembly and namespace:
+admission. These public members expose resolved presentation in the existing assembly and namespace:
 
 ```csharp
 public enum InputLabelSource { Key, Element, Metadata }

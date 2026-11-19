@@ -65,6 +65,14 @@ creation captures the supplied bytes, and binding rechecks its configured limits
 retains a supplied reference without fetching it. Structured diagnostics describe rejected input;
 programming errors throw, and cancellation throws `OperationCanceledException`.
 
+For editor forms, `InspectedTemplate.InputGroups` supplies ordered groups containing the same input
+objects as `Inputs`; `Inputs` retains structural discovery order. Optional
+[metadata](https://github.com/bathos-labs/svt-dotnet/blob/master/spec/metadata.md) supplies central
+labels, plain-text descriptions and ordering. Each input reports `LabelSource`, nullable Description
+and nullable Order. Ungrouped inputs appear in a final section with null group Key and Label; every
+admitted input remains visible. These presentation hints do not impose binding requirements or
+change raw defaults. Metadata support is new in source and is not in `0.1.0-beta.1`.
+
 ## Boundaries
 
 The library does not decode images, resolve resources or fonts, compute CSS, fit text, or render

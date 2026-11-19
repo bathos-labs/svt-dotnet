@@ -218,8 +218,7 @@ Diagnostics appear only on stderr, not in this discovery object. A root rejectio
 `template_available: false` and an empty inputs array. A scoped error may accompany usable inputs.
 If inspection never runs because acquisition or request validation failed, stdout is empty.
 
-The agreed [metadata extension](metadata.md), pending implementation, extends this report while
-retaining `format_version: 0`:
+[Metadata](metadata.md) fields are included on every discovery report, with `format_version: 0`:
 
 - Each input also contains `description`, `label_source` (`key`, `element` or `metadata`) and
   `order`. `label` is the resolved effective label. Description and order use explicit nulls when

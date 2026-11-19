@@ -44,6 +44,17 @@ var targets = painted.Descendants().Where(e => (string?)e.Attribute("data-svt-fi
 Check(targets.Length == 2 && targets.All(e => (string?)(e.Attribute("data-svt-fill") is null ? e.Attribute("stroke") : e.Attribute("fill")) == "rgb(1 2 3 / 50%)"), "Shared raw paint.");
 checks.Add("raw-paint-shared-and-default-evidence");
 
+var accentInput = palette.Inputs.Single(i => i.Key == "accent");
+Check(accentInput.Label == "Primary accent" && accentInput.LabelSource == InputLabelSource.Metadata &&
+    accentInput.Description == "One color shared by the panel and line." && accentInput.Order == 20, "Resolved metadata fields.");
+Check(palette.InputGroups.Length == 2 && palette.InputGroups[0].Key == "advanced" &&
+    palette.InputGroups[1].Key == "appearance" && palette.InputGroups[1].Inputs[0].Key == "varied" &&
+    ReferenceEquals(palette.InputGroups[1].Inputs[1], accentInput), "Presentation order and input identity.");
+var metadataName = XName.Get("metadata", "http://www.w3.org/2000/svg");
+var originalMetadata = XElement.Load(Path.Combine(sampleRoot, "shared-palette/input.svg")).Element(metadataName);
+Check(originalMetadata is not null && XNode.DeepEquals(originalMetadata, painted.Element(metadataName)), "Metadata preservation through binding.");
+checks.Add("metadata-presentation-and-preservation");
+
 var imageBytes = File.ReadAllBytes(Path.Combine(sampleRoot, "assets/portrait.png"));
 var encoded = Convert.ToBase64String(imageBytes);
 var prepared = EncodedImage.Create(imageBytes, "image/png", configuration);

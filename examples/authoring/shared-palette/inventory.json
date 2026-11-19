@@ -4,7 +4,7 @@
   "inputs": [
     {
       "key": "accent",
-      "label": "Accent",
+      "label": "Primary accent",
       "kind": "paint",
       "targets": [
         {
@@ -29,11 +29,14 @@
       "default": {
         "state": "common",
         "raw": "#1d6e78"
-      }
+      },
+      "description": "One color shared by the panel and line.",
+      "label_source": "metadata",
+      "order": 20
     },
     {
       "key": "varied",
-      "label": "Varied",
+      "label": "Circle colors",
       "kind": "paint",
       "targets": [
         {
@@ -58,7 +61,10 @@
       "default": {
         "state": "mixed",
         "raw": null
-      }
+      },
+      "description": "Replacing this input unifies both circles.",
+      "label_source": "metadata",
+      "order": 10
     },
     {
       "key": "inherited",
@@ -78,8 +84,32 @@
       "default": {
         "state": "absent",
         "raw": null
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": 0
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "input_groups": [
+    {
+      "key": "advanced",
+      "label": "Inherited paint",
+      "description": null,
+      "order": 10,
+      "input_keys": [
+        "inherited"
+      ]
+    },
+    {
+      "key": "appearance",
+      "label": "Appearance",
+      "description": "Direct colors in the artwork.",
+      "order": 20,
+      "input_keys": [
+        "varied",
+        "accent"
+      ]
+    }
+  ]
 }

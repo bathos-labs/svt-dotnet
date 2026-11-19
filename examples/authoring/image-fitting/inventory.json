@@ -20,7 +20,10 @@
       "default": {
         "state": "common",
         "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     },
     {
       "key": "contain",
@@ -40,7 +43,10 @@
       "default": {
         "state": "common",
         "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     },
     {
       "key": "reference",
@@ -60,8 +66,24 @@
       "default": {
         "state": "common",
         "raw": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABICAYAAACwc3YrAAAAqUlEQVR4nO3VoRHCABBE0TRCL1QUTTM0RRNQQDx4DORub4YhT6z/T+1yWi/Pyd2v59EtAAAAAAAAAAAAAAAAAAAAAAAAiW2P28f9JOCb8AlIBFCJTyHagE58AtECJOK7iDIgGd9BHBMwEV9FAAAAAAAAHO+J/wKQRlTi24AUohofAXQRnfgYoIroxkcBeyCJ8DHA+5KxAAAAAAAAAAAAAAAAAAAAAACxvQDXO19AU5uWYgAAAABJRU5ErkJggg=="
-      }
+      },
+      "description": null,
+      "label_source": "element",
+      "order": null
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "input_groups": [
+    {
+      "key": null,
+      "label": null,
+      "description": null,
+      "order": null,
+      "input_keys": [
+        "crop",
+        "contain",
+        "reference"
+      ]
+    }
+  ]
 }

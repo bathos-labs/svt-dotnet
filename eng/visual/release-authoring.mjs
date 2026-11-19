@@ -41,6 +41,10 @@ const report = {
     "Inkscape command-line save/reopen and attribute-edit paths; interactive UI evidence is separate.",
   modes: [],
 };
+function recordDiagnostics(result, item, operation) {
+  if (result.stderr.trim())
+    item.diagnostics.push({ operation, stderr: result.stderr.replaceAll(root, "<repository>") });
+}
 for (const name of ["release-authoring.mjs", "common.mjs", "tools.json"])
   report.hashes["eng/visual/" + name] = await fileHash(resolve(root, "eng/visual", name));
 const suite = JSON.parse(await readFile(resolve(source, "suite.json")));
@@ -86,7 +90,7 @@ for (const name of suite.cases)
 for (const mode of ["native", "plain"]) {
   const destination = resolve(output, mode);
   await cp(source, destination, { recursive: true });
-  const item = { mode, status: "running", cases: [] };
+  const item = { mode, status: "running", cases: [], diagnostics: [] };
   report.modes.push(item);
   try {
     for (const name of suite.cases) {
@@ -106,7 +110,7 @@ for (const mode of ["native", "plain"]) {
             ...(mode === "plain" ? ["--export-plain-svg"] : []),
             "--export-filename=" + resolve(target, "input.svg"),
           ]);
-          assert.equal(result.stderr.trim(), "", "Inkscape diagnostics");
+          recordDiagnostics(result, item, `${name}/${variant}/${pass}`);
         }
         await copyFile(
           resolve(staging, "reopened/input.svg"),
@@ -121,7 +125,9 @@ for (const mode of ["native", "plain"]) {
     }
     await verifyBindings(destination);
     item.api_cli = "passed";
-    item.status = "passed";
+    item.status = item.diagnostics.length === 0 ? "passed" : "failed";
+    if (item.status === "failed")
+      item.error = "Inkscape diagnostics; preservation checks completed.";
   } catch (error) {
     item.status = "failed";
     item.error = String(error.message).replaceAll(root, "<repository>");
@@ -143,6 +149,8 @@ const edits = [
 report.edits = [];
 for (const mode of ["native", "plain"])
   for (const edit of edits) {
+    const item = { mode, name: edit.name, status: "running", diagnostics: [] };
+    report.edits.push(item);
     try {
       const destination = resolve(output, `${mode}-${edit.name}`);
       await cp(resolve(output, mode), destination, { recursive: true });
@@ -164,7 +172,7 @@ for (const mode of ["native", "plain"])
           ...(mode === "plain" ? ["--export-plain-svg"] : []),
           "--actions=" + edit.actions + ";export-filename:" + path + ";export-do",
         ]);
-        assert.equal(result.stderr.trim(), "", "Inkscape edit diagnostics");
+        recordDiagnostics(result, item, `${edit.case}/${variant}/edit`);
         const second = resolve(destination, edit.case, variant + ".svg");
         const reopened = await command(inkscape, [
           path,
@@ -172,7 +180,7 @@ for (const mode of ["native", "plain"])
           ...(mode === "plain" ? ["--export-plain-svg"] : []),
           "--export-filename=" + second,
         ]);
-        assert.equal(reopened.stderr.trim(), "", "Inkscape reopen diagnostics");
+        recordDiagnostics(reopened, item, `${edit.case}/${variant}/reopen`);
         if (edit.name === "geometry") {
           const text = await readFile(second, "utf8");
           const heading = text.match(/<text\b[^>]*\bid="heading"[^>]*>/)?.[0];
@@ -193,20 +201,14 @@ for (const mode of ["native", "plain"])
       const edited = resolve(destination, edit.case, "input.svg");
       assertInventory(expected, await inspect(edited));
       await verifyBindings(destination);
-      report.edits.push({
-        mode,
-        name: edit.name,
-        status: "passed",
-        api_cli: "passed",
-        sha256: await fileHash(edited),
-      });
+      item.api_cli = "passed";
+      item.sha256 = await fileHash(edited);
+      item.status = item.diagnostics.length === 0 ? "passed" : "failed";
+      if (item.status === "failed")
+        item.reason = "Inkscape diagnostics; preservation checks completed.";
     } catch (error) {
-      report.edits.push({
-        mode,
-        name: edit.name,
-        status: "failed",
-        reason: String(error.message).replaceAll(root, "<repository>"),
-      });
+      item.status = "failed";
+      item.reason = String(error.message).replaceAll(root, "<repository>");
     }
   }
 report.status = [...report.modes, ...report.edits].every((item) => item.status === "passed")

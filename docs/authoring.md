@@ -22,12 +22,27 @@ its target and an optional `data-svt-label` for display. See the
   no automatic fitting, wrapping or shrinking is provided. Empty text is a replacement, not
   omission.
 
+## Polish the input list
+
+Use optional [central metadata](../spec/metadata.md) for logical input labels, plain-text help,
+ordering and one level of groups. Place it in the specified RDF/XML document description with
+`rdf:about=""` and `rdf:parseType="Literal"`; the envelope gives the input declarations a
+document-metadata meaning. Keep binding keys stable. Central labels override inline labels; inputs
+without a central label retain the first target's inline label or their key. Use spaced orders such
+as 10 and 20 to allow later insertion. Ungrouped inputs remain visible in a final unnamed section.
+These hints describe presentation, not required values or binding constraints.
+
+The [shared-palette example](../examples/authoring/shared-palette/input.svg) demonstrates this
+polish without changing the artwork or raw defaults. SVG metadata and embedded samples are
+nonbinding content; keep actual target hooks on artwork outside metadata.
+
 ## Save, reopen and verify
 
 Preserve a source copy. Inkscape SVG and Plain SVG are separate workflows; optimized export needs
 its own checks. After saving and reopening, compare the expected keys, labels, kinds, target counts
-and raw defaults with discovery. A successful command with no findings does not prove that hooks
-survived: a file with all hooks removed may still be a usable template with zero inputs.
+and raw defaults with discovery. Also compare descriptions, label provenance, group membership and
+presentation order when metadata is present. A successful command with no findings does not prove
+that hooks survived: a file with all hooks removed may still be a usable template with zero inputs.
 
 Run inspection and exercise empty, partial and complete bindings. Check both the unbound artwork and
 replacement output. Compare semantic XML rather than attribute order, namespace-prefix spelling, XML
@@ -35,8 +50,9 @@ declaration or indentation. Meaningful text whitespace and authored values remai
 
 Keep structural findings separate from rendering problems. For example, a text hook with child
 elements is structurally invalid; an unavailable image reference can remain structurally valid.
-Conflicting labels on a shared paint input warn while retaining its first label. Preserve those
-findings instead of changing discovery admission to suit one editor or renderer.
+Without a central label override, conflicting inline labels on a shared paint input warn while
+retaining its first label. Preserve those findings instead of changing discovery admission to suit
+one editor or renderer.
 
 ## Exploratory observations
 

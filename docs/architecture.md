@@ -19,12 +19,14 @@ The core does not fetch images, probe paths, decode pixels, convert color, resol
 SVG. [Image values](../spec/images.md) describe supplied encoded content or references. Hosts retain
 resource authority. Labels are presentation metadata, not binding identity.
 
-The agreed [central metadata contract](../spec/metadata.md) extends inspection with optional labels,
-descriptions, ordering and one level of groups. Implementation is pending. Resolve metadata against
-admitted inputs once, preserving structural discovery order and exposing a separate immutable
-presentation view over the same input objects. Metadata does not create bindings, supply defaults or
-enforce host form behavior. SVG metadata subtrees are nonbinding content, still subject to XML and
-resource budgets. Binding preserves them semantically.
+The [central metadata contract](../spec/metadata.md) extends inspection with optional labels,
+descriptions, ordering and one level of groups. The specified RDF/XML envelope attaches one
+XML-valued input property to the document resource. The core recognizes that bounded XML profile
+without general RDF processing or resource resolution. Resolve metadata against admitted inputs
+once, preserving structural discovery order and exposing a separate immutable presentation view over
+the same input objects. Metadata does not create bindings, supply defaults or enforce host form
+behavior. SVG metadata subtrees are nonbinding content, still subject to XML and resource budgets.
+Binding preserves them semantically.
 
 [Caller-buffer export](binding-api.md#output-export) extends consumption of a completed document.
 Bind owns validation, bounded serialization and exact UTF-8 size accounting. BoundSvg retains

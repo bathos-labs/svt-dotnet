@@ -30,7 +30,15 @@ internal static class Reports
         {
             FormatVersion = 0,
             TemplateAvailable = result.Template is not null,
-            Inputs = result.Template?.Inputs ?? []
+            Inputs = result.Template?.Inputs ?? [],
+            InputGroups = result.Template?.InputGroups.Select(group => new
+            {
+                group.Key,
+                group.Label,
+                group.Description,
+                group.Order,
+                InputKeys = group.Inputs.Select(input => input.Key),
+            }).ToArray() ?? []
         }, token);
         var report = new StringBuilder(result.Template is null ? "No usable template.\n" : "Template inputs:\n");
         foreach (var input in result.Template?.Inputs ?? [])

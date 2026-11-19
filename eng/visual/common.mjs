@@ -25,6 +25,7 @@ export function inventory(report) {
 export function assertInventory(expected, report) {
   assert.equal(report.template_available, true, "Unusable template");
   assert.deepEqual(inventory(report), expected.inputs, "Binding inventory changed");
+  assert.deepEqual(report.input_groups, expected.input_groups, "Presentation groups changed");
 }
 export function pixels(expectedBytes, actualBytes) {
   const expected = PNG.sync.read(expectedBytes),
