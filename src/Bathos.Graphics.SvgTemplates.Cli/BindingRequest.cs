@@ -8,7 +8,7 @@ internal sealed record BindingRequest(string Key, string Kind, string? Value, st
     {
         input.Object(input.Root, "", "format_version", "bindings");
         input.Version();
-        var bindings = input.Required(input.Root, "bindings");
+        if (!input.Root.TryGetProperty("bindings", out var bindings)) return [];
         if (bindings.ValueKind != JsonValueKind.Array) throw input.Error("Expected a bindings array.", "/bindings");
         if (bindings.GetArrayLength() > maximum) throw CliFailure.Limit("input", input.Source, "MaxBindings");
         var result = new BindingRequest[bindings.GetArrayLength()];

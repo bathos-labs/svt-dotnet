@@ -20,10 +20,11 @@ svt --version
 ```
 
 Exactly one template operand is required for either operation. Bind requires both `--bindings` and
-`--output`; an empty bindings array explicitly requests preservation and serialization. There are no
-separate validate, substitute or render commands, inline assignment syntax or in-place mode. Help
-and version require no input access and exit successfully. Invoking `svt` without a command prints
-usage and exits with an invocation error; it does not implicitly inspect standard input.
+`--output`; an empty or omitted bindings array explicitly requests preservation and serialization.
+There are no separate validate, substitute or render commands, inline assignment syntax or in-place
+mode. Help and version require no input access and exit successfully. Invoking `svt` without a
+command prints usage and exits with an invocation error; it does not implicitly inspect standard
+input.
 
 | Option                                      | Applies to | Meaning and default                                           |
 | ------------------------------------------- | ---------- | ------------------------------------------------------------- |
@@ -67,8 +68,31 @@ the template operand or through an unambiguous relative path as an option value.
 }
 ```
 
-The root requires exactly `format_version` and `bindings`. The marker is the integer 0. Bindings is
-an ordered array, not an object keyed by input name. Each entry requires string `key` and `kind`.
+The root is an object allowing only optional `format_version` and `bindings` properties. An omitted
+`format_version` selects format 0 permanently, not the latest format. When supplied, it must be the
+JSON number spelled exactly `0`: other versions, `-0`, decimal/exponent forms, strings, booleans,
+objects, arrays and null are errors. Any future format requires an explicit marker; omission does
+not introduce format detection or migration.
+
+An omitted `bindings` property means an empty array. A supplied value must be an ordered array, not
+an object keyed by input name; null and other types are errors. Each entry still requires string
+`key` and `kind`, plus the fields below. Unknown or duplicate properties remain errors, including a
+misspelled `bindings` property in an otherwise empty request.
+
+A minimum useful request replaces one input:
+
+```json
+{
+  "bindings": [{ "key": "heading", "kind": "text", "value": "Welcome" }]
+}
+```
+
+`{}` is a valid no-assignment request, equivalent to `{"format_version":0,"bindings":[]}`. The
+caller must still supply `--bindings` and `--output`. Both file and stdin requests follow normal
+inspection, policy/budget checks, binding, serialization and output publication protections; this is
+not a byte-for-byte copy operation. Omitting assignments preserves authored values, whereas an
+assignment with an empty string remains an explicit replacement. These input defaults do not affect
+the SVG root marker or the explicit version markers in discovery and diagnostic JSON.
 
 | Kind              | Additional required fields                                          | Meaning                                        |
 | ----------------- | ------------------------------------------------------------------- | ---------------------------------------------- |
@@ -124,11 +148,13 @@ Moving output can change their rendering context; publication preserves their st
 }
 ```
 
-The root requires `format_version: 0`; the four groups are optional objects. Omitted properties use
-defaults; nulls and unknown properties are errors. Use the same strict JSON rules as binding files.
-Precedence is defaults, then the explicit configuration, then command-line overrides. Validate the
-configuration before applying overrides; an override does not repair an invalid configuration. There
-are no paths or output destinations in configuration.
+The root permits an optional `format_version` with the same format-0 omission default and exact
+explicit-marker validation as binding files. The four groups are optional objects. `{}` uses all
+defaults; omitted group properties also use defaults, while nulls and unknown properties are errors.
+Use the same strict JSON rules as binding files. Precedence is defaults, then the explicit
+configuration, then command-line overrides. Validate the configuration before applying overrides; an
+override does not repair an invalid configuration. There are no paths or output destinations in
+configuration.
 
 The first three groups map to [InspectionOptions](../docs/inspection-api.md), BindingOptions and
 EncodedImageOptions in the [.NET binding API](../docs/binding-api.md). JSON property names use
