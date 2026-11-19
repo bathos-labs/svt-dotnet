@@ -2,6 +2,8 @@
 
 - Check Git status before editing and preserve unrelated changes. Commit only when requested.
 - Default branch: master. Follow CONTRIBUTING.md validation before a cohesive commit.
+- Through the first stable 1.0 release, master is the active release branch. Use feature branches
+  for reviewed changes; no separate prerelease or maintenance line is needed.
 - Read README.md, docs/architecture.md and CONTRIBUTING.md before changing boundaries. Discuss
   consequential grammar, public API, dependency and ownership choices before implementation.
 - Work serially; request approval before delegating bounded work.

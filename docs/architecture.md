@@ -19,6 +19,13 @@ The core does not fetch images, probe paths, decode pixels, convert color, resol
 SVG. [Image values](../spec/images.md) describe supplied encoded content or references. Hosts retain
 resource authority. Labels are presentation metadata, not binding identity.
 
+The agreed [caller-buffer export](binding-api.md#output-export) extends consumption of a completed
+document. Bind owns validation, bounded serialization and exact UTF-8 size accounting. BoundSvg
+retains immutable XML and its byte count; export writes into caller-supplied storage without
+retaining that memory. Allocation, pooling, destination lifetime and subsequent publication remain
+host responsibilities. Export introduces no binding session, owned buffer, renderer dependency or
+disposal lifecycle.
+
 ## Consumers and tooling
 
 A thin CLI exposes inspection and substitution with structured diagnostics. Filesystem input/output

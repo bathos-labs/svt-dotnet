@@ -1,10 +1,11 @@
 # Releasing
 
-SVT is public, MIT-licensed, and prerelease. `0.1.0-beta.1` is the first prepared beta; no
-publication is implied by its version or changelog entry. The API and specification may change
-between prereleases. Consumers should pin an exact version (`Version="[0.1.0-beta.1]"` in a
-PackageReference) and validate their integration. There is no stable API or format migration
-promise. The SVG marker and JSON envelopes remain version 0 independently of NuGet.
+SVT is public, MIT-licensed, and prerelease. `0.1.0-beta.1` is the first published beta. A later
+version in an issue, contract or changelog does not imply publication. The API and specification may
+change between prereleases. Consumers should pin an exact published version
+(`Version="[0.1.0-beta.1]"` in a PackageReference) and validate their integration. There is no
+stable API or format migration promise. The SVG marker and JSON envelopes remain version 0
+independently of NuGet.
 
 ## Version and branch policy
 
@@ -14,27 +15,33 @@ canonical three-part versions with optional lowercase SemVer prerelease identifi
 leading-zero aliases, and development `dev`, `review`, or `preview` identities are not release
 versions.
 
-`master` can release stable or prerelease versions. `release/*` can release prereleases only.
-Feature branches can run ordinary validation but cannot prepare a release tag. An annotated
-`v<version>` tag must identify the exact checked-out commit. Publication refreshes actual branch
-refs from origin and requires that commit to be an ancestor of an eligible remote branch. Stale
-local tracking refs, unpushed commits, failed fetches, dirty trees, and mismatched metadata fail
-closed.
+Through the first stable 1.0 release, `master` is the active release branch for beta candidates and
+the stable release. Integrate reviewed work there using feature branches as needed; there is no
+separate prerelease or maintenance line to protect. Revisit branch and compatibility policy when the
+first stable release is established. Published beta packages and historical tags remain immutable.
+
+The existing release guard permits stable or prerelease versions on `master`, and prereleases only
+on `release/*`; that latter capability is not needed for the current development process. Feature
+branches can run ordinary validation but cannot prepare a release tag. An annotated `v<version>` tag
+must identify the exact checked-out commit. Publication refreshes actual branch refs from origin and
+requires that commit to be an ancestor of an eligible remote branch. Stale local tracking refs,
+unpushed commits, failed fetches, dirty trees, and mismatched metadata fail closed.
 
 ## Candidate lifecycle
 
 1. Review the implementation, package metadata, changelog, redistribution rights, private
    references, and known limitations. Merge through the portable Ubuntu/Windows gate. Retain LICENSE
    and NOTICE.
-2. Optionally dispatch **NuGet release** on `master` or an eligible `release/*` branch. Dispatch is
-   a non-publishing rehearsal: it runs the full gate, prepares a development package, consumes the
-   same bytes on Ubuntu and Windows, and runs the native matrix. It never enters the publishing job.
-3. After explicit authorization to publish, update the clean local eligible branch and run:
+2. Optionally dispatch **NuGet release** on `master`. Dispatch is a non-publishing rehearsal: it
+   runs the full gate, prepares a development package, consumes the same bytes on Ubuntu and
+   Windows, and runs the native matrix. It never enters the publishing job.
+3. After explicit authorization to publish, update clean local `master` and set `TAG` to the
+   reviewed version matching the package metadata and changelog (not an already-published tag):
 
    ```sh
-   task release:check TAG=v0.1.0-beta.1
-   task release:tag TAG=v0.1.0-beta.1
-   task release:push TAG=v0.1.0-beta.1
+   task release:check TAG='v<version>'
+   task release:tag TAG='v<version>'
+   task release:push TAG='v<version>'
    ```
 
    `release:tag` runs the full local gate and creates one annotated local tag. `release:push`
