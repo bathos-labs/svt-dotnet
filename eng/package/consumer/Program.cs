@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
 using Bathos.Graphics.SvgTemplates;
+using SvgTemplateExamples;
 
 if (args.Length != 4) throw new ArgumentException("Expected samples, package version, assembly hash and commit.");
 var sampleRoot = args[0];
@@ -79,6 +80,84 @@ Reject(images.Bind(assignments, strictImage), "svt.limit.exceeded", "MaxEncodedI
 Check(Success(images.Bind(assignments, configuration)).Xml == originalImageOutput, "Image recovery/reuse.");
 checks.Add("encoded-images-references-and-policy-recheck");
 
+var interpretedSource = Inspect(Encoding.UTF8.GetBytes("""
+    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+      <g data-svt-fill="color" fill="hsl(120 100% 50% / 25%)"/>
+      <g data-svt-stroke="color" stroke="rgb(0 255 0 / .25)"/>
+      <g data-svt-fill="context" fill="var(--accent)"/>
+      <g data-svt-fill="server" fill="url(#gradient) red"/>
+      <image data-svt-image="portrait" href="data:image/x%23;base64,invalid-payload"/>
+    </svg>
+    """));
+var interpretationOptions = new InterpretationOptions();
+var colorInput = interpretedSource.Inputs[0];
+Check(colorInput.Default.State == InputDefaultState.Mixed, "Raw mixed evidence before interpretation.");
+foreach (var target in colorInput.Targets)
+{
+    var result = DefaultInterpreter.InterpretPaint(target, interpretationOptions);
+    Check(ReferenceEquals(result.Target, target) && result.Kind == PaintInterpretationKind.Literal &&
+        result.Color is { Red: 0, Green: 1, Blue: 0, Alpha: .25 } && result.ExceededLimit is null,
+        "Per-target literal interpretation and source identity.");
+}
+Check(DefaultInterpreter.InterpretPaint(interpretedSource.Inputs[1].Targets[0]).Kind == PaintInterpretationKind.RequiresContext,
+    "Context interpretation.");
+Check(DefaultInterpreter.InterpretPaint(interpretedSource.Inputs[2].Targets[0]).Kind == PaintInterpretationKind.ResourceReference,
+    "Paint-server fallback must not become a literal.");
+var imageTarget = interpretedSource.Inputs[3].Targets[0];
+var imageInterpretation = DefaultInterpreter.InterpretImage(imageTarget, new() { MaxReferenceCharacters = 1 });
+Check(ReferenceEquals(imageTarget, imageInterpretation.Target) &&
+    imageInterpretation.Kind == ImageInterpretationKind.DataUri && imageInterpretation.DeclaredMediaType == "image/x#",
+    "Bounded data header and unexamined payload.");
+var limitedPaint = DefaultInterpreter.InterpretPaint(colorInput.Targets[0], new() { MaxPaintCharacters = 1 });
+Check(limitedPaint.Kind == PaintInterpretationKind.UnsupportedOrUnrecognized && limitedPaint.Color is null &&
+    limitedPaint.ExceededLimit == InterpretationLimit.PaintCharacters, "Typed interpretation limit.");
+Check(colorInput.Default.State == InputDefaultState.Mixed, "Interpretation changed the raw summary.");
+var retained = Success(interpretedSource.Bind([]));
+Check(Inspect(retained.ToUtf8Bytes()).Inputs[0].Targets[0].Default.Raw == colorInput.Targets[0].Default.Raw,
+    "Omission after interpretation changed authored paint.");
+Success(interpretedSource.Bind([TemplateBinding.Paint("context", "unfamiliar raw syntax")]));
+checks.Add("per-target-interpretation-and-preservation");
+
+// Compile the same host-owned example against the isolated package, without a UI framework.
+foreach (var raw in new[] { "red", "#abc", "rgb(.1 50% 0)" })
+{
+    var editorTemplate = Inspect(Encoding.UTF8.GetBytes(
+        $"<svg xmlns=\"http://www.w3.org/2000/svg\" data-svt-version=\"0\"><g data-svt-fill=\"paint\" fill=\"{raw}\"/></svg>"));
+    var adapter = new PaintEditorAdapter(editorTemplate.Inputs[0]);
+    var seed = adapter.InitialChooserValue ?? throw new InvalidOperationException("Missing chooser seed.");
+    var initialized = adapter.OpenChooser();
+    initialized.ObserveWidgetValue(seed);
+    initialized.ObserveWidgetValue(new(12, 34, 56));
+    Check(adapter.GetBindings().IsEmpty, "Initialization created a preview replacement.");
+    initialized.Accept();
+    Check(adapter.GetBindings().IsEmpty, "No edit created a binding.");
+    var cancelled = adapter.OpenChooser();
+    cancelled.SelectFromUser(new(1, 2, 3));
+    cancelled.Cancel();
+    Check(adapter.GetBindings().IsEmpty, "Cancelled edit created a binding.");
+    var reverted = adapter.OpenChooser();
+    reverted.SelectFromUser(new(1, 2, 3));
+    reverted.SelectFromUser(seed);
+    reverted.Accept();
+    Check(adapter.GetBindings().IsEmpty, "Return to initial chooser value created a binding.");
+    var accepted = adapter.OpenChooser();
+    accepted.SelectFromUser(new(1, 2, 3));
+    Check(adapter.GetBindings().IsEmpty, "Unaccepted edit created a preview replacement.");
+    accepted.Accept();
+    Check(adapter.GetBindings().Length == 1 &&
+        Inspect(Success(editorTemplate.Bind(adapter.GetBindings())).ToUtf8Bytes()).Inputs[0].Default.Raw == "#010203",
+        "Accepted edit did not create one explicit replacement.");
+    adapter.Reset();
+    Check(adapter.GetBindings().IsEmpty &&
+        Inspect(Success(editorTemplate.Bind(adapter.GetBindings())).ToUtf8Bytes()).Inputs[0].Default.Raw == raw,
+        "Reset did not restore omission and authored spelling.");
+}
+var mixedEditor = new PaintEditorAdapter(colorInput);
+Check(mixedEditor.InitialChooserValue is null && mixedEditor.Presentation.Length == 2 &&
+    mixedEditor.AuthoredEvidence.Default.State == InputDefaultState.Mixed && mixedEditor.GetBindings().IsEmpty,
+    "Shared chooser policy changed raw Mixed evidence.");
+checks.Add("editor-default-intent");
+
 Reject(text.Bind([TemplateBinding.Text("unknown", "x")], configuration), "svt.binding.unknown");
 Reject(text.Bind([TemplateBinding.Paint("heading", "red")], configuration), "svt.binding.kind");
 Reject(text.Bind([TemplateBinding.Text("heading", "\0")], configuration), "svt.binding.value");
@@ -95,6 +174,8 @@ cancellation.Cancel();
 Cancelled(() => TemplateInspector.Inspect(original, cancellationToken: cancellation.Token));
 Cancelled(() => EncodedImage.Create(imageBytes, "image/png", cancellationToken: cancellation.Token));
 Cancelled(() => text.Bind([], configuration, cancellation.Token));
+Cancelled(() => DefaultInterpreter.InterpretPaint(colorInput.Targets[0], cancellationToken: cancellation.Token));
+Cancelled(() => DefaultInterpreter.InterpretImage(imageTarget, cancellationToken: cancellation.Token));
 checks.Add("cancellation");
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", checks }));
 

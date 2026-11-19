@@ -23,8 +23,9 @@ name, not an established standard.
 
 See the [changelog](CHANGELOG.md), [architecture](docs/architecture.md),
 [specification](spec/README.md), [inspection API](docs/inspection-api.md),
-[conformance](conformance/README.md), and [authoring guidance](docs/authoring.md). Design decisions
-and delivery work belong in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+[optional interpretation API](docs/interpretation-api.md), [conformance](conformance/README.md), and
+[authoring guidance](docs/authoring.md). Design decisions and delivery work belong in
+[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 
 ## Publication
 

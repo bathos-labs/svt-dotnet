@@ -27,6 +27,8 @@ export const smokeChecks = [
   "raw-paint-shared-and-default-evidence",
   "metadata-presentation-and-preservation",
   "encoded-images-references-and-policy-recheck",
+  "per-target-interpretation-and-preservation",
+  "editor-default-intent",
   "structured-rejection-budgets-and-policy",
   "cancellation",
 ];

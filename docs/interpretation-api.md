@@ -1,9 +1,8 @@
 # .NET authored-value interpretation API
 
-This is the agreed contract before implementation. The types below are not yet available in the
-library. They belong to the existing BCL-only `Bathos.Graphics.SvgTemplates` assembly and namespace.
-The [portable interpretation contract](../spec/interpretation.md) owns grammar, classification,
-precision, budget precedence and recovery.
+These types are implemented in the existing BCL-only `Bathos.Graphics.SvgTemplates` assembly and
+namespace. The [portable interpretation contract](../spec/interpretation.md) owns grammar,
+classification, precision, budget precedence and recovery.
 
 ## Entry points and lifecycle
 
@@ -158,7 +157,7 @@ confer resource authority.
 
 ## Intended use
 
-This example describes the agreed API and is not executable until implementation:
+Given an inspected paint input, interpret each target explicitly:
 
 ```csharp
 var limits = new InterpretationOptions();
@@ -167,7 +166,7 @@ foreach (var target in paintInput.Targets)
     var interpreted = DefaultInterpreter.InterpretPaint(target, limits);
     if (interpreted.Color is { } color)
     {
-        // Initialize a host control with color.Red/Green/Blue/Alpha.
+        // Display color.Red/Green/Blue/Alpha independently of edit intent.
         // Keep target.Default.Raw for the unchanged/no-edit path.
     }
     else
@@ -179,6 +178,18 @@ foreach (var target in paintInput.Targets)
 // Binding still requires an explicit TemplateBinding supplied by the host.
 ```
 
+The [executable host editor example](../examples/editor/README.md) separates authored evidence,
+per-target presentation and initial chooser state. It demonstrates an opaque 8-bit RGB control
+without implicitly quantizing persisted values, discarding alpha, promoting URL fallbacks or
+collapsing raw Mixed evidence. Its host-owned adapter is compiled into behavioral tests and the
+isolated package consumer; it is not a library type or binding service.
+
+Opening a chooser, receiving generic initialization notifications, accepting without an edit,
+canceling, or returning to the initial chooser value must preserve the existing binding intent. Only
+a genuine accepted change creates a replacement; explicit Reset removes it. Hosts must track user
+actions independently of generic widget change events or differences between formatted and raw
+strings. Retain raw evidence even when a constrained widget requires a lossy display conversion.
+
 Keep public consumer tests focused on state invariants, target identity, wrong-kind/null arguments,
 options, cancellation, grammar boundaries and preservation through ordinary binding. Add no
-documentation-synchronization tests or placeholder implementation as part of this contract.
+documentation-synchronization tests.

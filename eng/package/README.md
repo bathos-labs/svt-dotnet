@@ -75,8 +75,13 @@ references or ambient package folders. It checks restored archive bytes and the 
 then executes inspect → prepare values → bind → consume-output checks. Coverage includes reusable
 configuration, raw Common/Mixed/Absent defaults, text/paint/image values, omission/empty values,
 image and output ownership, structured rejection, stricter policy rechecks, budgets and
-cancellation. Completed documents also exercise exact UTF-8 sizing, caller-buffer export,
-insufficient-capacity preservation, sliced destinations and independent reuse. The
+cancellation. Optional per-target interpretation checks literal precision, context/reference
+classification, bounded data headers, typed limits, source identity and unchanged raw/binding
+evidence. The [host-owned editor adapter](../../examples/editor/README.md) is copied into the
+isolated consumer and compiled against the package. Its interaction checks preserve omission across
+initialization, no edit, cancel and change-and-return; only an accepted change creates a
+replacement, and Reset removes it. Completed documents exercise exact UTF-8 sizing, caller-buffer
+export, insufficient-capacity preservation, sliced destinations and independent reuse. The
 [documented pooled helper](../../docs/binding-api.md#pooled-output-and-downstream-lifetime) is
 compiled in this consumer and exercised with a deterministic host pool: only the written prefix
 reaches the reader, the loan remains active throughout consumption, and it is returned after success

@@ -61,9 +61,9 @@ The [inspection API](inspection-api.md) and [SVT specification](../spec/README.m
 implementation boundary. The agreed [binding API](binding-api.md) and
 [substitution contract](../spec/substitution.md) define substitution behavior. BindingConfiguration
 groups reusable immutable policy; it is not a service or mutable binding session. Encoded images own
-captured bytes; each bind produces an independent immutable document. The agreed
-[interpretation API](interpretation-api.md) is specified before implementation; do not add empty
-public APIs for it.
+captured bytes; each bind produces an independent immutable document. The
+[interpretation API](interpretation-api.md) provides explicit per-target operations after
+inspection.
 
 ## Optional value interpretation
 
