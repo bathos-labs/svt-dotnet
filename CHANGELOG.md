@@ -5,6 +5,12 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Add command-specific CLI help and `-h`, clearer text diagnostics, labeled locations and readable
+  Unicode. Inspection shows labels and bounded value previews, hiding embedded image payloads; JSON
+  keeps complete evidence. Version output includes the product version and available commit.
+- Add an inspect-to-bind walkthrough with a small template and binding file. Move contributor setup
+  and validation guidance out of the README.
+
 - Default omitted CLI binding/configuration `format_version` to 0 and omitted `bindings` to an empty
   array. `{}` is a valid no-assignment request; strict explicit-value validation, processing budgets
   and publication protections still apply. Machine-output envelopes retain explicit markers.

@@ -20,7 +20,7 @@ internal static class CliApplication
             catch (Exception e) when (FileAccess.IsIoFailure(e))
             {
                 token.ThrowIfCancellationRequested();
-                throw new CliFailure(3, Context("svt.cli.io", "File or stream operation failed."));
+                throw new CliFailure(3, Context("svt.cli.io", IoMessage(e, phase == "publication")));
             }
         }
         T Io<T>(Func<T> action)
@@ -29,7 +29,7 @@ internal static class CliApplication
             catch (Exception e) when (FileAccess.IsIoFailure(e))
             {
                 token.ThrowIfCancellationRequested();
-                throw new CliFailure(3, Context("svt.cli.io", "File or stream operation failed."));
+                throw new CliFailure(3, Context("svt.cli.io", IoMessage(e, phase == "publication")));
             }
         }
         try
@@ -41,8 +41,8 @@ internal static class CliApplication
             if (invocation.Help || invocation.Version)
             {
                 phase = "publication"; source = "-";
-                var text = invocation.Help ? Invocation.HelpText + "\n" :
-                    "svt " + typeof(CliApplication).Assembly.GetName().Version + "\n";
+                var text = invocation.Help ? CliHelp.ForCommand(command) + "\n" :
+                    CliVersion.Display();
                 await IoAsync(async () =>
                 {
                     await Reports.WriteTextAsync(standardOutput, text, token).ConfigureAwait(false);
@@ -113,7 +113,9 @@ internal static class CliApplication
                             byte[] bytes;
                             if (request.File is { } file)
                             {
-                                pointer += "/file"; source = file;
+                                pointer += "/file";
+                                // An image path is always a file, including a literal filename "-".
+                                source = file == "-" ? "./-" : file;
                                 var imagePath = Io(() =>
                                 {
                                     if (Path.EndsInDirectorySeparator(file) || Path.GetFileName(file) is "." or "..")
@@ -194,7 +196,8 @@ internal static class CliApplication
             var aggregate = diagnostic.Limit == "MaxTotalEncodedImageBytes";
             diagnostic = diagnostic with
             {
-                Source = aggregate ? requestSource : diagnostic.Source ?? source,
+                // File operations may report resolved paths; keep the caller-facing source for diagnostics.
+                Source = aggregate ? requestSource : source ?? diagnostic.Source,
                 RequestSource = diagnostic.RequestSource ?? requestSource,
                 AssignmentIndex = aggregate ? null : diagnostic.AssignmentIndex ?? index,
                 JsonPointer = aggregate ? null : diagnostic.JsonPointer ?? pointer,
@@ -204,15 +207,23 @@ internal static class CliApplication
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         { exitCode = 130; diagnostics.Add(Context("svt.cli.cancelled", "Operation cancelled.")); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        { exitCode = 3; diagnostics.Add(Context("svt.cli.io", "File or stream operation failed.")); }
+        { exitCode = 3; diagnostics.Add(Context("svt.cli.io", IoMessage(e, phase == "publication"))); }
         catch (Exception e) when (e is not OutOfMemoryException)
         { exitCode = 4; diagnostics.Add(Context("svt.cli.internal", "Unexpected internal failure.")); }
 
-        try { await Reports.DiagnosticsAsync(standardError, command, exitCode, diagnostics, jsonDiagnostics).ConfigureAwait(false); }
+        try { await Reports.DiagnosticsAsync(standardError, command, exitCode, diagnostics, jsonDiagnostics, args.Length == 0 && exitCode == 2).ConfigureAwait(false); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or ObjectDisposedException or NotSupportedException)
         { return 3; } // Never append a second envelope or roll back a published result.
         return exitCode;
     }
+
+    internal static string IoMessage(Exception error, bool writing) => error switch
+    {
+        FileNotFoundException => "File not found. Check the path.",
+        DirectoryNotFoundException => "Folder not found. Check the path.",
+        UnauthorizedAccessException or System.Security.SecurityException => "Access denied. Check file permissions.",
+        _ => writing ? "Cannot write the file or stream." : "Cannot read the file or stream."
+    };
 
     private static byte[] DecodeImage(string text, int maximum, string limit, string source, CancellationToken token)
     {

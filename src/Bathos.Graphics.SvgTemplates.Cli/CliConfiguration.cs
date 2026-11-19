@@ -21,14 +21,14 @@ internal sealed record CliConfiguration(InspectionOptions Inspection, BindingCon
         {
             if (group.ValueKind == JsonValueKind.Undefined || !group.TryGetProperty(name, out var value)) return fallback;
             if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out var number) || number <= 0)
-                throw input.Error("Expected a positive 32-bit integer.", "/" + groupName + "/" + name);
+                throw input.Error($"Use an integer from 1 to 2147483647 for {name}.", "/" + groupName + "/" + name);
             return number;
         }
         string Choice(JsonElement group, string groupName, string name, string first, string second)
         {
             if (group.ValueKind == JsonValueKind.Undefined || !group.TryGetProperty(name, out _)) return first;
             var value = input.String(group, name, "/" + groupName);
-            return value == first || value == second ? value : throw input.Error("Unknown policy value.", "/" + groupName + "/" + name);
+            return value == first || value == second ? value : throw input.Error($"Use {first} or {second} for {name}.", "/" + groupName + "/" + name);
         }
         var inspection = Group("inspection", "max_source_bytes", "max_xml_characters", "max_element_depth", "max_elements",
             "max_attributes_per_element", "max_hooks", "max_diagnostics");

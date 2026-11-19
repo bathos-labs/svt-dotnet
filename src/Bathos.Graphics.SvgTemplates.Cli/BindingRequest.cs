@@ -34,7 +34,7 @@ internal sealed record BindingRequest(string Key, string Kind, string? Value, st
                 input.Object(entry, pointer, "key", "kind", "value");
                 result[i] = new(key, kind, input.String(entry, "value", pointer), null, null);
             }
-            else throw input.Error("Unknown binding kind.", pointer + "/kind");
+            else throw input.Error($"Use text, paint, image_reference or image_content for kind; received \"{kind}\".", pointer + "/kind");
         }
         return result;
     }

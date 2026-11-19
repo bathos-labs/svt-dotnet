@@ -5,6 +5,23 @@ They and the geometric PNG/JPEG illustrations are MIT-licensed under the reposit
 [LICENSE](../../LICENSE). No external artwork is included. See
 [authoring guidance](../../docs/authoring.md).
 
+## Try an example
+
+With the .NET 10 SDK, build from the repository root and inspect the shared-color template:
+
+```sh
+dotnet build SvgTemplates.slnx -c Release
+dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll inspect examples/authoring/shared-palette/input.svg
+dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll bind examples/authoring/shared-palette/input.svg --bindings examples/authoring/shared-palette/partial.json --output palette.svg
+```
+
+Open `palette.svg` in a browser or Inkscape and compare it with
+[the expected artwork](shared-palette/partial.svg). Omitted bindings retain their authored values.
+Choose a new output name or add `--overwrite` to repeat the command. Start with the
+[smaller walkthrough](../../README.md#try-it) if you're new to SVT.
+
+## Example families
+
 | Directory             | Intent                                                                                       |
 | --------------------- | -------------------------------------------------------------------------------------------- |
 | `text-card`           | Leaf text/span inputs, Unicode, literal XML characters, whitespace, empty and long text      |

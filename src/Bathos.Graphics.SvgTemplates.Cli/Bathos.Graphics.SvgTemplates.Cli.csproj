@@ -7,4 +7,16 @@
     <ProjectReference Include="../Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
     <InternalsVisibleTo Include="Bathos.Graphics.SvgTemplates.Cli.Tests" />
   </ItemGroup>
+  <Target Name="AddCliBuildIdentity" BeforeTargets="GetAssemblyAttributes" DependsOnTargets="InitializeSourceControlInformation">
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>SvtProductVersion</_Parameter1>
+        <_Parameter2>$(Version)</_Parameter2>
+      </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(SourceRevisionId)' != ''">
+        <_Parameter1>SvtSourceRevision</_Parameter1>
+        <_Parameter2>$(SourceRevisionId)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
 </Project>

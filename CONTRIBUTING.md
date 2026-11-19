@@ -14,6 +14,21 @@ CI restore. NuGet sources are restricted to nuget.org. Test dependencies are cen
 all seven solution projects have lockfiles. Only the library is packable. A BCL-only engineering
 executable measures completed-document export allocations and throughput.
 
+## Local setup
+
+Install the .NET 10 SDK and Node.js 24. Task is optional; `node eng/check.mjs` runs the same gate as
+`task check`. Build from the repository root:
+
+```sh
+dotnet restore SvgTemplates.slnx --locked-mode
+dotnet build SvgTemplates.slnx -c Release --no-restore
+```
+
+The [README walkthrough](README.md#try-it) runs the source-built CLI. Only the library is packaged;
+CLI tool distribution is separate work. CLI builds embed `Version` and the available full source
+revision separately. `--version` reads these values without Git or filesystem access and does not
+claim that a checkout is clean or published.
+
 ## Null-aware boundaries
 
 All projects use nullable reference analysis with warnings as errors, including tests, engineering

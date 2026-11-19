@@ -5,6 +5,13 @@ its target and an optional `data-svt-label` for display. See the
 [binding contract](../spec/bindings.md) and the
 [original examples](../examples/authoring/README.md).
 
+## Try a template first
+
+Follow the [inspect, bind and open walkthrough](../README.md#try-it) to change a heading and color.
+Open both SVGs in a browser or Inkscape to compare them. Then edit the source artwork, save it, and
+inspect it again before applying bindings. The
+[larger examples](../examples/authoring/README.md#try-an-example) cover shared colors and images.
+
 ## Keep inputs editable
 
 - Put text hooks on a leaf `text` or `tspan`. Editing tools can insert spans beneath a previously

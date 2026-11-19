@@ -1,12 +1,10 @@
 # SVT command-line contract
 
-This document defines the thin CLI. The help/version and human-readable presentation changes below
-are agreed contracts awaiting implementation; the request, processing and machine-output contracts
-are implemented. The lifecycle is inspect, prepare values, bind, then explicitly publish. The
-[inspection](inspection.md) and [substitution](substitution.md) contracts own template and
-replacement semantics. The CLI owns bounded file acquisition, request parsing, diagnostics
-presentation and output publication. It does not render, fetch references, interpret paint, decode
-images or certify SVG validity.
+This document defines the implemented CLI. The lifecycle is inspect, prepare values, bind, then
+explicitly publish. The [inspection](inspection.md) and [substitution](substitution.md) contracts
+own template and replacement semantics. The CLI owns bounded file acquisition, request parsing,
+diagnostics presentation and output publication. It does not render, fetch references, interpret
+paint, decode images or certify SVG validity.
 
 ## Commands and invocation
 
@@ -317,7 +315,9 @@ Render available source, request source, key, JSON pointer, assignment and limit
 unavailable fields rather than printing `null`. Show both template and request locations when they
 identify different evidence. Related SVG locations remain associated with their source and retain
 order. For the stream marker `-`, say `stdin` when reading and `stdout` when publishing; retain `-`
-in JSON. A literal filename such as `./-` is still a file, not a stream marker.
+in JSON. A literal filename such as `./-` is still a file, not a stream marker. The image `file`
+field always names a file; its bare `-` is represented as `./-` in diagnostic source context to
+avoid ambiguity with stdin.
 
 Human binding numbers are one-based. JSON assignment indices and JSON-pointer array segments stay
 zero-based: “binding 1” and `/bindings/0/value` identify the same entry. Do not invent an assignment

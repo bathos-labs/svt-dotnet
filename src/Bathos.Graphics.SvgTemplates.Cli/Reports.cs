@@ -23,7 +23,6 @@ internal static class Reports
         await stream.WriteAsync(Encoding.UTF8.GetBytes(text), token).ConfigureAwait(false);
         await stream.FlushAsync(token).ConfigureAwait(false);
     }
-    internal static string Quote(string? text) => JsonSerializer.Serialize(text, Options);
     internal static Task InspectAsync(Stream stream, InspectionResult result, bool json, CancellationToken token)
     {
         if (json) return WriteJsonAsync(stream, new
@@ -40,21 +39,38 @@ internal static class Reports
                 InputKeys = group.Inputs.Select(input => input.Key),
             }).ToArray() ?? []
         }, token);
-        var report = new StringBuilder(result.Template is null ? "No usable template.\n" : "Template inputs:\n");
+        var report = new StringBuilder();
+        if (result.Template is null) report.Append("No usable template.\n");
+        else if (result.Template.Inputs.IsEmpty) report.Append("No editable inputs found.\n");
         foreach (var input in result.Template?.Inputs ?? [])
         {
-            report.Append(Quote(input.Key)).Append("  ").Append(input.Kind).Append("  label=").Append(Quote(input.Label))
-                .Append("  default=").Append(input.Default.State).Append(' ').Append(Quote(input.Default.Raw)).Append('\n');
+            report.Append(HumanText.Preview(input.Label, false)).Append(" [").Append(HumanText.Escape(input.Key))
+                .Append("] — ").Append(input.Kind.ToString().ToLowerInvariant()).Append('\n');
+            if (input.Description is { } description)
+                report.Append("  ").Append(HumanText.Preview(description, false)).Append('\n');
+            report.Append(input.Default.State == InputDefaultState.Mixed
+                ? "  Defaults differ" : "  Default: " + DefaultText(input.Kind, input.Default.Raw)).Append('\n');
             foreach (var target in input.Targets)
-                report.Append("  ").Append(target.Hook).Append(" <").Append(target.ElementName).Append("> at ")
-                    .Append(target.Location.Line).Append(':').Append(target.Location.Column).Append("  ")
-                    .Append(target.Default.Source).Append(' ').Append(target.Default.State).Append(' ')
-                    .Append(Quote(target.Default.Raw)).Append('\n');
+            {
+                report.Append("  Target: ").Append(target.Hook.ToString().ToLowerInvariant())
+                    .Append(" <").Append(HumanText.Escape(target.ElementName)).Append(">, ")
+                    .Append(SvgLocation(target.Location)).Append('\n');
+                if (input.Default.State == InputDefaultState.Mixed)
+                    report.Append("    Default: ").Append(DefaultText(input.Kind, target.Default.Raw)).Append('\n');
+            }
         }
         return WriteTextAsync(stream, report.ToString(), token);
     }
+
+    private static string DefaultText(InputKind kind, string? raw) => raw is null ? "No authored default"
+        : kind == InputKind.Image && raw.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+            ? "Embedded data (payload hidden)" : HumanText.Preview(raw);
+
+    private static string SvgLocation(SourceLocation location) =>
+        FormattableString.Invariant($"SVG line {location.Line}, UTF-16 column {location.Column}");
+
     internal static Task DiagnosticsAsync(Stream stream, string? command, int exitCode,
-        List<CliDiagnostic> diagnostics, bool json)
+        List<CliDiagnostic> diagnostics, bool json, bool showUsage = false)
     {
         // Reporting happens after publication. Caller cancellation must not turn a committed file into a rollback.
         if (json) return WriteJsonAsync(stream, new
@@ -69,14 +85,26 @@ internal static class Reports
         var text = new StringBuilder();
         foreach (var d in diagnostics)
         {
-            text.Append(d.Severity).Append(' ').Append(d.Code).Append(" [").Append(d.Phase).Append("] ")
-                .Append(Quote(d.Source)).Append(' ');
-            if (d.Location is { } location) text.Append(location.Line).Append(':').Append(location.Column).Append(' ');
-            text.Append(Quote(d.Message));
-            if (d.Key is not null) text.Append(" key=").Append(Quote(d.Key));
-            if (d.Limit is not null) text.Append(" limit=").Append(Quote(d.Limit));
-            text.Append('\n');
+            text.Append(d.Severity == "warning" ? "Warning: " : "Error: ").Append(HumanText.Escape(d.Message)).Append('\n');
+            if (d.Source is { } source) Detail("Source", source == "-" ? d.Phase == "publication" ? "stdout" : "stdin" : HumanText.Quote(source));
+            if (d.Location is { } location) text.Append("  ").Append(SvgLocation(location)).Append('\n');
+            if (!d.RelatedLocations.IsDefaultOrEmpty)
+                foreach (var related in d.RelatedLocations) Detail("Related", SvgLocation(related));
+            if (d.RequestSource is { } request && (request != d.Source || request == "-" && d.Phase == "publication"))
+                Detail("Request", request == "-" ? "stdin" : HumanText.Quote(request));
+            if (d.JsonPosition is { } position)
+                text.Append(FormattableString.Invariant($"  JSON line {position.Line}, UTF-8 byte column {position.ByteColumn}\n"));
+            if (d.AssignmentIndex is { } index) text.Append(FormattableString.Invariant($"  binding {(long)index + 1}\n"));
+            if (d.JsonPointer is { } pointer) Detail("JSON pointer", HumanText.Quote(pointer));
+            if (d.Key is { } key) Detail("Key", HumanText.Quote(key));
+            if (d.Limit is { } limit) Detail("Limit", HumanText.Escape(limit));
+            Detail("Code", HumanText.Escape(d.Code));
         }
+        if (showUsage) text.Append('\n').Append(CliHelp.Overview).Append('\n');
+        else if (diagnostics.Any(d => d.Code == "svt.cli.usage"))
+            text.Append("Use svt ").Append(command is "inspect" or "bind" ? command + " " : "").Append("--help for help.\n");
         return WriteTextAsync(stream, text.ToString(), CancellationToken.None);
+
+        void Detail(string label, string value) => text.Append("  ").Append(label).Append(": ").Append(value).Append('\n');
     }
 }
