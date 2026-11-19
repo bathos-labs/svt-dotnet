@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/eng/">
+    <Project Path="eng/ExportPerformance/ExportPerformance.csproj" />
     <Project Path="eng/PackageValidation/PackageValidation.csproj" />
   </Folder>
   <Folder Name="/src/">

@@ -11,7 +11,8 @@ validation and a guarded, tag-triggered publishing workflow are implemented. The
 .NET 10.0.403 with latest-patch roll-forward. Shared build settings require nullable analysis,
 warnings as errors, recommended analyzers, deterministic builds, central package versions and locked
 CI restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and
-all six solution projects have lockfiles. Only the library is packable.
+all seven solution projects have lockfiles. Only the library is packable. A BCL-only engineering
+executable measures completed-document export allocations and throughput.
 
 ## Validation
 
@@ -36,12 +37,13 @@ synchronized. The configuration matches the Bathos prose convention: 100-column 
 embedded code formatting disabled. Generated output is excluded through `.prettierignore`.
 
 The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and the Node tests in
-`eng/visual/`, `eng/package/`, `eng/release/`, and `eng/coverage/` to verify evidence handling
-without launching browsers. The [native validation guide](eng/visual/README.md) describes the
-separate repeatable Inkscape/Chrome/resvg release checks and their generated evidence. Run these for
-release candidates and relevant implementation/tool changes.
-[Exploratory probes](eng/visual/probes.md) are explicit opt-in commands; interactive capability
-mapping is not part of `task check` or the repeatable native checks.
+`eng/visual/`, `eng/package/`, `eng/release/`, `eng/coverage/`, and `eng/ExportPerformance/` to
+verify evidence handling without launching browsers. The
+[native validation guide](eng/visual/README.md) describes the separate repeatable
+Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release candidates
+and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are explicit
+opt-in commands; interactive capability mapping is not part of `task check` or the repeatable native
+checks.
 
 The documentation gate checks whitespace, Markdown formatting, local links and heading anchors, and
 the link-checker's failure behavior. It makes no HTTP requests to validate external links. Review
@@ -73,6 +75,11 @@ Run `task test:coverage` for production line and branch coverage using the centr
 separate upload job sends both platforms to Codecov. That job uses short-lived OIDC credentials for
 trusted runs and public tokenless uploads for fork PRs. Percentages remain informational; collection
 and upload failures fail CI. See the [coverage guide](eng/coverage/README.md).
+
+Run `task perf:export` for reproducible UTF-8 export allocation and throughput checks. The
+[measurement guide](eng/ExportPerformance/README.md) explains the small Unicode and near-budget
+image cases, strict zero-allocation checks and informational timings. This opt-in command builds
+Release and records source-stamped evidence separately from coverage and native rendering.
 
 After the gate, run `task package:check` for a review-only package and isolated local consumption.
 Use the [package preparation guide](eng/package/README.md) for clean-commit candidates,

@@ -70,7 +70,8 @@ The contracts are specified in these focused references:
 
 Structural inspection and substitution are implemented. Discovery preserves raw authored values; it
 does not certify SVG validity or rendering. Optional value interpretation is a separate
-responsibility.
+responsibility. The [.NET caller-buffer export](../docs/binding-api.md#output-export) supports exact
+UTF-8 sizing and allocation-free writes to supplied storage without changing the template format.
 
 The root marker is currently `data-svt-version="0"`; see [bindings and syntax](bindings.md). The
 format is unreleased, with no compatibility promise or migration mechanism.

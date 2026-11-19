@@ -195,7 +195,8 @@ internal static class BindingOperation
             }
         }
         token.ThrowIfCancellationRequested();
-        return new(output.GetXml());
+        // The flushed serializer has already measured and admitted these exact UTF-8 bytes.
+        return new(output.GetXml(), checked((int)output.Length));
     }
 
     private static void WriteValue(XmlWriter writer, TemplateBinding binding, CancellationToken token)

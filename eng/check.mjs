@@ -57,11 +57,12 @@ const checks = [
       "--test",
       ...(
         await Promise.all(
-          ["eng/visual", "eng/package", "eng/release", "eng/coverage"].map(async (folder) =>
-            (await readdir(resolve(root, folder)))
-              .filter((name) => name.endsWith(".test.mjs"))
-              .sort()
-              .map((name) => `${folder}/${name}`),
+          ["eng/visual", "eng/package", "eng/release", "eng/coverage", "eng/ExportPerformance"].map(
+            async (folder) =>
+              (await readdir(resolve(root, folder)))
+                .filter((name) => name.endsWith(".test.mjs"))
+                .sort()
+                .map((name) => `${folder}/${name}`),
           ),
         )
       ).flat(),
