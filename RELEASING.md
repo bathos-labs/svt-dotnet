@@ -130,9 +130,10 @@ These are external settings, not changes made by checking in the workflow:
 - After merging the dependency configuration, inspect the first updater jobs and the dependency
   graph. Confirm the expected Actions/npm dependencies and resolved NuGet versions, including
   transitive test packages. An empty graph or unbounded version ranges do not establish alert
-  coverage. Enable automatic dependency submission or configure a trusted default-branch submission
-  job if resolved dependencies are missing. Verify the first Dependabot PR passes every required
-  check, including coverage upload. NuGet audit during locked restore remains an independent check.
+  coverage. Verify the [dependency-graph workflow](.github/workflows/dependencies.yml) has submitted
+  the resolved NuGet/npm inventory from master. SHA-pinned Actions are reviewed through version
+  updates separately. Verify the first Dependabot PR passes every required check, including coverage
+  upload. NuGet audit during locked restore remains an independent check.
 
 ## Failures, retries, and evidence
 
