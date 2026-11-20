@@ -114,12 +114,23 @@ try {
   for (const item of report.reports)
     item.files = await treeHashes(dirname(resolve(root, item.path)));
   report.status = "passed";
+} catch (error) {
+  report.status = "failed";
+  report.error = error.message;
+  throw error;
 } finally {
-  await rm(hosts, { recursive: true, force: true });
-  if (mount) {
-    await command("hdiutil", ["detach", mount]);
-    await rm(mount, { recursive: true });
+  try {
+    await rm(hosts, { recursive: true, force: true });
+    if (mount) {
+      await command("hdiutil", ["detach", mount]);
+      await rm(mount, { recursive: true });
+    }
+  } catch (error) {
+    report.status = "failed";
+    report.cleanup_error = error.message;
+    throw error;
+  } finally {
+    if (report.status === "running") report.status = "failed";
+    await json(resolve(root, `artifacts/native-candidate-${process.platform}.json`), report);
   }
-  if (report.status === "running") report.status = "failed";
-  await json(resolve(root, `artifacts/native-candidate-${process.platform}.json`), report);
 }

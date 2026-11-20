@@ -34,15 +34,32 @@ test("preparation requires a successful gate for the exact source and a clean ha
   requireGate({ ...gate, source: dirty }, dirty, true);
   assert.throws(() => requireGate({ ...gate, source: dirty }, dirty, false));
   assert.match(
-    packageVersion(source, true, "0123456789abcdef"),
-    /^0\.1\.0-review\.g0123456789ab\./,
+    packageVersion("1.0.0-rc.1", source, true, "0123456789abcdef"),
+    /^1\.0\.0-review\.g0123456789ab\./,
   );
   assert.match(
-    packageVersion(source, false, "0123456789abcdef"),
-    /^0\.1\.0-preview\.g0123456789ab\./,
+    packageVersion("1.0.0-rc.1", source, false, "0123456789abcdef"),
+    /^1\.0\.0-preview\.g0123456789ab\./,
   );
-  assert.notEqual(packageVersion(source, false), packageVersion(source, false));
-  assert.ok(packageVersion(source, true, "0000000000000000").endsWith(".n0000000000000000"));
+  assert.notEqual(
+    packageVersion("1.0.0-rc.1", source, false),
+    packageVersion("1.0.0-rc.1", source, false),
+  );
+  assert.ok(
+    packageVersion("1.0.0-rc.1", source, true, "0000000000000000").endsWith(".n0000000000000000"),
+  );
+});
+test("development identities follow the shipping numeric version and reject aliases", () => {
+  for (const version of ["0.1.0-beta.1", "1.0.0-rc.1", "2.3.4", "12.34.56-rc.2"])
+    for (const review of [true, false])
+      assert.equal(
+        packageVersion(version, source, review, "0123456789abcdef"),
+        `${version.split("-")[0]}-${review ? "review" : "preview"}.g0123456789ab.n0123456789abcdef`,
+      );
+  for (const version of ["01.0.0", "1.0", "1.0.0.0", "1.0.0+alias", "1.0.0-review.x"])
+    assert.throws(() => packageVersion(version, source, true));
+  assert.throws(() => packageVersion("1.0.0", { ...source, commit: "bad" }, true));
+  assert.throws(() => packageVersion("1.0.0", source, true, "bad"));
 });
 test("handoff needs both platforms to consume the same artifact, not a rebuilt version", () => {
   const manifest = {
@@ -97,7 +114,10 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
   );
 });
 async function createBundle(folder, purpose = "review") {
-  const version = purpose === "release-candidate" ? "0.1.0-beta.1" : packageVersion(source, true);
+  const version =
+    purpose === "release-candidate"
+      ? "0.1.0-beta.1"
+      : packageVersion("1.0.0-rc.1", source, true);
   await mkdir(resolve(folder, "packages"));
   const products = {};
   for (const [role, id] of Object.entries(productIds)) {
@@ -172,7 +192,25 @@ test("release bundles require a public version, matching tag and clean source", 
       { release_tag: "v0.1.0-beta.2" },
       { source: { ...source, dirty: true } },
       { purpose: "handoff-candidate" },
-      { version: packageVersion(source, false) },
+      { version: packageVersion("1.0.0-rc.1", source, false) },
+    ]) {
+      await json(resolve(folder, "manifest.json"), { ...manifest, ...change });
+      await assert.rejects(verifyBundle(folder));
+    }
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+});
+test("development bundles reject numeric aliases and mismatched purpose or commit", async () => {
+  const folder = await mkdtemp(resolve(tmpdir(), "svt-development-bundle-test-"));
+  try {
+    const manifest = await createBundle(folder);
+    await verifyBundle(folder);
+    for (const change of [
+      { version: manifest.version.replace("1.0.0-", "01.0.0-") },
+      { version: manifest.version.replace("review", "preview") },
+      { version: manifest.version.replace("g0123456789ab", "gffffffffffff") },
+      { purpose: "handoff-candidate" },
     ]) {
       await json(resolve(folder, "manifest.json"), { ...manifest, ...change });
       await assert.rejects(verifyBundle(folder));

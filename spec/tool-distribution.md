@@ -1,7 +1,7 @@
 # CLI packaging and release contract
 
 The library and CLI are packaged separately. The installation examples below describe the planned
-`1.0.0-beta.1` release, not an available tool package or authorization to publish it. The
+`1.0.0-rc.1` release, not an available tool package or authorization to publish it. The
 [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit codes.
 
 ## Release unit
@@ -47,7 +47,7 @@ with no SVT auto-update behavior.
 For regular personal use:
 
 ```sh
-dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
 svt inspect template.svg
 ```
 
@@ -59,7 +59,7 @@ For a project, create a manifest deliberately and commit it:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
 ```
 
 Restore and run from the project's trusted directory. The manifest selects the exact tool version;
@@ -68,7 +68,7 @@ use `dotnet tool run svt` to select the local tool rather than a global PATH com
 For a quick trial:
 
 ```sh
-dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-beta.1 -- inspect template.svg
+dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-rc.1 -- inspect template.svg
 ```
 
 The equivalent SDK entry point is `dotnet tool exec`. One-off execution may acquire packages and

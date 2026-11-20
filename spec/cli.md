@@ -98,7 +98,7 @@ implementation terminology in introductory prose; link detailed guidance where n
 `--version` writes one line to stdout and exits 0, without inspecting files or Git:
 
 ```text
-svt 1.0.0-beta.1 (commit cfdb2b429a03)
+svt 1.0.0-rc.1 (commit cfdb2b429a03)
 ```
 
 The example version is illustrative, not a new release target embedded in code. Report the exact

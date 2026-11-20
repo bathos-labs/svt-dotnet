@@ -50,8 +50,7 @@ if (!document.TryWriteUtf8Bytes(destination, out int bytesWritten))
 An insufficient span returns false with zero bytes written and leaves memory unchanged. Success
 leaves the unused suffix unchanged. Neither operation retains the destination; the immutable
 document remains reusable. Export is synchronous, has no cancellation token, and does not guarantee
-atomic publication by a later renderer or transport. These members are new in source and are not
-available in the previously published `0.1.0-beta.1` package.
+atomic publication by a later renderer or transport.
 
 For pooled storage, follow the complete
 [downstream lifetime example](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md#pooled-output-and-downstream-lifetime).
@@ -71,7 +70,7 @@ objects as `Inputs`; `Inputs` retains structural discovery order. Optional
 labels, plain-text descriptions and ordering. Each input reports `LabelSource`, nullable Description
 and nullable Order. Ungrouped inputs appear in a final section with null group Key and Label; every
 admitted input remains visible. These presentation hints do not impose binding requirements or
-change raw defaults. Metadata support is new in source and is not in `0.1.0-beta.1`.
+change raw defaults.
 
 For typed editor controls, explicitly call `DefaultInterpreter.InterpretPaint(target)` on a fill or
 stroke target, or `InterpretImage(target)` on an image target. Literal paints expose normalized
@@ -80,7 +79,6 @@ unevaluated. Image interpretation classifies reference text and reads bounded da
 without examining payloads. Results retain the original target, and optional InterpretationOptions
 bound the work. Raw evidence and binding admission remain unchanged. See the
 [interpretation API](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/interpretation-api.md).
-These operations are new in source and are not in `0.1.0-beta.1`.
 
 ## Boundaries
 

@@ -5,6 +5,8 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+## [1.0.0-rc.1] - 2026-11-20
+
 - Package the CLI as the version-pinned `Bathos.Graphics.SvgTemplates.Cli` .NET tool, with command
   `svt`, global/local installation and one-off execution. Add `task svt` for contributors and
   isolated installed-tool checks alongside independent library consumption.
@@ -59,5 +61,6 @@ hosts own resource acquisition, decoding, fonts, CSS interpretation, fitting, an
 evidence covers named tools and environments, not universal SVG rendering. The template marker and
 JSON envelopes remain version 0 independently of the package version.
 
-[Unreleased]: https://github.com/bathos-labs/svt-dotnet/compare/v0.1.0-beta.1...HEAD
+[Unreleased]: https://github.com/bathos-labs/svt-dotnet/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v1.0.0-rc.1
 [0.1.0-beta.1]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v0.1.0-beta.1

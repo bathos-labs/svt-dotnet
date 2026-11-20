@@ -14,10 +14,10 @@ installation behavior and [draft recovery](../../RELEASING.md#failures-retries-a
    receipt containing the Git commit, dirty state and fingerprint of tracked/untracked source files.
    Generated ignored artifacts are excluded. Changing source invalidates the receipt.
 2. Use `task package:check` while changes are uncommitted. It prepares a uniquely identified
-   `0.1.0-review.g<commit-prefix>.n<nonce>` artifact and consumes it locally. Its manifest records
+   `1.0.0-review.g<commit-prefix>.n<nonce>` artifact and consumes it locally. Its manifest records
    the dirty snapshot. Review packages cannot be finalized for handoff.
 3. After review and commit, rerun the gate on the clean checkout, then `task package:prepare`. This
-   produces `0.1.0-preview.g<commit-prefix>.n<nonce>` with the full source commit and artifact
+   produces `1.0.0-preview.g<commit-prefix>.n<nonce>` with the full source commit and artifact
    hashes. The nonce prevents reuse of a package identity across preparations; existing output is
    never overwritten. These are development versions and cannot be published by the release
    workflow.
@@ -38,6 +38,11 @@ installation behavior and [draft recovery](../../RELEASING.md#failures-retries-a
 The workflow requires Node 24 and the exact SDK pinned in `global.json`. This tighter artifact check
 does not change ordinary solution build roll-forward settings. Source identity is checked before and
 after preparation. Run tools against a stable checkout, not while editing files concurrently.
+
+Development packages use the numeric version from `Directory.Build.props`, followed by a unique
+`review` or `preview` suffix. For `1.0.0-rc.1`, the examples above keep the same `1.0.0` assembly
+version as the portable test hosts. Only tagged release preparation uses the exact shipping package
+identity.
 
 ## Package inspection
 
@@ -125,8 +130,10 @@ docker run --rm --platform linux/amd64 \
   svt-visual-validation node eng/package/consume.mjs /bundle
 ```
 
-macOS receipts are supplementary. Windows results require an actual Windows run; neither macOS nor a
-Linux container substitutes for that evidence.
+The development handoff finalizer requires Ubuntu and Windows receipts. The release workflow also
+requires macOS consumption of the identical bundle and retains that receipt with native evidence.
+Windows results require an actual Windows run; neither macOS nor a Linux container substitutes for
+that evidence.
 
 ## Handoff scope
 
@@ -162,7 +169,7 @@ receipts and public-feed receipts are distinct.
 
 ## Nonpublishing rehearsal
 
-After preparing a candidate, run:
+Install the pinned native tools with `task native:setup`. After preparing a candidate, run:
 
 ```sh
 task release:rehearse -- path/to/bundle

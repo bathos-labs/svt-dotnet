@@ -119,10 +119,11 @@ export function requireGate(gate, source, review) {
       "Handoff preparation requires a clean committed checkout; use review for uncommitted validation",
     );
 }
-export function packageVersion(source, review, token = nonce()) {
+export function packageVersion(version, source, review, token = nonce()) {
+  const base = releaseVersion(version).split("-")[0];
   assert.match(source.commit, /^[a-f0-9]{40}$/);
   assert.match(token, /^[a-f0-9]{16}$/);
-  return `0.1.0-${review ? "review" : "preview"}.g${source.commit.slice(0, 12)}.n${token}`;
+  return `${base}-${review ? "review" : "preview"}.g${source.commit.slice(0, 12)}.n${token}`;
 }
 export async function treeHashes(folder) {
   const files = {};
@@ -159,10 +160,17 @@ export async function verifyBundle(folder) {
     assert.equal(manifest.release_tag, `v${manifest.version}`);
     assert.equal(manifest.source.dirty, false);
   } else {
-    assert.match(manifest.version, /^0\.1\.0-(?:preview|review)\.g[a-f0-9]{12}\.n[a-f0-9]{16}$/);
-    assert.ok(
-      manifest.version.startsWith(
-        `0.1.0-${manifest.purpose === "review" ? "review" : "preview"}.g${manifest.source.commit.slice(0, 12)}.`,
+    const development = manifest.version.match(
+      /^(\d+\.\d+\.\d+)-(?:preview|review)\.g[a-f0-9]{12}\.n([a-f0-9]{16})$/,
+    );
+    assert.ok(development, "Expected a development package identity");
+    assert.equal(
+      manifest.version,
+      packageVersion(
+        development[1],
+        manifest.source,
+        manifest.purpose === "review",
+        development[2],
       ),
     );
     assert.equal(manifest.release_tag, undefined);
