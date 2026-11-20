@@ -11,8 +11,8 @@ validation and a guarded, tag-triggered publishing workflow are implemented. The
 .NET 10.0.403 with latest-patch roll-forward. Shared build settings require nullable analysis,
 warnings as errors, recommended analyzers, deterministic builds, central package versions and locked
 CI restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and
-all seven solution projects have lockfiles. Only the library is packable. A BCL-only engineering
-executable measures completed-document export allocations and throughput.
+all seven solution projects have lockfiles. The library and CLI are separately packable. A BCL-only
+engineering executable measures completed-document export allocations and throughput.
 
 ## Local setup
 
@@ -24,10 +24,23 @@ dotnet restore SvgTemplates.slnx --locked-mode
 dotnet build SvgTemplates.slnx -c Release --no-restore
 ```
 
-The [README walkthrough](README.md#try-it) runs the source-built CLI. Only the library is packaged;
-CLI tool distribution is separate work. CLI builds embed `Version` and the available full source
-revision separately. `--version` reads these values without Git or filesystem access and does not
-claim that a checkout is clean or published.
+Run the source CLI without locating a build output:
+
+```sh
+task svt -- inspect examples/quickstart/template.svg
+```
+
+Without Task:
+
+```sh
+dotnet run --project src/Bathos.Graphics.SvgTemplates.Cli -c Release -- inspect examples/quickstart/template.svg
+```
+
+Task forwards quoted arguments, but maps command failures to its own status (normally 201). Build
+messages are development output. Use a prepared installed tool for automation and exact SVT exit
+codes. The [README walkthrough](README.md#try-it) describes installed usage; the first CLI release
+is still pending. CLI builds embed the version and source revision; `--version` reads these without
+Git or filesystem access and does not claim that a checkout is clean or published.
 
 ## Null-aware boundaries
 
@@ -89,15 +102,15 @@ CI runs this documentation gate on pull requests and master pushes using read-on
 permissions, SHA-pinned actions, Node.js 24 and an Ubuntu 24.04 runner. It can also be dispatched
 manually. It uses the pinned .NET SDK for locked restore, formatting, Release build/analyzers and
 tests. No native SDK workloads, runner cleanup or secrets are required. Ubuntu prepares and inspects
-one development package after the gate and runs isolated consumption. Windows then performs locked
-restore, Release build/analyzers and all three test suites, and consumes that identical package
-artifact. Matching Ubuntu/Windows receipts produce a candidate manifest and retained CI artifact; no
-registry publication is performed by ordinary CI. The separate release workflow reuses these checks,
-adds native candidate evidence, and requires the protected `nuget` environment before publishing.
-Link tests explicitly report an inconclusive result if the host cannot create symbolic links; report
-such unavailable evidence rather than claiming link coverage. CLI tests use isolated temporary
-directories and deterministic staging/stream boundaries, without sleeps or polling. The .NET
-commands included in `task check` are:
+one development bundle containing both packages after the gate and runs isolated consumption.
+Windows then performs locked restore, Release build/analyzers and all three test suites, and
+consumes that identical bundle artifact. Matching Ubuntu/Windows receipts produce a candidate
+manifest and retained CI artifact; no registry publication is performed by ordinary CI. The separate
+release workflow reuses these checks, adds native candidate evidence, and requires the protected
+`nuget` environment before publishing. Link tests explicitly report an inconclusive result if the
+host cannot create symbolic links; report such unavailable evidence rather than claiming link
+coverage. CLI tests use isolated temporary directories and deterministic staging/stream boundaries,
+without sleeps or polling. The .NET commands included in `task check` are:
 
 ```sh
 dotnet restore SvgTemplates.slnx --locked-mode

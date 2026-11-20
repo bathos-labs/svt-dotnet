@@ -14,6 +14,8 @@ import {
   json,
   sdk,
   packageId,
+  productIds,
+  toolChecks,
   hash,
   smokeChecks,
 } from "./common.mjs";
@@ -47,8 +49,7 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
     purpose: "handoff-candidate",
     source,
     sdk,
-    package: { version: "example", sha256: "original" },
-    symbols: { sha256: "symbols" },
+    products: { library: { sha256: "original" }, cli: { sha256: "cli" } },
   };
   const manifestHash = "b".repeat(64);
   const receipts = ["linux", "win32"].map((platform) => ({
@@ -58,8 +59,8 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
     purpose: manifest.purpose,
     source,
     sdk,
-    package: manifest.package,
-    symbols: manifest.symbols,
+    products: manifest.products,
+    tool: { status: "passed", checks: toolChecks },
     environment: {
       platform,
       ...(platform === "linux" ? { distribution: { id: "ubuntu", version: "24.04" } } : {}),
@@ -71,8 +72,8 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
   validateReceipts(manifest, manifestHash, receipts);
   for (const change of [
     { status: "failed" },
-    { package: { version: "example", sha256: "rebuilt" } },
-    { symbols: { sha256: "other" } },
+    { products: { library: { sha256: "rebuilt" } } },
+    { tool: { status: "passed", checks: [] } },
     { bundle_manifest_sha256: "c".repeat(64) },
     { format_version: 1 },
     { environment: { platform: "linux" } },
@@ -97,11 +98,23 @@ test("handoff needs both platforms to consume the same artifact, not a rebuilt v
 });
 async function createBundle(folder, purpose = "review") {
   const version = purpose === "release-candidate" ? "0.1.0-beta.1" : packageVersion(source, true);
-  const packageFile = `packages/${packageId}.${version}.nupkg`;
-  const symbolFile = `packages/${packageId}.${version}.snupkg`;
   await mkdir(resolve(folder, "packages"));
-  await writeFile(resolve(folder, packageFile), "package");
-  await writeFile(resolve(folder, symbolFile), "symbols");
+  const products = {};
+  for (const [role, id] of Object.entries(productIds)) {
+    const file = `packages/${id}.${version}.nupkg`;
+    const symbols = `packages/${id}.${version}.snupkg`;
+    await writeFile(resolve(folder, file), role + "package");
+    await writeFile(resolve(folder, symbols), role + "symbols");
+    products[role] = {
+      id,
+      version,
+      file,
+      sha256: hash(role + "package"),
+      assembly_sha256: hash(role + "assembly"),
+      pdb_sha256: hash(role + "pdb"),
+      symbols: { file: symbols, sha256: hash(role + "symbols") },
+    };
+  }
   const manifest = {
     format_version: 0,
     sdk,
@@ -109,14 +122,8 @@ async function createBundle(folder, purpose = "review") {
     purpose,
     ...(purpose === "release-candidate" ? { release_tag: `v${version}` } : {}),
     source,
-    package: {
-      id: packageId,
-      version,
-      file: packageFile,
-      sha256: hash("package"),
-      assembly_sha256: hash("assembly"),
-    },
-    symbols: { file: symbolFile, sha256: hash("symbols") },
+    version,
+    products,
     validation: {
       portable_gate: "passed",
       package_inspection: "passed",
@@ -130,14 +137,22 @@ async function createBundle(folder, purpose = "review") {
     sdk,
     source,
   });
-  await json(resolve(folder, "inspection.json"), {
-    package_id: packageId,
-    version,
-    commit: source.commit,
-    package_sha256: manifest.package.sha256,
-    symbols_sha256: manifest.symbols.sha256,
-    assembly_sha256: manifest.package.assembly_sha256,
-  });
+  for (const [role, product] of Object.entries(products))
+    await json(resolve(folder, `inspection-${role}.json`), {
+      package_id: product.id,
+      version,
+      commit: source.commit,
+      package_sha256: product.sha256,
+      symbols_sha256: product.symbols.sha256,
+      assembly_sha256: product.assembly_sha256,
+      pdb_sha256: product.pdb_sha256,
+      ...(role === "cli"
+        ? {
+            bundled_library_sha256: products.library.assembly_sha256,
+            bundled_library_pdb_sha256: products.library.pdb_sha256,
+          }
+        : {}),
+    });
   await json(resolve(folder, "global.json"), { sdk: { version: sdk } });
   await refreshManifest(folder, manifest);
   return manifest;
@@ -157,7 +172,7 @@ test("release bundles require a public version, matching tag and clean source", 
       { release_tag: "v0.1.0-beta.2" },
       { source: { ...source, dirty: true } },
       { purpose: "handoff-candidate" },
-      { package: { ...manifest.package, version: packageVersion(source, false) } },
+      { version: packageVersion(source, false) },
     ]) {
       await json(resolve(folder, "manifest.json"), { ...manifest, ...change });
       await assert.rejects(verifyBundle(folder));
@@ -171,13 +186,13 @@ test("bundle integrity detects modified, added and removed files before consumpt
   try {
     const manifest = await createBundle(folder);
     await verifyBundle(folder);
-    await writeFile(resolve(folder, manifest.package.file), "tampered");
+    await writeFile(resolve(folder, manifest.products.library.file), "tampered");
     await assert.rejects(verifyBundle(folder));
-    await writeFile(resolve(folder, manifest.package.file), "package");
+    await writeFile(resolve(folder, manifest.products.library.file), "librarypackage");
     await writeFile(resolve(folder, "extra"), "extra");
     await assert.rejects(verifyBundle(folder));
     await rm(resolve(folder, "extra"));
-    await rm(resolve(folder, manifest.symbols.file));
+    await rm(resolve(folder, manifest.products.library.symbols.file));
     await assert.rejects(verifyBundle(folder));
   } finally {
     await rm(folder, { recursive: true, force: true });
@@ -191,7 +206,7 @@ test("bundle reports must agree with provenance even when their inventory hashes
       { format_version: 0, status: "passed", sdk, source: { ...source, commit: "f".repeat(40) } },
     ],
     ["validation-gate.json", { format_version: 0, status: "passed", sdk: "other", source }],
-    ["inspection.json", { package_id: packageId, version: "different" }],
+    ["inspection-cli.json", { package_id: packageId, version: "different" }],
     ["global.json", { sdk: { version: "other" } }],
   ];
   for (const [file, content] of mutations) {
@@ -211,7 +226,7 @@ test("bundle metadata rejects missing assembly identity and inconsistent validat
   try {
     const manifest = await createBundle(folder);
     const missingHash = structuredClone(manifest);
-    delete missingHash.package.assembly_sha256;
+    delete missingHash.products.library.assembly_sha256;
     await json(resolve(folder, "manifest.json"), missingHash);
     await assert.rejects(verifyBundle(folder));
     for (const change of [

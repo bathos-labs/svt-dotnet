@@ -7,6 +7,17 @@ change between prereleases. Consumers should pin an exact published version
 stable API or format migration promise. The SVG marker and JSON envelopes remain version 0
 independently of NuGet.
 
+## Release set
+
+One release contains `Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli` at one
+version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. The first CLI
+release is not published yet. See the [packaging contract](spec/tool-distribution.md).
+
+Archive and verify the candidate and its portable/platform/native evidence in a draft GitHub release
+before the first NuGet upload. Publish that draft only after both products pass public consumption,
+signature/content, symbols and Source Link checks. A draft stores evidence; it does not authorize
+publication.
+
 ## Version and branch policy
 
 `Directory.Build.props` owns the shipping version. [CHANGELOG.md](CHANGELOG.md) must have one
@@ -33,8 +44,9 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
    references, and known limitations. Merge through the portable Ubuntu/Windows gate. Retain LICENSE
    and NOTICE.
 2. Optionally dispatch **NuGet release** on `master`. Dispatch is a non-publishing rehearsal: it
-   runs the full gate, prepares a development package, consumes the same bytes on Ubuntu and
-   Windows, and runs the native matrix. It never enters the publishing job.
+   runs the full gate, prepares both development packages, consumes the same bytes on Ubuntu and
+   Windows, runs the native matrix, and rehearses recovery with fake remote services. It never
+   enters the publishing job. Leave the dispatch mode at `rehearse`.
 3. After explicit authorization to publish, update clean local `master` and set `TAG` to the
    reviewed version matching the package metadata and changelog (not an already-published tag):
 
@@ -49,26 +61,30 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
    pushes trigger publication preparation; do not use them just to test the workflow.
 
 4. The tag workflow checks policy, then calls the ordinary validation workflow with the release tag.
-   Ubuntu builds and inspects the intended version once. Ubuntu and Windows each restore it into a
-   fresh cache and run the isolated consumer. Package, symbols, source, SDK, bundle inventory, and
-   both receipts must agree. The completed artifact is `validated-package-<version>-<attempt>`.
-5. Native jobs use that same packaged DLL in the CLI and authoring-test hosts. The macOS ARM64 job
-   runs pinned Inkscape native/Plain round trips and deliberate edits, followed by Chrome/resvg on
-   the original, saved, and edited corpora (186 comparisons). Ubuntu runs the original corpus in
-   both engines (38 comparisons). Preserve reports and images from both jobs. Exploratory probes are
-   excluded and do not supply a release verdict.
+   Ubuntu builds the release set once and inspects both packages. Ubuntu and Windows each restore it
+   into a fresh cache and run the isolated consumer. Package, symbols, source, SDK, bundle
+   inventory, and both receipts must agree. The completed artifact is
+   `validated-package-<version>-<attempt>`.
+5. Native jobs use the packaged CLI and the same library DLL/PDB in authoring-test hosts. The macOS
+   ARM64 job runs pinned Inkscape native/Plain round trips and deliberate edits, followed by
+   Chrome/resvg on the original, saved, and edited corpora (186 comparisons). Ubuntu runs the
+   original corpus in both engines (38 comparisons). Preserve reports and images from both jobs.
+   Exploratory probes are excluded and do not supply a release verdict.
 6. Review complete-state images for content, fitting, clipping, masking, and stacking. The `nuget`
    environment reviewer confirms that evidence, package identity, changelog, and publication intent
    before approving the pending job. Machine checks and human visual review are separate
    requirements.
-7. The publishing job revalidates retained evidence and remote ancestry, obtains a short-lived NuGet
-   credential through GitHub OIDC, and uploads the exact `.nupkg` and `.snupkg`. It never rebuilds
-   them. The job then restores from nuget.org with fresh caches, verifies signing and unchanged
-   original contents, runs the consumer, and downloads matching public symbols and Source Link
-   sources.
-8. After public verification succeeds, create a GitHub release for the existing tag using the
-   changelog notes and the **prerelease** flag for beta versions. Retain the candidate and evidence
-   with that release before CI artifacts expire. Consumer application validation remains separate.
+7. The publishing job revalidates retained evidence and current remote ancestry, creates a
+   deterministic recovery archive and reports its identity hash. After protected approval it obtains
+   a short-lived NuGet credential, archives and reads back the candidate in a draft release, then
+   preflights all existing packages and symbols. Matching artifacts are verified and skipped;
+   conflicts or uncertain state stop publication.
+8. Upload missing artifacts in order: library package, CLI package, library symbols, CLI symbols.
+   Primary pushes disable implicit symbol publication. Per-attempt write-ahead receipts distinguish
+   accepted or ambiguous uploads from never-attempted ones. Public verification uses fresh caches,
+   repository signatures, unchanged original contents, installed execution, symbols and Source Link.
+9. Retain the completion receipt and publish the existing draft using the changelog and appropriate
+   prerelease flag. Consumer application validation remains separate.
 
 The tag workflow and rehearsal use SHA-pinned actions and the exact SDK in `global.json`. Native
 installation has a separate tool/font pin set. Ubuntu Chrome runs without its sandbox only in the
@@ -91,32 +107,54 @@ These are external settings, not changes made by checking in the workflow:
 - Configure
   [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
   for owner `bathos-labs`, repository `svt-dotnet`, workflow `release.yml`, environment `nuget`, and
-  package `Bathos.Graphics.SvgTemplates`. Confirm package ownership/name availability and
-  organization permissions. Set the environment variable `NUGET_USER` to the NuGet account username
-  used for the trust policy, not an organization name or email address. No long-lived API-key secret
-  is required.
+  both package IDs (`Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli`). Confirm
+  package ownership/name availability and organization permissions. Set the environment variable
+  `NUGET_USER` to the NuGet account username used for the trust policy, not an organization name or
+  email address. No long-lived API-key secret is required.
 - Review public repository security settings, including secret scanning/push protection and
   reporting access. Configure them explicitly; repository files do not establish that these settings
   are active.
 
 ## Failures, retries, and evidence
 
-Registry publication is not atomic across package and symbols. `--skip-duplicate` allows retrying an
-upload of the retained candidate, but does not prove identity. Public verification must still
-compare all original package entries and the PDB with the tested candidate. NuGet repository signing
-changes ZIP bytes; record the distributed hash separately from the unsigned candidate hash.
+Registry publication is not atomic. Do not rebuild, retag or replace a package version to complete a
+partial release. An original entry or public PDB mismatch blocks all further uploads. NuGet signing
+changes ZIP bytes, so verification compares original entries and records distributed hashes
+separately. Symbol-server 404s and network/authentication failures do not prove absence.
 
-NuGet indexing and symbol availability can lag an accepted upload. Verification fails visibly rather
-than guessing that elapsed time proves availability. Retain the original bundle and rerun the failed
-publishing job or run `task release:verify -- <bundle>` after indexing completes. Re-running only
-the failed job reuses prior validated artifacts. Do not rerun successful package preparation to
-retry an upload, replace a release tag, or rebuild under a published identity. A changed candidate
-needs a new version and tag. Unlisting is not deletion or a reliable rollback for consumers who
-already restored.
+The draft retains `candidate.zip`, `candidate-identity.json` and `candidate-sealed.json` before any
+registry write. The identity binds the repository, tag/commit, original validation run, manifest,
+archive and complete file inventory. Preserve candidate assets and validation receipts. Initial
+archival may fill missing matching assets before it is sealed; changed or missing sealed evidence
+stops recovery. Publication attempts and completion evidence are separate assets.
 
-Candidate/native artifacts last 30 days; publication verification lasts 90 days. Failure logs have
-shorter retention. A green portable gate, development handoff, or successful upload alone is not a
-completed release. Unavailable native checks, failed public verification, and unresolved consumer
-integration must remain explicit. Windows native rendering and universal SVG/editor compatibility
-are not claimed. Known resource/CSS/layout boundaries remain documented in the specification and
-[authoring guide](docs/authoring.md).
+To resume after CI artifacts expire:
+
+1. Select the existing release **tag** in the NuGet release workflow dispatch.
+2. Choose `resume` and provide the original recovery identity hash from the approved run's summary.
+3. Review and approve the same `nuget` environment gate. The workflow downloads the retained draft
+   assets, validates the selected identity, original run, current tag/ancestry and retained
+   evidence, and skips shipping-binary preparation. Initial and resume runs share one tag lock.
+
+Retrying only the failed publishing job also preserves the original candidate. Do not rerun
+successful preparation to retry publication. A failed initial asset upload can be retried from the
+original retained CI inputs; conflicting or incomplete remote assets require explicit maintainer
+reconciliation, never silent replacement.
+
+Accepted uploads can take time to index. Verification uses bounded calls and fails visibly while
+availability is unresolved. Wait for registry indexing, then resume with the same identity. An
+ambiguous upload leaves write-ahead evidence and blocks automatic resending until its state is
+reconciled; contact registry support if it never resolves. `--skip-duplicate` is a transport aid,
+not proof of identity. If the archive or identity cannot be recovered, use a new version for both
+products. Unlisting does not undo consumers' restores.
+
+If public verification passed but GitHub finalization failed, recovery validates the retained
+completion receipt and retries only release finalization. An already-published release is accepted
+only after identity and completion checks. The nonpublishing rehearsal tests each archival/upload/
+verification boundary and finalization failure without real remote mutations.
+
+Candidate/native CI artifacts last 30 days; publication verification lasts 90 days. Retain draft
+assets beyond those windows. A green portable gate or successful upload alone is not a completed
+release. Local rehearsals identify their actual host; Windows package execution and Ubuntu native
+checks need their own runs. Visual review and external integration remain explicit. No universal
+SVG/editor compatibility or Windows native rendering is claimed.

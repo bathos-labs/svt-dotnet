@@ -50,8 +50,11 @@ for (const name of ["release-authoring.mjs", "common.mjs", "tools.json"])
 const suite = JSON.parse(await readFile(resolve(source, "suite.json")));
 assertSuite(suite);
 const tests = resolve(
-  root,
-  "tests/Bathos.Graphics.SvgTemplates.Cli.Tests/bin/Release/net10.0/Bathos.Graphics.SvgTemplates.Cli.Tests.dll",
+  process.env.SVT_AUTHORING_TEST_HOST ??
+    resolve(
+      root,
+      "tests/Bathos.Graphics.SvgTemplates.Cli.Tests/bin/Release/net10.0/Bathos.Graphics.SvgTemplates.Cli.Tests.dll",
+    ),
 );
 for (const [name, path] of [
   ["svt.dll", cli],

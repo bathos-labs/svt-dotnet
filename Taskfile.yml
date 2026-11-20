@@ -1,11 +1,11 @@
-version: '3'
+version: "3"
 
 vars:
   # Keep CI and CONTRIBUTING.md synchronized when upgrading.
-  PRETTIER_VERSION: '3.9.10'
+  PRETTIER_VERSION: "3.9.10"
   REMARK_PACKAGES: >-
-    --package=remark-cli@12.0.1 --package=remark-gfm@4.0.1
-    --package=remark-validate-links@13.1.0 --package=remark-lint-no-undefined-references@5.0.2
+    --package=remark-cli@12.0.1 --package=remark-gfm@4.0.1 --package=remark-validate-links@13.1.0
+    --package=remark-lint-no-undefined-references@5.0.2
 
 tasks:
   default:
@@ -28,13 +28,23 @@ tasks:
     desc: Check local Markdown files, references and heading anchors without HTTP requests
     cmds:
       - >-
-        npx --yes {{.REMARK_PACKAGES}} remark --rc-path .remarkrc.cjs
-        --ignore-path .prettierignore --frail --no-stdout --no-color .
+        npx --yes {{.REMARK_PACKAGES}} remark --rc-path .remarkrc.cjs --ignore-path .prettierignore
+        --frail --no-stdout --no-color .
 
   docs:links:test:
     desc: Verify link-checker configuration using disposable fixtures
     cmds:
       - npx --yes {{.REMARK_PACKAGES}} node eng/CheckDocumentationLinks.test.cjs
+
+  svt:
+    desc: Run the CLI from source (Task may map a failing exit to 201)
+    cmds:
+      - dotnet run --project src/Bathos.Graphics.SvgTemplates.Cli -c Release -- {{.CLI_ARGS}}
+
+  release:rehearse:
+    desc: Check a local candidate and rehearse recovery without publication
+    cmds:
+      - node eng/release/rehearse.mjs {{.CLI_ARGS}}
 
   dotnet:check:
     desc: Verify locked restore, C# formatting, Release analyzers and tests
@@ -108,21 +118,21 @@ tasks:
   release:check:
     desc: Verify release version, changelog, clean tree and branch (TAG=v<version>)
     env:
-      RELEASE_TAG: '{{.TAG}}'
+      RELEASE_TAG: "{{.TAG}}"
     cmds:
       - node eng/release/release.mjs check
 
   release:tag:
     desc: Validate and create one annotated local release tag (TAG=v<version>)
     env:
-      RELEASE_TAG: '{{.TAG}}'
+      RELEASE_TAG: "{{.TAG}}"
     cmds:
       - node eng/release/release.mjs tag
 
   release:push:
     desc: Verify actual remote ancestry and push only the explicit release tag (TAG=v<version>)
     env:
-      RELEASE_TAG: '{{.TAG}}'
+      RELEASE_TAG: "{{.TAG}}"
     cmds:
       - node eng/release/release.mjs push
 

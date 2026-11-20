@@ -10,6 +10,19 @@ import { releaseVersion } from "../release/version.mjs";
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const packageId = "Bathos.Graphics.SvgTemplates";
+export const cliPackageId = packageId + ".Cli";
+export const productIds = { library: packageId, cli: cliPackageId };
+export const toolChecks = [
+  "isolated-tool-feed",
+  "pinned-version",
+  "global",
+  "local-manifest",
+  "one-off-cold-warm",
+  "prepared-streams",
+  "caller-paths-stdin",
+  "exit-and-output-protection",
+  "missing-host-tool",
+];
 export const sdk = JSON.parse(await readFile(resolve(root, "global.json"))).sdk.version;
 export const tool = resolve(
   root,
@@ -54,7 +67,15 @@ export async function environment() {
   return result;
 }
 export async function command(file, args, options = {}) {
-  return run(file, args, { cwd: root, timeout: 600000, maxBuffer: 32 * 1024 * 1024, ...options });
+  const { input, ...settings } = options;
+  const result = run(file, args, {
+    cwd: root,
+    timeout: 600000,
+    maxBuffer: 32 * 1024 * 1024,
+    ...settings,
+  });
+  if (input !== undefined) result.child.stdin.end(input);
+  return result;
 }
 export async function json(path, value) {
   await mkdir(dirname(path), { recursive: true });
@@ -132,18 +153,15 @@ export function bundlePath(folder, name) {
 export async function verifyBundle(folder) {
   const manifest = JSON.parse(await readFile(resolve(folder, "manifest.json")));
   assert.equal(manifest.format_version, 0);
-  assert.equal(manifest.package.id, packageId);
+  assert.deepEqual(Object.keys(manifest.products).sort(), ["cli", "library"]);
   if (manifest.purpose === "release-candidate") {
-    releaseVersion(manifest.package.version);
-    assert.equal(manifest.release_tag, `v${manifest.package.version}`);
+    releaseVersion(manifest.version);
+    assert.equal(manifest.release_tag, `v${manifest.version}`);
     assert.equal(manifest.source.dirty, false);
   } else {
-    assert.match(
-      manifest.package.version,
-      /^0\.1\.0-(?:preview|review)\.g[a-f0-9]{12}\.n[a-f0-9]{16}$/,
-    );
+    assert.match(manifest.version, /^0\.1\.0-(?:preview|review)\.g[a-f0-9]{12}\.n[a-f0-9]{16}$/);
     assert.ok(
-      manifest.package.version.startsWith(
+      manifest.version.startsWith(
         `0.1.0-${manifest.purpose === "review" ? "review" : "preview"}.g${manifest.source.commit.slice(0, 12)}.`,
       ),
     );
@@ -155,28 +173,42 @@ export async function verifyBundle(folder) {
   assert.equal(typeof manifest.source.dirty, "boolean");
   assert.equal(manifest.target_framework, "net10.0");
   assert.ok(["review", "handoff-candidate", "release-candidate"].includes(manifest.purpose));
-  assert.match(manifest.package.sha256, /^[a-f0-9]{64}$/);
-  assert.match(manifest.package.assembly_sha256, /^[a-f0-9]{64}$/);
-  assert.match(manifest.symbols.sha256, /^[a-f0-9]{64}$/);
-  assert.equal(manifest.package.file, `packages/${packageId}.${manifest.package.version}.nupkg`);
-  assert.equal(manifest.symbols.file, `packages/${packageId}.${manifest.package.version}.snupkg`);
   const actual = await treeHashes(folder);
   delete actual["manifest.json"];
   assert.deepEqual(actual, manifest.files, "Bundle contents changed");
   for (const name of Object.keys(manifest.files)) bundlePath(folder, name);
-  assert.equal(manifest.package.sha256, actual[manifest.package.file]);
-  assert.equal(manifest.symbols.sha256, actual[manifest.symbols.file]);
   const readJson = async (name) => JSON.parse(await readFile(bundlePath(folder, name)));
   const gate = await readJson("validation-gate.json");
   requireGate(gate, manifest.source, manifest.purpose === "review");
   assert.equal(gate.sdk, manifest.sdk);
-  const inspection = await readJson("inspection.json");
-  assert.equal(inspection.package_id, manifest.package.id);
-  assert.equal(inspection.version, manifest.package.version);
-  assert.equal(inspection.commit, manifest.source.commit);
-  assert.equal(inspection.package_sha256, manifest.package.sha256);
-  assert.equal(inspection.symbols_sha256, manifest.symbols.sha256);
-  assert.equal(inspection.assembly_sha256, manifest.package.assembly_sha256);
+  for (const [role, id] of Object.entries(productIds)) {
+    const product = manifest.products[role];
+    assert.equal(product.id, id);
+    assert.equal(product.version, manifest.version);
+    assert.equal(product.file, `packages/${id}.${manifest.version}.nupkg`);
+    assert.equal(product.symbols.file, `packages/${id}.${manifest.version}.snupkg`);
+    for (const value of [
+      product.sha256,
+      product.assembly_sha256,
+      product.pdb_sha256,
+      product.symbols.sha256,
+    ])
+      assert.match(value, /^[a-f0-9]{64}$/);
+    assert.equal(product.sha256, actual[product.file]);
+    assert.equal(product.symbols.sha256, actual[product.symbols.file]);
+    const inspection = await readJson(`inspection-${role}.json`);
+    assert.equal(inspection.package_id, id);
+    assert.equal(inspection.version, manifest.version);
+    assert.equal(inspection.commit, manifest.source.commit);
+    assert.equal(inspection.package_sha256, product.sha256);
+    assert.equal(inspection.symbols_sha256, product.symbols.sha256);
+    assert.equal(inspection.assembly_sha256, product.assembly_sha256);
+    assert.equal(inspection.pdb_sha256, product.pdb_sha256);
+    if (role === "cli") {
+      assert.equal(inspection.bundled_library_sha256, manifest.products.library.assembly_sha256);
+      assert.equal(inspection.bundled_library_pdb_sha256, manifest.products.library.pdb_sha256);
+    }
+  }
   assert.equal((await readJson("global.json")).sdk.version, manifest.sdk);
   assert.equal(manifest.validation.portable_gate, "passed");
   assert.equal(manifest.validation.package_inspection, "passed");
@@ -216,10 +248,9 @@ export function validateReceipts(manifest, manifestHash, receipts) {
     assert.equal(receipt.purpose, manifest.purpose);
     assert.equal(receipt.sdk, manifest.sdk);
     assert.deepEqual(receipt.source, manifest.source);
-    assert.deepEqual(receipt.symbols, manifest.symbols);
     assert.deepEqual(
-      receipt.package,
-      manifest.package,
+      receipt.products,
+      manifest.products,
       "Consumption did not validate this exact artifact",
     );
     assert.equal(receipt.empty_feed_rejected, true);
@@ -229,6 +260,8 @@ export function validateReceipts(manifest, manifestHash, receipts) {
       "Candidate validation requires the original artifact",
     );
     assert.deepEqual(receipt.checks, smokeChecks);
+    assert.deepEqual(receipt.tool.checks, toolChecks);
+    assert.equal(receipt.tool.status, "passed");
     if (receipt.environment.platform === "linux")
       assert.equal(
         receipt.environment.distribution?.id,
