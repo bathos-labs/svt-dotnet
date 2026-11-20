@@ -1,17 +1,28 @@
 name: NuGet release
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
   # Exercises the candidate/native path without publishing or acquiring NuGet credentials.
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Rehearse without publishing, or resume the retained candidate on this tag
+        type: choice
+        options: [rehearse, resume]
+        default: rehearse
+      recovery_identity:
+        description:
+          Approved SHA-256 recovery identity from the original publication job (resume only)
+        type: string
+        default: ""
 permissions:
   contents: read
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
-  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
 jobs:
   policy:
     name: Verify release policy
@@ -19,6 +30,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       release-tag: ${{ steps.policy.outputs.tag }}
+      resume: ${{ steps.policy.outputs.resume }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -26,22 +38,27 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Check branch, version, changelog and tag
         id: policy
         env:
           RELEASE_REF: ${{ github.ref }}
           RELEASE_TAG: ${{ github.ref_name }}
           RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_MODE: ${{ inputs.mode }}
+          RECOVERY_IDENTITY: ${{ inputs.recovery_identity }}
         run: |
           node --input-type=module <<'JS'
           import {appendFile} from 'node:fs/promises';
           import {verifyRelease} from './eng/release/policy.mjs';
-          const tagged = process.env.RELEASE_EVENT === 'push' && process.env.RELEASE_REF.startsWith('refs/tags/');
+          const resume = process.env.RELEASE_EVENT === 'workflow_dispatch' && process.env.RELEASE_MODE === 'resume';
+          if (resume && (!process.env.RELEASE_REF.startsWith('refs/tags/') || !/^[a-f0-9]{64}$/.test(process.env.RECOVERY_IDENTITY))) throw new Error('Resume requires the existing release tag and approved recovery identity.');
+          const tagged = (process.env.RELEASE_EVENT === 'push' || resume) && process.env.RELEASE_REF.startsWith('refs/tags/');
           await verifyRelease(tagged ? {tag: process.env.RELEASE_TAG, remote: true, requireTag: true} : {});
-          await appendFile(process.env.GITHUB_OUTPUT, `tag=${tagged ? process.env.RELEASE_TAG : ''}\n`);
+          await appendFile(process.env.GITHUB_OUTPUT, `tag=${tagged ? process.env.RELEASE_TAG : ''}\nresume=${resume}\n`);
           JS
   validate:
+    if: needs.policy.outputs.resume != 'true'
     permissions:
       contents: read
       id-token: write
@@ -64,10 +81,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Read exact SDK pin
         id: sdk
-        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
+        run:
+          node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' +
+          require('./global.json').sdk.version + '\n')"
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         env:
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
@@ -103,27 +122,23 @@ jobs:
             artifacts/native-release-check-*/
           if-no-files-found: error
           retention-days: 30
-  publish:
-    name: Approve and publish validated beta
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    needs: [policy, validate, native]
+  recovery-rehearsal:
+    name: Rehearse publication interruptions without remote writes
+    needs: [validate, native]
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    environment: nuget
-    permissions:
-      contents: read
-      id-token: write
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Read exact SDK pin
         id: sdk
-        run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
+        run:
+          node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' +
+          require('./global.json').sdk.version + '\n')"
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         env:
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
@@ -139,8 +154,94 @@ jobs:
           pattern: native-*
           path: artifacts/native-evidence
           digest-mismatch: error
-      - name: Verify retained candidate evidence
-        run: node eng/release/verify-candidate.mjs artifacts/package-transfer artifacts/native-evidence
+      - name: Build only the archive inspector and rehearse retained bytes
+        run: |
+          dotnet restore eng/PackageValidation/PackageValidation.csproj --locked-mode
+          dotnet build eng/PackageValidation/PackageValidation.csproj -c Release --no-restore
+          node --test eng/release/publication.test.mjs
+          node eng/release/rehearse-archive.mjs artifacts/package-transfer artifacts/native-evidence
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: release-rehearsal-${{ github.run_attempt }}
+          path: artifacts/release-rehearsal.json
+          if-no-files-found: error
+          retention-days: 30
+  publish:
+    name: Approve and publish validated beta
+    if: >-
+      always() && needs.policy.result == 'success' && startsWith(github.ref, 'refs/tags/') &&
+      (needs.policy.outputs.resume == 'true' ||
+       (github.event_name == 'push' && needs.validate.result == 'success' && needs.native.result ==
+      'success' && needs.recovery-rehearsal.result == 'success'))
+    needs: [policy, validate, native, recovery-rehearsal]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: nuget
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+      - name: Read exact SDK pin
+        id: sdk
+        run:
+          node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' +
+          require('./global.json').sdk.version + '\n')"
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        env:
+          DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
+        with:
+          dotnet-version: ${{ steps.sdk.outputs.version }}
+      - if: needs.policy.outputs.resume != 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: ${{ needs.validate.outputs.candidate_artifact }}
+          path: artifacts/package-transfer
+          digest-mismatch: error
+      - if: needs.policy.outputs.resume != 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: native-*
+          path: artifacts/native-evidence
+          digest-mismatch: error
+      - name: Build only the package inspector
+        run: |
+          dotnet restore eng/PackageValidation/PackageValidation.csproj --locked-mode
+          dotnet build eng/PackageValidation/PackageValidation.csproj -c Release --no-restore
+      - name: Verify and archive the original candidate
+        if: needs.policy.outputs.resume != 'true'
+        run:
+          node eng/release/archive.mjs artifacts/package-transfer artifacts/native-evidence
+          artifacts/release-archive
+      - name: Restore the approved draft candidate
+        if: needs.policy.outputs.resume == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RECOVERY_IDENTITY: ${{ inputs.recovery_identity }}
+        run:
+          node eng/release/restore.mjs "$RELEASE_TAG" "$RECOVERY_IDENTITY" artifacts/release-archive
+      - name: Select candidate identity
+        id: candidate
+        env:
+          RECOVERY_IDENTITY: ${{ inputs.recovery_identity }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFile,appendFile} from 'node:fs/promises';
+          import {identityHash} from './eng/release/publication.mjs';
+          const identity=identityHash(JSON.parse(await readFile('artifacts/release-archive/candidate-identity.json')));
+          if (process.env.RECOVERY_IDENTITY) assert.equal(identity,process.env.RECOVERY_IDENTITY);
+          await appendFile(process.env.GITHUB_OUTPUT,`identity=${identity}\n`);
+          await appendFile(process.env.GITHUB_STEP_SUMMARY,`Recovery identity: \`${identity}\`\n`);
+          JS
       - name: Require NuGet identity
         env:
           NUGET_USER: ${{ vars.NUGET_USER }}
@@ -150,23 +251,20 @@ jobs:
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         with:
           user: ${{ vars.NUGET_USER }}
-      - name: Publish the validated package and symbols without rebuilding
+      - name: Archive, publish missing artifacts, verify and finalize
         env:
+          GH_TOKEN: ${{ github.token }}
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-        run: |
-          dotnet nuget push 'artifacts/package-transfer/bundle/packages/*.nupkg' --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push 'artifacts/package-transfer/bundle/packages/*.snupkg' --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-      - name: Build only the package inspector
-        run: |
-          dotnet restore eng/PackageValidation/PackageValidation.csproj --locked-mode
-          dotnet build eng/PackageValidation/PackageValidation.csproj -c Release --no-restore
-      - name: Verify public restore, signatures, contents, symbols and Source Link
-        run: node eng/package/consume.mjs artifacts/package-transfer/bundle --published
+          CANDIDATE_IDENTITY: ${{ steps.candidate.outputs.identity }}
+        run: node eng/release/publish.mjs artifacts/release-archive "$CANDIDATE_IDENTITY"
       - name: Retain publication verification
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: publication-verification-${{ github.run_attempt }}
-          path: artifacts/package-consumption/
+          path: |
+            artifacts/package-consumption/
+            artifacts/release-archive/attempt/
+            artifacts/release-archive/candidate-identity.json
           if-no-files-found: ignore
           retention-days: 90

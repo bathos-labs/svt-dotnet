@@ -1,25 +1,11 @@
 # Package preparation
 
-Prepare the library and portable symbols for an isolated consumer trial. Only
-`Bathos.Graphics.SvgTemplates` is packable. The CLI, tests, package inspector and native tools are
-not included in the package. No registry publication or release credentials are involved.
+Prepare the library, CLI tool and their portable symbols as one candidate. Both products share a
+version and commit. The CLI includes the exact library DLL/PDB; library consumers do not depend on
+the CLI. Preparation and consumption do not publish or need registry credentials.
 
-## Agreed two-product extension
-
-The [packaging contract](../../spec/tool-distribution.md) is agreed and not yet implemented. It
-extends the existing manifest, inspector and receipts with required `library` and `cli` products at
-one version/source identity, each with package and symbol hashes. Validate the tool's entry point,
-runtime closure and exact bundled library/PDB identity while preserving independent library
-consumption. Replace the in-development manifest directly; no compatibility reader is required.
-
-The same retained bundle must pass isolated Ubuntu/Windows library and tool consumption, including
-cold/warm one-off execution, global installation and local manifest restore. Prepared execution owns
-the automation-output guarantees. Native checks must use the packaged CLI and library. Publication
-and [draft-release recovery](../../spec/tool-distribution.md#draft-release-recovery) retain both
-products and their evidence before any NuGet upload.
-
-The lifecycle and commands below describe the current library-only tooling. They do not yet validate
-or publish the CLI package.
+The [packaging contract](../../spec/tool-distribution.md) defines the two-product manifest,
+installation behavior and [draft recovery](../../RELEASING.md#failures-retries-and-evidence).
 
 ## Lifecycle
 
@@ -55,15 +41,15 @@ after preparation. Run tools against a stable checkout, not while editing files 
 
 ## Package inspection
 
-The BCL-only `eng/PackageValidation` executable checks the `.nupkg` and `.snupkg` without loading
-the library. It checks identity/version/commit, MIT metadata and notices, README, XML API
+The BCL-only `eng/PackageValidation` executable checks each `.nupkg` and `.snupkg` without loading
+shipping assemblies. It checks identity/version/commit, MIT metadata and notices, README, XML API
 documentation, the single target framework, and an explicit file allowlist. It rejects dependencies,
 native imports, unintended assemblies, unsafe/duplicate archive paths and oversized archives. It
 verifies that the portable PDB matches the DLL, source/debug paths are mapped under `/_/`, and
 Source Link points to the exact repository commit. Embedded untracked sources are excluded.
 
 The pinned SDK supplies Source Link; no additional library dependency is needed. The SDK omits
-authors/license/readme fields from symbol-package metadata, so those are checked on the library
+authors/license/readme fields from symbol-package metadata, so those are checked on each primary
 package. Both artifacts retain their repository identity. Source retrieval uses the public
 repository at the recorded commit. Debug information for generated source need not resolve to a Git
 file.
@@ -106,16 +92,22 @@ or a controlled consumer failure before subsequent reuse. It restores again in l
 building and running without restore. Temporary projects and caches are removed; sanitized logs and
 a platform receipt stay under ignored artifacts.
 
+The tool runner separately tests global installation, a local manifest and cold/warm one-off
+execution. Every mode has its own home and caches, with an empty-feed negative control. It verifies
+restored archive/DLL/PDB hashes, help/version, inspect/bind, stdin, paths with spaces, JSON/SVG
+streams, exit codes and output protection. SDK setup logs are retained separately from prepared
+execution; source-built binaries and ambient global tools cannot satisfy these checks.
+
 This is package-boundary evidence, not a duplicate conformance suite or a native rendering check.
 
 ## CI and Ubuntu reproduction
 
-Ubuntu runs the full gate, prepares one clean-commit package, consumes it, and uploads its immutable
-bundle with the Ubuntu receipt. Windows depends on that job, runs the portable suites, downloads the
-same artifact and consumes it with a fresh cache. The Windows job then finalizes the manifest and
-uploads a validated-package artifact. Actions are SHA-pinned; no package registry or secrets are
-used. Both jobs read the exact SDK version from `global.json` and pass that version to the
-installer, without asking it to interpret the ordinary roll-forward policy. Installation uses an
+Ubuntu runs the full gate, prepares one clean-commit two-product bundle, consumes it, and uploads
+its immutable bundle with the Ubuntu receipt. Windows depends on that job, runs the portable suites,
+downloads the same artifact and consumes it with a fresh cache. The Windows job then finalizes the
+manifest and uploads a validated-package artifact. Actions are SHA-pinned; no package registry or
+secrets are used. Both jobs read the exact SDK version from `global.json` and pass that version to
+the installer, without asking it to interpret the ordinary roll-forward policy. Installation uses an
 isolated runner directory so a newer preinstalled patch cannot be selected. Candidate transfers
 expire after 14 days and completed trial artifacts after 30 days; retain the exact validated files
 before expiry. Failed validation cannot create a completed trial manifest.
@@ -167,3 +159,18 @@ requiring identical original contents and loaded assembly bytes. The candidate b
 unchanged. Registry indexing delays fail verification explicitly; rerun against the retained bundle
 after availability, without rebuilding or republishing a different artifact. Local consumption
 receipts and public-feed receipts are distinct.
+
+## Nonpublishing rehearsal
+
+After preparing a candidate, run:
+
+```sh
+task release:rehearse -- path/to/bundle
+```
+
+An optional second argument selects the pinned Inkscape executable on macOS. The command consumes
+both packages, exercises publication interruption/recovery with in-memory remote substitutes, and
+runs the host's native candidate matrix. It writes `artifacts/release-rehearsal.json`. It cannot
+create tags, write GitHub releases or obtain NuGet publishing credentials. A local rehearsal records
+only the current platform; Ubuntu/Windows consumption and the complete native matrix still require
+CI. Visual review remains separate.

@@ -63,8 +63,8 @@ export async function download(url, destination, sha256) {
   await writeFile(destination, bytes);
 }
 export const cli = resolve(
-  root,
-  "src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll",
+  process.env.SVT_CLI_DLL ??
+    resolve(root, "src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll"),
 );
 export async function inspect(path, { allowStructuralDiagnostics = false } = {}) {
   const args = [cli, "inspect", path, "--format", "json", "--diagnostics", "json"];

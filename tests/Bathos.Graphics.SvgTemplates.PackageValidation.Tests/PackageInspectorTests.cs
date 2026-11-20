@@ -148,4 +148,122 @@ public sealed class PackageInspectorTests
         foreach (var value in new[] { "/private/work/File.cs", "C:\\workspace\\File.cs", "/_/../File.cs", "/_/a/./File.cs", "/_/C:/File.cs" })
             Assert.Throws<InvalidDataException>(() => PackageInspector.ValidateSourcePath(value));
     }
+    /// <summary>Tool metadata cannot hide package dependencies or an incorrect command type.</summary>
+    [TestMethod]
+    public void ToolMetadataRequiresExplicitToolTypeAndNoDependencies()
+    {
+        var metadata = Metadata.Replace($"<id>{PackageInspector.PackageId}</id>", $"<id>{PackageInspector.ToolPackageId}</id>", StringComparison.Ordinal)
+            .Replace("<dependencies><group targetFramework=\"net10.0\" /></dependencies>", "<packageTypes><packageType name=\"DotnetTool\" /></packageTypes>", StringComparison.Ordinal);
+        PackageInspector.ValidateMetadata(Encoding.UTF8.GetBytes(metadata), Version, Commit, false, true);
+        foreach (var invalid in new[]
+        {
+            metadata.Replace("DotnetTool", "Library", StringComparison.Ordinal),
+            metadata.Replace("</metadata>", "<dependencies><dependency id=\"Extra\" version=\"1.0.0\" /></dependencies></metadata>", StringComparison.Ordinal),
+            metadata.Replace(PackageInspector.ToolPackageId, PackageInspector.PackageId, StringComparison.Ordinal),
+        })
+            Assert.Throws<InvalidDataException>(() => PackageInspector.ValidateMetadata(Encoding.UTF8.GetBytes(invalid), Version, Commit, false, true));
+    }
+
+    /// <summary>Tool symbols have an exact two-assembly allowlist.</summary>
+    [TestMethod]
+    public void ToolSymbolPayloadRejectsMissingAndAdditionalFiles()
+    {
+        var files = new Dictionary<string, byte[]>(StringComparer.Ordinal)
+        {
+            [PackageInspector.ToolPackageId + ".nuspec"] = [],
+            ["tools/net10.0/any/svt.pdb"] = [],
+            ["tools/net10.0/any/" + PackageInspector.PackageId + ".pdb"] = [],
+            ["_rels/.rels"] = [],
+            ["[Content_Types].xml"] = [],
+            ["package/services/metadata/core-properties/nuget.psmdcp"] = [],
+        };
+        PackageInspector.ValidateToolContents(files, true);
+        files["tools/net10.0/any/extra.dll"] = [];
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ValidateToolContents(files, true));
+        files.Remove("tools/net10.0/any/extra.dll");
+        files.Remove("tools/net10.0/any/svt.pdb");
+        Assert.Throws<InvalidDataException>(() => PackageInspector.ValidateToolContents(files, true));
+    }
+
+    /// <summary>Candidate archives are deterministic and never overwrite an extraction directory.</summary>
+    [TestMethod]
+    public void CandidateArchivePreservesBytesAndRefusesReplacement()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "svt-archive-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            var source = Path.Combine(root, "source");
+            Directory.CreateDirectory(Path.Combine(source, "images"));
+            File.WriteAllBytes(Path.Combine(source, "images", "frame.png"), [1, 2, 3]);
+            var first = Path.Combine(root, "first.zip");
+            var second = Path.Combine(root, "second.zip");
+            CandidateArchive.Create(source, first);
+            CandidateArchive.Create(source, second);
+            CollectionAssert.AreEqual(File.ReadAllBytes(first), File.ReadAllBytes(second));
+            Assert.Throws<IOException>(() => CandidateArchive.Create(source, first));
+            var output = Path.Combine(root, "output");
+            CandidateArchive.Extract(first, output);
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, File.ReadAllBytes(Path.Combine(output, "images", "frame.png")));
+            Assert.Throws<IOException>(() => CandidateArchive.Extract(first, output));
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    /// <summary>Recovery cannot extract path aliases, traversal or duplicate assets.</summary>
+    [TestMethod]
+    public void CandidateArchiveRejectsUnsafeNamesBeforeWriting()
+    {
+        foreach (var names in new[] { new[] { "../outside" }, new[] { "/absolute" }, new[] { "C:/absolute" }, new[] { "name.", "name" }, new[] { "a", "A" } })
+        {
+            var root = Path.Combine(Path.GetTempPath(), "svt-archive-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            try
+            {
+                var path = Path.Combine(root, "candidate.zip");
+                using (var zip = ZipFile.Open(path, ZipArchiveMode.Create))
+                    foreach (var name in names)
+                    {
+                        using var writer = new StreamWriter(zip.CreateEntry(name).Open());
+                        writer.Write("evidence");
+                    }
+                var output = Path.Combine(root, "output");
+                Assert.Throws<InvalidDataException>(() => CandidateArchive.Extract(path, output));
+                Assert.IsFalse(Directory.Exists(output));
+            }
+            finally { Directory.Delete(root, true); }
+        }
+    }
+
+    /// <summary>Runtime admission rejects roll-forward, command changes and unlisted dependencies.</summary>
+    [TestMethod]
+    public void ToolRuntimeRequiresThePortableDeclaredClosure()
+    {
+        const string prefix = "tools/net10.0/any/";
+        var files = new Dictionary<string, byte[]>(StringComparer.Ordinal)
+        {
+            [prefix + "DotnetToolSettings.xml"] = Encoding.UTF8.GetBytes("<DotNetCliTool Version=\"1\"><Commands><Command Name=\"svt\" EntryPoint=\"svt.dll\" Runner=\"dotnet\" /></Commands></DotNetCliTool>"),
+            [prefix + "svt.runtimeconfig.json"] = Encoding.UTF8.GetBytes("""{"runtimeOptions":{"tfm":"net10.0","framework":{"name":"Microsoft.NETCore.App","version":"10.0.0"}}}"""),
+            [prefix + "svt.deps.json"] = Encoding.UTF8.GetBytes("""
+                {"runtimeTarget":{"name":".NETCoreApp,Version=v10.0"},"libraries":{"svt/@VERSION@":{"type":"project"},"@ID@/@VERSION@":{"type":"project"}},
+                "targets":{".NETCoreApp,Version=v10.0":{"svt/@VERSION@":{"dependencies":{"@ID@":"@VERSION@"},"runtime":{"svt.dll":{}}},"@ID@/@VERSION@":{"runtime":{"@ID@.dll":{}}}}}}
+                """.Replace("@VERSION@", Version, StringComparison.Ordinal).Replace("@ID@", PackageInspector.PackageId, StringComparison.Ordinal)),
+        };
+        PackageInspector.ValidateToolRuntime(files, Version);
+        foreach (var (name, before, after) in new[]
+        {
+            ("DotnetToolSettings.xml", "Name=\"svt\"", "Name=\"another\""),
+            ("svt.runtimeconfig.json", "\"tfm\":", "\"rollForward\":\"Major\",\"tfm\":"),
+            ("svt.runtimeconfig.json", "net10.0", "net9.0"),
+            ("svt.deps.json", "\"dependencies\":{", "\"dependencies\":{\"Unexpected\":\"1.0.0\","),
+        })
+        {
+            var key = prefix + name;
+            var original = files[key];
+            files[key] = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(original).Replace(before, after, StringComparison.Ordinal));
+            Assert.Throws<InvalidDataException>(() => PackageInspector.ValidateToolRuntime(files, Version));
+            files[key] = original;
+        }
+    }
+
 }

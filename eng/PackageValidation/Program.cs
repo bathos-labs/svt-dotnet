@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Bathos.Graphics.SvgTemplates.PackageValidation;
 
-if (args.Length != 4 && !(args.Length == 3 && args[0] == "compare-published"))
+if (args.Length != 4 && !(args.Length == 3 && args[0] is "archive" or "extract") && !(args.Length == 7 && args[0] == "inspect-tool") && !(args.Length == 3 && args[0] == "compare-published"))
 {
     Console.Error.WriteLine("Usage: PackageValidation <nupkg> <snupkg> <version> <commit>");
     Console.Error.WriteLine("       PackageValidation compare-published <candidate> <published>");
@@ -10,13 +10,21 @@ if (args.Length != 4 && !(args.Length == 3 && args[0] == "compare-published"))
 
 try
 {
+    if (args[0] is "archive" or "extract")
+    {
+        if (args[0] == "archive") CandidateArchive.Create(args[1], args[2]);
+        else CandidateArchive.Extract(args[1], args[2]);
+        return 0;
+    }
     if (args[0] == "compare-published")
     {
         PackageInspector.ComparePublished(PackageInspector.ReadArchive(args[1]), PackageInspector.ReadArchive(args[2]));
         Console.WriteLine("Published package contents match the validated candidate.");
         return 0;
     }
-    var result = PackageInspector.Inspect(args[0], args[1], args[2], args[3]);
+    var result = args[0] == "inspect-tool"
+        ? PackageInspector.InspectTool(args[1], args[2], args[3], args[4], args[5], args[6])
+        : PackageInspector.Inspect(args[0], args[1], args[2], args[3]);
     Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -24,7 +32,7 @@ try
     }));
     return 0;
 }
-catch (Exception error) when (error is IOException or InvalidDataException or BadImageFormatException or System.Xml.XmlException or JsonException)
+catch (Exception error) when (error is IOException or InvalidDataException or BadImageFormatException or System.Xml.XmlException or JsonException or KeyNotFoundException or InvalidOperationException)
 {
     Console.Error.WriteLine(error.Message);
     return 1;

@@ -12,24 +12,30 @@ JSON file. This project is public and prerelease. APIs and the specification may
 
 ## Try it
 
-The CLI currently runs from source and requires the .NET 10 SDK. It is not included in the published
-library package. From a checkout of this repository, build once:
+The tool requires the .NET 10 SDK. **The CLI package is not published yet**; these installation
+commands are for the planned `1.0.0-beta.1` release:
 
 ```sh
-dotnet build SvgTemplates.slnx -c Release
+dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+svt --version
 ```
 
-Inspect the [example template](examples/quickstart/template.svg) to see its editable inputs:
+For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-beta.1 -- inspect template.svg`.
+Until publication, use the [source command](CONTRIBUTING.md#local-setup) or validate a
+[local package](eng/package/README.md).
+
+Save the [example template](examples/quickstart/template.svg) and
+[bindings](examples/quickstart/bindings.json) together, then run from that folder:
 
 ```sh
-dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll inspect examples/quickstart/template.svg
+svt inspect template.svg
 ```
 
 You'll see **Heading** (`heading`, text) and **Accent color** (`accent`, paint), with their existing
 values. Apply the [example bindings](examples/quickstart/bindings.json):
 
 ```sh
-dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll bind examples/quickstart/template.svg --bindings examples/quickstart/bindings.json --output result.svg
+svt bind template.svg --bindings bindings.json --output result.svg
 ```
 
 Open `result.svg` in a browser or SVG editor. The heading becomes “Hello, SVG!” and the background
@@ -51,13 +57,38 @@ Leave out an assignment to keep its existing value. `{}` keeps all existing valu
 
 If a command fails:
 
-- **File not found:** check the filename and run these examples from the repository root.
+- **File not found:** check the filename and run from the folder containing the template and
+  bindings.
 - **Output already exists:** choose a new name or add `--overwrite`. You cannot overwrite an input.
 - **Unknown key:** use the exact key shown by `inspect`, rather than its display label.
 
 Add `--help` or `-h` after `inspect` or `bind` for options. Use `inspect --format json` for complete
 values and `--diagnostics json` for machine-readable errors on stderr. See the
 [CLI reference](spec/cli.md) for configuration and image bindings.
+
+## Use in a project or script
+
+Create a local tool manifest and pin the version:
+
+```sh
+dotnet new tool-manifest
+dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+```
+
+Commit `dotnet-tools.json`. In automation, initialize the SDK and run `dotnet tool restore` as
+setup; stop if it fails. Then capture the separate execution step:
+
+```sh
+dotnet tool run svt -- inspect template.svg --format json --diagnostics json
+```
+
+One-off execution can print SDK setup messages, even with a warm cache. Use the prepared local tool
+for JSON or SVG output. SDK failures occur before SVT and do not use its diagnostic format.
+
+Tool updates are explicit: use `dotnet tool update` with `--global` or `--local` and the desired
+`--version`. If `svt` is not found, follow the SDK's PATH instructions. If another command uses that
+name, check `command -v svt` on macOS/Linux or `Get-Command svt` in PowerShell, then
+`svt --version`. A local manifest with `dotnet tool run svt` avoids selecting a global command.
 
 ## Use the library
 

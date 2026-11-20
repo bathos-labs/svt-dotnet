@@ -233,7 +233,7 @@
       "bathos.graphics.svgtemplates": {
         "type": "Project"
       },
-      "svt": {
+      "bathos.graphics.svgtemplates.cli": {
         "type": "Project",
         "dependencies": {
           "Bathos.Graphics.SvgTemplates": "[0.1.0-beta.1, )"

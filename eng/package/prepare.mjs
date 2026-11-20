@@ -5,6 +5,8 @@ import { verifyRelease } from "../release/policy.mjs";
 import {
   root,
   packageId,
+  cliPackageId,
+  productIds,
   sdk,
   tool,
   command,
@@ -39,7 +41,7 @@ await mkdir(output); // Never overwrite an existing version or artifact.
 const bundle = resolve(output, "bundle");
 const packages = resolve(bundle, "packages");
 await mkdir(packages, { recursive: true });
-const project = resolve(root, "src", packageId, packageId + ".csproj");
+const project = resolve(root, "src", cliPackageId, cliPackageId + ".csproj");
 const properties = [
   "-p:ContinuousIntegrationBuild=true",
   `-p:Version=${version}`,
@@ -49,34 +51,51 @@ const properties = [
 const build = resolve(output, "build");
 for (const args of [
   ["restore", project, "--locked-mode", "--artifacts-path", build, ...properties],
-  [
+  ["build", project, "-c", "Release", "--no-restore", "--artifacts-path", build, ...properties],
+]) {
+  const result = await command("dotnet", args);
+  await appendFile(resolve(output, "pack.log"), result.stdout + result.stderr);
+}
+const products = {};
+for (const [role, id] of Object.entries(productIds)) {
+  const result = await command("dotnet", [
     "pack",
-    project,
+    resolve(root, "src", id, id + ".csproj"),
     "-c",
     "Release",
+    "--no-build",
     "--no-restore",
     "--artifacts-path",
     build,
     "-o",
     packages,
     ...properties,
-  ],
-]) {
-  const result = await command("dotnet", args);
+  ]);
   await appendFile(resolve(output, "pack.log"), result.stdout + result.stderr);
+  const packageFile = `packages/${id}.${version}.nupkg`;
+  const symbolFile = `packages/${id}.${version}.snupkg`;
+  const args = [resolve(bundle, packageFile), resolve(bundle, symbolFile), version, source.commit];
+  if (role === "cli") {
+    args.unshift("inspect-tool");
+    args.push(
+      resolve(bundle, products.library.file),
+      resolve(bundle, products.library.symbols.file),
+    );
+  }
+  const inspected = await command("dotnet", [tool, ...args]);
+  assert.equal(inspected.stderr, "", "Package inspector diagnostic");
+  const inspection = JSON.parse(inspected.stdout);
+  await json(resolve(bundle, `inspection-${role}.json`), inspection);
+  products[role] = {
+    id,
+    version,
+    file: packageFile,
+    sha256: inspection.package_sha256,
+    assembly_sha256: inspection.assembly_sha256,
+    pdb_sha256: inspection.pdb_sha256,
+    symbols: { file: symbolFile, sha256: inspection.symbols_sha256 },
+  };
 }
-const packageFile = `packages/${packageId}.${version}.nupkg`;
-const symbolFile = `packages/${packageId}.${version}.snupkg`;
-const inspected = await command("dotnet", [
-  tool,
-  resolve(bundle, packageFile),
-  resolve(bundle, symbolFile),
-  version,
-  source.commit,
-]);
-assert.equal(inspected.stderr, "", "Package inspector diagnostic");
-const inspection = JSON.parse(inspected.stdout);
-await json(resolve(bundle, "inspection.json"), inspection);
 await json(resolve(bundle, "validation-gate.json"), gate);
 await cp(resolve(root, "examples/authoring"), resolve(bundle, "examples/authoring"), {
   recursive: true,
@@ -85,6 +104,9 @@ await cp(resolve(root, "examples/authoring"), resolve(bundle, "examples/authorin
 await rm(resolve(bundle, "examples/authoring/README.md"));
 for (const name of ["LICENSE", "NOTICE", "global.json"])
   await copyFile(resolve(root, name), resolve(bundle, name));
+await cp(resolve(root, "examples/quickstart"), resolve(bundle, "examples/quickstart"), {
+  recursive: true,
+});
 await mkdir(resolve(bundle, "consumer"));
 await copyFile(
   resolve(root, "eng/package/consumer/Program.cs"),
@@ -105,7 +127,7 @@ await writeFile(
 );
 await writeFile(
   resolve(bundle, "HANDOFF.md"),
-  `# Package validation\n\nPackage: ${packageId} ${version}\n\nSource commit: ${source.commit}\nSource fingerprint: ${source.fingerprint}\n\n${review ? "REVIEW ONLY: built from an uncommitted development snapshot. This is not a handoff candidate." : "Prepared from a clean committed checkout after the full gate. Handoff readiness also requires matching Ubuntu and Windows consumption receipts."}\n\nThe packages directory contains the exact inspected library and portable symbols. SHA-256 values, SDK ${sdk}, net10.0, source state and file inventory are recorded in manifest.json. Do not rebuild or replace files under this version. Source Link points at the recorded commit and requires repository access. Review-only source changes are identified by the fingerprint and are not available through that commit.\n\nThe consumer directory is an independent PackageReference smoke application. From a checkout of the recorded source, run:\n\n\`\`\`sh\nnode eng/package/consume.mjs /path/to/this/bundle\n\`\`\`\n\nThe runner copies the consumer outside the checkout, uses a new cache and only this local feed, verifies the loaded assembly hash, and records a separate platform receipt. It does not rebuild the package. Review-only bundles require the reviewed tooling snapshot.\n\nOriginal SVGs, real image assets, independent expectations and binding requests are under examples/authoring. Asset rights and hashes are included; LICENSE and NOTICE cover repository-authored material. No fonts, CLI or native rendering tools are distributed in this bundle.\n\n[Specification](https://github.com/bathos-labs/svt-dotnet/tree/${source.commit}/spec), [API lifecycle](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/binding-api.md), [diagnostics and budgets](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/spec/substitution.md), [authoring guidance](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/authoring.md).\n\nPortable tests, package consumption and native rendering are distinct evidence. These package checks do not rerun authoring/rendering validation or establish application integration. Retain the applicable native reports separately. Hosts own image decoding, resource resolution, CSS behavior, fitting and rendering. This prerelease does not establish universal rendering, released compatibility or authorization to publish.\n`,
+  `# Package validation\n\nPackage: ${packageId} ${version}\n\nSource commit: ${source.commit}\nSource fingerprint: ${source.fingerprint}\n\n${review ? "REVIEW ONLY: built from an uncommitted development snapshot. This is not a handoff candidate." : "Prepared from a clean committed checkout after the full gate. Handoff readiness also requires matching Ubuntu and Windows consumption receipts."}\n\nThe packages directory contains the exact inspected library, CLI and portable symbols. SHA-256 values, SDK ${sdk}, net10.0, source state and file inventory are recorded in manifest.json. Do not rebuild or replace files under this version. Source Link points at the recorded commit and requires repository access. Review-only source changes are identified by the fingerprint and are not available through that commit.\n\nThe consumer directory is an independent PackageReference smoke application. From a checkout of the recorded source, run:\n\n\`\`\`sh\nnode eng/package/consume.mjs /path/to/this/bundle\n\`\`\`\n\nThe runner copies the consumer outside the checkout, uses a new cache and only this local feed, verifies the loaded assembly hash, and records a separate platform receipt. It does not rebuild the package. Review-only bundles require the reviewed tooling snapshot.\n\nOriginal SVGs, real image assets, independent expectations and binding requests are under examples/authoring. Asset rights and hashes are included; LICENSE and NOTICE cover repository-authored material. No fonts or native rendering tools are distributed in this bundle.\n\n[Specification](https://github.com/bathos-labs/svt-dotnet/tree/${source.commit}/spec), [API lifecycle](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/binding-api.md), [diagnostics and budgets](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/spec/substitution.md), [authoring guidance](https://github.com/bathos-labs/svt-dotnet/blob/${source.commit}/docs/authoring.md).\n\nPortable tests, package consumption and native rendering are distinct evidence. These package checks do not rerun authoring/rendering validation or establish application integration. Retain the applicable native reports separately. Hosts own image decoding, resource resolution, CSS behavior, fitting and rendering. This prerelease does not establish universal rendering, released compatibility or authorization to publish.\n`,
 );
 assert.deepEqual(await sourceIdentity(), source, "Source changed during package preparation");
 const manifest = {
@@ -116,14 +138,8 @@ const manifest = {
   sdk,
   target_framework: "net10.0",
   environment: await environment(),
-  package: {
-    id: packageId,
-    version,
-    file: packageFile,
-    sha256: inspection.package_sha256,
-    assembly_sha256: inspection.assembly_sha256,
-  },
-  symbols: { file: symbolFile, sha256: inspection.symbols_sha256 },
+  version,
+  products,
   validation: {
     portable_gate: "passed",
     package_inspection: "passed",

@@ -33,7 +33,7 @@ test("public debugging verifies the exact PDB and mapped repository source, reje
     return new Response(corruption === "source" ? "wrong source" : source);
   });
   try {
-    await json(resolve(folder, "inspection.json"), {
+    await json(resolve(folder, "inspection-library.json"), {
       symbol_key: "A".repeat(32) + "FFFFFFFF",
       symbol_checksum: "SHA256:" + "A".repeat(64),
       pdb_sha256: hash(pdb),
@@ -51,5 +51,97 @@ test("public debugging verifies the exact PDB and mapped repository source, reje
     }
   } finally {
     await rm(folder, { recursive: true, force: true });
+  }
+});
+
+test("retained public completion requires full consumption, signatures, symbols and tool modes", async () => {
+  const { validatePublicCompletion } = await import("./public-evidence.mjs");
+  const { smokeChecks, toolChecks } = await import("../package/common.mjs");
+  const digest = "a".repeat(64);
+  const product = { assembly_sha256: digest, pdb_sha256: digest };
+  const manifest = {
+    source: { commit: "b".repeat(40), dirty: false },
+    sdk: "10.0.403",
+    products: { library: product, cli: product },
+  };
+  const debugging = {
+    symbols: "passed",
+    source_link: "passed",
+    pdb_sha256: digest,
+    source_documents: 1,
+  };
+  const mode = {
+    status: "passed",
+    assembly_sha256: digest,
+    pdb_sha256: digest,
+    package_sha256: digest,
+    repository_signature: "passed",
+    original_contents: "passed",
+  };
+  const report = {
+    format_version: 0,
+    status: "passed",
+    purpose: "release-candidate",
+    distribution: "nuget.org",
+    bundle_manifest_sha256: digest,
+    source: manifest.source,
+    sdk: manifest.sdk,
+    products: manifest.products,
+    checks: smokeChecks,
+    empty_feed_rejected: true,
+    published_package_sha256: digest,
+    repository_signature: "passed",
+    original_contents: "passed",
+    debugging,
+    tool: {
+      status: "passed",
+      checks: toolChecks,
+      debugging,
+      modes: { global: mode, local: mode, "one-off": mode },
+    },
+  };
+  validatePublicCompletion(report, manifest, digest);
+  const paths = [
+    "format_version",
+    "status",
+    "purpose",
+    "distribution",
+    "bundle_manifest_sha256",
+    "source.commit",
+    "sdk",
+    "products.cli.pdb_sha256",
+    "checks",
+    "empty_feed_rejected",
+    "published_package_sha256",
+    "repository_signature",
+    "original_contents",
+    "debugging.symbols",
+    "debugging.pdb_sha256",
+    "debugging.source_link",
+    "debugging.source_documents",
+    "tool.status",
+    "tool.checks",
+    "tool.debugging.symbols",
+    "tool.debugging.pdb_sha256",
+    "tool.debugging.source_link",
+    "tool.debugging.source_documents",
+    ...["global", "local", "one-off"].flatMap((name) =>
+      [
+        "status",
+        "assembly_sha256",
+        "pdb_sha256",
+        "package_sha256",
+        "repository_signature",
+        "original_contents",
+      ].map((key) => `tool.modes.${name}.${key}`),
+    ),
+  ];
+  for (const path of paths) {
+    const changed = JSON.parse(JSON.stringify(report));
+    const keys = path.split(".");
+    const last = keys.pop();
+    const parent = keys.reduce((obj, key) => obj[key], changed);
+    delete parent[last];
+    assert.throws(() => validatePublicCompletion(changed, manifest, digest), path);
   }
 });

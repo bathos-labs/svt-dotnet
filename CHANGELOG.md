@@ -5,6 +5,13 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Package the CLI as the version-pinned `Bathos.Graphics.SvgTemplates.Cli` .NET tool, with command
+  `svt`, global/local installation and one-off execution. Add `task svt` for contributors and
+  isolated installed-tool checks alongside independent library consumption.
+- Validate and release the library and CLI together, retaining the exact packages, symbols and
+  native evidence in a draft release before publication. Resume partial releases from those bytes
+  under protected approval; rehearse interruptions without registry or release writes.
+
 - Add command-specific CLI help and `-h`, clearer text diagnostics, labeled locations and readable
   Unicode. Inspection shows labels and bounded value previews, hiding embedded image payloads; JSON
   keeps complete evidence. Version output includes the product version and available commit.

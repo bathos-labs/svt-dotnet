@@ -2,11 +2,37 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>svt</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>svt</ToolCommandName>
+    <PackageId>Bathos.Graphics.SvgTemplates.Cli</PackageId>
+    <Description>Inspect SVG templates and apply text, color, and image bindings from the command line.</Description>
+    <PackageTags>svg;templates;cli;dotnet-tool</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <DocumentationRef Condition="'$(DocumentationRef)' == ''">v$(Version)</DocumentationRef>
+    <PackageReleaseNotes>https://github.com/bathos-labs/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../../NOTICE" Pack="true" PackagePath="/" />
     <ProjectReference Include="../Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
     <InternalsVisibleTo Include="Bathos.Graphics.SvgTemplates.Cli.Tests" />
   </ItemGroup>
+  <Target Name="PrepareToolReadme" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_ToolReadme>$(IntermediateOutputPath)package/README.md</_ToolReadme>
+      <_ToolReadmeText>$([MSBuild]::Escape($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../../docs/tool-readme.md').Replace('/master/', '/$(DocumentationRef)/'))))</_ToolReadmeText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_ToolReadme)" Lines="$(_ToolReadmeText)" Overwrite="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <None Include="$(_ToolReadme)" Pack="true" PackagePath="README.md" />
+    </ItemGroup>
+  </Target>
   <Target Name="AddCliBuildIdentity" BeforeTargets="GetAssemblyAttributes" DependsOnTargets="InitializeSourceControlInformation">
     <ItemGroup>
       <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
