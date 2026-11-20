@@ -296,6 +296,11 @@ independent of inspect's `--format`. No banners, progress messages or success pr
 machine streams. JSON output is UTF-8 without BOM, with a terminating newline. Property order and
 indentation are not contracts; array order is.
 
+The [compatibility policy](compatibility.md#cli-and-diagnostic-evolution) allows additive output
+fields and diagnostic codes in stable minor releases. Consumers ignore unknown output fields and
+handle unfamiliar codes through severity and structured context. Input JSON remains strict; this
+output extension rule does not relax request validation or permit new enum values without review.
+
 ### Human-readable output
 
 These rules apply to text output only. Keep JSON shapes, complete raw evidence, codes, phase order,

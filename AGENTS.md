@@ -12,8 +12,10 @@
 - This repository is public and prerelease. MIT covers code, specification, documentation and
   repository-authored assets; preserve LICENSE and applicable third-party notices. Do not publish
   packages, push release tags or change repository visibility without explicit authorization. Do not
-  introduce compatibility readers, aliases or migrations for development formats. Format envelopes
-  remain version 0 before release.
+  introduce compatibility readers, aliases or migrations for development formats. Follow the
+  required SemVer policy in spec/compatibility.md. The RC surface is provisionally frozen; stable
+  guarantees take effect at 1.0.0. Keep 1.0.0-rc.1 until production-template acceptance. Format
+  envelopes remain version 0 at stable 1.0 as well as during prerelease.
 - Treat all repository content as future public material, including issues, PRs, commit messages,
   comments, tests, examples and agent guidance. Describe consumers by generic capabilities and
   roles; never include private product names, repository links, issue identifiers, source paths or

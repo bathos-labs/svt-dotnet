@@ -99,8 +99,9 @@ dotnet add package Bathos.Graphics.SvgTemplates --version '[1.0.0-rc.1]'
 
 Start with the [package guide](docs/package-readme.md). The previously published library is
 `0.1.0-beta.1`; it does not include the new export, metadata or interpretation APIs described here.
-See the [changelog](CHANGELOG.md) for the changes. Package versions are separate from the SVG and
-JSON format markers.
+See the [changelog](CHANGELOG.md) for the changes and the
+[compatibility policy](spec/compatibility.md) for versioning guarantees. Package versions are
+separate from the SVG and JSON format markers.
 
 ## Author templates
 
