@@ -106,11 +106,12 @@ one development bundle containing both packages after the gate and runs isolated
 Windows then performs locked restore, Release build/analyzers and all three test suites, and
 consumes that identical bundle artifact. Matching Ubuntu/Windows receipts produce a candidate
 manifest and retained CI artifact; no registry publication is performed by ordinary CI. The separate
-release workflow reuses these checks, adds native candidate evidence, and requires the protected
-`nuget` environment before publishing. Link tests explicitly report an inconclusive result if the
-host cannot create symbolic links; report such unavailable evidence rather than claiming link
-coverage. CLI tests use isolated temporary directories and deterministic staging/stream boundaries,
-without sleeps or polling. The .NET commands included in `task check` are:
+release workflow reuses these checks, adds isolated macOS library/tool consumption and native
+candidate evidence, and requires the protected `nuget` environment before publishing. Link tests
+explicitly report an inconclusive result if the host cannot create symbolic links; report such
+unavailable evidence rather than claiming link coverage. CLI tests use isolated temporary
+directories and deterministic staging/stream boundaries, without sleeps or polling. The .NET
+commands included in `task check` are:
 
 ```sh
 dotnet restore SvgTemplates.slnx --locked-mode
