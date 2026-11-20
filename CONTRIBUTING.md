@@ -3,6 +3,7 @@
 The default branch is `master`. Read the [architecture](docs/architecture.md) before structural
 changes. Discuss grammar, public API, dependencies and ownership before implementation. Keep design
 proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+Report possible vulnerabilities through the [private security route](SECURITY.md).
 
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and
 three MSTest projects running portable fixtures, CLI process tests, boundary tests and package
@@ -137,6 +138,15 @@ exact-artifact Ubuntu/Windows checks and handoff manifests. The packaging workfl
 exact SDK pin and records it; ordinary solution builds retain the SDK's configured patch
 roll-forward policy. See [release readiness](RELEASING.md). Portable binding tests, package
 consumption and native rendering evidence remain distinct.
+
+## Dependency updates
+
+Dependabot proposes weekly updates for Actions, NuGet and the native-validation npm tools. Minor and
+patch version updates are grouped per ecosystem; major updates need separate review. Security
+updates are enabled separately in GitHub. Review updates through the usual PR gate; no automatic
+merge is configured. Keep lockfiles, compatible test-platform packages and native tool/browser pins
+in sync. Changes to native tools also need the authoring/rendering checks. SDK, documentation-tool
+and native binary pins outside package manifests still need manual review.
 
 ## Review and publication
 

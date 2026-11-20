@@ -102,10 +102,12 @@ trusted-fixture hosted runner, matching the existing disposable-container policy
 These are external settings, not changes made by checking in the workflow:
 
 - Apply or review [the master ruleset](eng/master-branch.ruleset.json). It requires pull requests,
-  resolved review threads, and current **Documentation, library and CLI** and **Library and CLI on
-  Windows** checks from GitHub Actions, with no bypass actors. Zero required approving reviews keeps
-  it usable by a single maintainer. Protect release tags from updates/deletions and limit their
-  creation to release maintainers; they authorize the publishing path.
+  resolved review threads, and current **Documentation, library and CLI**, **Library and CLI on
+  Windows**, and **Complete coverage upload** checks from GitHub Actions, with no bypass actors.
+  Coverage percentages remain informational; missing evidence or failed uploads block merging. Zero
+  required approving reviews keeps it usable by a single maintainer. Protect release tags from
+  updates/deletions and limit their creation to release maintainers; they authorize the publishing
+  path.
 - Create the `nuget` environment with required reviewer approval and a deployment policy accepting
   only `v*` tags. Select reviewers who can assess the native evidence. Restrict administrator
   bypass. A sole maintainer must be able to approve their own run; use a separate reviewer when
@@ -117,9 +119,19 @@ These are external settings, not changes made by checking in the workflow:
   package ownership/name availability and organization permissions. Set the environment variable
   `NUGET_USER` to the NuGet account username used for the trust policy, not an organization name or
   email address. No long-lived API-key secret is required.
-- Review public repository security settings, including secret scanning/push protection and
-  reporting access. Configure them explicitly; repository files do not establish that these settings
-  are active.
+- Enable automatic deletion of merged branches, dependency alerts and Dependabot security updates,
+  secret scanning and push protection, and private vulnerability reporting. Verify the private route
+  in [SECURITY.md](SECURITY.md). Review access and open alerts; restrict default workflow
+  permissions to read-only and disable workflow approval of pull requests. Grant write/OIDC access
+  only in jobs that need it. Read these settings and rulesets back after applying them; repository
+  files alone do not establish that protections are active. Weekly version updates are configured
+  separately in [.github/dependabot.yml](.github/dependabot.yml).
+- After merging the dependency configuration, inspect the first updater jobs and the dependency
+  graph. Confirm the expected Actions/npm dependencies and resolved NuGet versions, including
+  transitive test packages. An empty graph or unbounded version ranges do not establish alert
+  coverage. Enable automatic dependency submission or configure a trusted default-branch submission
+  job if resolved dependencies are missing. Verify the first Dependabot PR passes every required
+  check, including coverage upload. NuGet audit during locked restore remains an independent check.
 
 ## Failures, retries, and evidence
 

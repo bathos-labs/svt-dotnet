@@ -24,7 +24,8 @@
         "do_not_enforce_on_create": false,
         "required_status_checks": [
           { "context": "Documentation, library and CLI", "integration_id": 15368 },
-          { "context": "Library and CLI on Windows", "integration_id": 15368 }
+          { "context": "Library and CLI on Windows", "integration_id": 15368 },
+          { "context": "Complete coverage upload", "integration_id": 15368 }
         ]
       }
     }
