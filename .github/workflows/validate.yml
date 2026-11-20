@@ -43,7 +43,7 @@ jobs:
       - name: Read exact package SDK pin
         id: sdk
         run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
-      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         env:
           # Isolate the pin from newer SDKs preinstalled on the hosted runner.
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
@@ -120,7 +120,7 @@ jobs:
       - name: Read exact package SDK pin
         id: sdk
         run: node -e "require('fs').appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + require('./global.json').sdk.version + '\n')"
-      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         env:
           DOTNET_INSTALL_DIR: ${{ runner.temp }}/svt-dotnet-sdk
         with:
