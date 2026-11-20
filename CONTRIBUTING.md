@@ -10,6 +10,12 @@ by their effect on documented APIs, behavior, formats and defaults, not by imple
 RC is provisionally frozen; formal stable guarantees begin at 1.0. Keep production-template
 acceptance separate from successful package integration.
 
+Both shipping projects use the private, centrally pinned public API analyzer. Review declaration
+changes in `PublicAPI.Unshipped.txt`; preserve shipped declarations and nullable annotations. The
+full gate also packs the library against the published RC baseline and runs deliberate
+breaking-change checks. See [compatibility enforcement](eng/compatibility/README.md) for scope and
+baseline updates.
+
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and
 three MSTest projects running portable fixtures, CLI process tests, boundary tests and package
 inspection checks. A BCL-only engineering executable inspects package metadata and symbols. Package
@@ -92,8 +98,8 @@ synchronized. The configuration matches the Bathos prose convention: 100-column 
 embedded code formatting disabled. Generated output is excluded through `.prettierignore`.
 
 The default gate also runs `npm ci --prefix eng/visual --ignore-scripts` and the Node tests in
-`eng/visual/`, `eng/package/`, `eng/release/`, `eng/coverage/`, and `eng/ExportPerformance/` to
-verify evidence handling without launching browsers. The
+`eng/visual/`, `eng/package/`, `eng/release/`, `eng/coverage/`, `eng/ExportPerformance/`, and
+`eng/compatibility/` to verify evidence handling without launching browsers. The
 [native validation guide](eng/visual/README.md) describes the separate repeatable
 Inkscape/Chrome/resvg release checks and their generated evidence. Run these for release candidates
 and relevant implementation/tool changes. [Exploratory probes](eng/visual/probes.md) are explicit

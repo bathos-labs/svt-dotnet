@@ -93,6 +93,16 @@ dotnet_naming_style.underscore_prefix.capitalization = camel_case
 [*.{csproj,props,targets,slnx}]
 indent_size = 2
 
+[src/**/*.cs]
+dotnet_public_api_analyzer.require_api_files = true
+dotnet_public_api_analyzer.internal_api_skip_ivt = *.Tests
+dotnet_diagnostic.RS0016.severity = error
+dotnet_diagnostic.RS0017.severity = error
+dotnet_diagnostic.RS0036.severity = error
+dotnet_diagnostic.RS0037.severity = error
+dotnet_diagnostic.RS0041.severity = error
+dotnet_diagnostic.RS0048.severity = error
+
 [*.{json,yml,yaml}]
 indent_size = 2
 

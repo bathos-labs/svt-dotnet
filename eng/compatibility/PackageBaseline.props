@@ -1,0 +1,28 @@
+<Project>
+  <!-- Reviewed published RC. Promotion requires a baseline review, never a floating version. -->
+  <PropertyGroup>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineName>Bathos.Graphics.SvgTemplates</PackageValidationBaselineName>
+    <PackageValidationBaselineVersion>1.0.0-rc.1</PackageValidationBaselineVersion>
+    <SvtPackageBaselineSha256>808D5F11C64626A832D5A162FDDFE3E48A31A8C82E9D6D997ED61AD0CA860592</SvtPackageBaselineSha256>
+    <ApiCompatEnableRuleCannotChangeParameterName>true</ApiCompatEnableRuleCannotChangeParameterName>
+  </PropertyGroup>
+  <Target Name="RequireSvtPackageValidation" BeforeTargets="Pack">
+    <Error Condition="'$(EnablePackageValidation)' != 'true' or '$(DisablePackageBaselineValidation)' == 'true' or '$(RunApiCompat)' == 'false' or '$(ApiCompatEnableRuleCannotChangeParameterName)' != 'true'"
+           Text="Package compatibility validation and named-parameter checks are required. Remove validation disable flags." />
+  </Target>
+  <Target Name="VerifySvtPackageBaseline" BeforeTargets="RunPackageValidation" DependsOnTargets="RequireSvtPackageValidation">
+    <PropertyGroup>
+      <_SvtPackageBaselinePath>$([MSBuild]::NormalizePath('$(NuGetPackageRoot)', '$(PackageValidationBaselineName.ToLower())', '$(PackageValidationBaselineVersion)', '$(PackageValidationBaselineName.ToLower()).$(PackageValidationBaselineVersion).nupkg'))</_SvtPackageBaselinePath>
+    </PropertyGroup>
+    <Error Condition="'$(PackageValidationBaselinePath)' != ''" Text="Use the reviewed compatibility baseline download, not a replacement baseline path." />
+    <Error Condition="!Exists('$(_SvtPackageBaselinePath)')" Text="The reviewed compatibility baseline package is missing. Run locked restore before packing." />
+    <GetFileHash Files="$(_SvtPackageBaselinePath)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_SvtPackageBaselineHash" />
+    </GetFileHash>
+    <Error Condition="'$(_SvtPackageBaselineHash)' != '$(SvtPackageBaselineSha256)'" Text="The compatibility baseline package differs from the reviewed artifact." />
+    <!-- The pinned SDK's incremental stamp omits the baseline package from its inputs.
+         Validate each pack attempt, even when the shipping assembly was not rebuilt. -->
+    <Delete Files="$(_ApiCompatValidatePackageSemaphoreFile)" />
+  </Target>
+</Project>

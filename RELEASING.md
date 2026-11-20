@@ -51,12 +51,14 @@ RC integration acceptance and production-template acceptance are separate. Keep 
 and installation examples at `1.0.0-rc.1` until production-template validation is complete. Record
 consumer-specific evidence in the consumer's tracking and a generic outcome in issue #1.
 
-Before preparing stable `1.0.0`, complete production-template acceptance, review the public
-API/package baseline and enable compatibility checks, then update version, changelog and prerelease
-guidance. Update AGENTS.md to establish the released-project compatibility requirement at that
-transition. Repeat the full gate, allocation checks, isolated three-platform consumption, native
-visual review and nonpublishing rehearsal on the final candidate. Stable publication still requires
-explicit authorization; this policy does not create a tag or authorize a release.
+Before preparing stable `1.0.0`, complete production-template acceptance and review the accepted
+surface against the [implemented API/package baseline](eng/compatibility/README.md), then update
+version, changelog and prerelease guidance. Keep the published RC baseline pin through stable
+preparation; promote it only after public verification of 1.0. Update AGENTS.md to establish the
+released-project compatibility requirement at that transition. Repeat the full gate, allocation
+checks, isolated three-platform consumption, native visual review and nonpublishing rehearsal on the
+final candidate. Stable publication still requires explicit authorization; this policy does not
+create a tag or authorize a release.
 
 After 1.0, maintain the latest stable minor release. Fixes normally go into that line; consumers may
 need to upgrade within 1.x. There is no promise of backports to older minors, simultaneous support
@@ -146,6 +148,9 @@ permissions. Leave tag creation and publication for the explicitly authorized re
    repository signatures, unchanged original contents, installed execution, symbols and Source Link.
 9. Retain the completion receipt and publish the existing draft using the changelog and appropriate
    prerelease flag. Consumer application validation remains separate.
+10. After public verification, review and promote the compatibility baseline: move accepted API
+    additions into the shipped declarations and pin the newly published package and verified digest.
+    Complete this before further development so additions in each release remain protected.
 
 The tag workflow and rehearsal use SHA-pinned actions and the exact SDK in `global.json`. Native
 installation has a separate tool/font pin set. Ubuntu Chrome runs without its sandbox only in the

@@ -136,6 +136,25 @@ public sealed class JsonDefaultsTests
         Failure(await w.Bind("--configuration", "config.json", "--unknown-keys", "error"), 1, "svt.binding.unknown");
     }
 
+    /// <summary>Omitted CLI options preserve the published failure policy and request budget.</summary>
+    [TestMethod]
+    public void PublishedCliDefaults()
+    {
+        AssertDefaults(CliConfiguration.Default);
+        foreach (var json in new[] { "{}", "{\"format_version\":0}", "{\"cli\":{}}" })
+        {
+            using var input = new JsonInput(Encoding.UTF8.GetBytes(json), "config.json", true, CancellationToken.None);
+            AssertDefaults(CliConfiguration.Parse(input));
+        }
+
+        static void AssertDefaults(CliConfiguration configuration)
+        {
+            Assert.IsFalse(configuration.AllowScoped);
+            Assert.AreEqual(67_108_864, configuration.MaxBindingsFileBytes);
+            Assert.AreEqual(UnknownKeyBehavior.Error, configuration.Binding.BindingOptions.UnknownKeyBehavior);
+        }
+    }
+
     /// <summary>No-assignment requests still enforce inspection policy and acquisition/output budgets.</summary>
     [TestMethod]
     public async Task EmptyRequestPoliciesAndBudgets()
