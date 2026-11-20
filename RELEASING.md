@@ -3,9 +3,10 @@
 SVT is public, MIT-licensed, and prerelease. `1.0.0-rc.1` is published for both the library and CLI.
 `0.1.0-beta.1` is the earlier library release. A version in an issue, contract or changelog does not
 imply publication. Consumers should pin an exact published version and validate their integration.
-APIs and the specification may still change before stable 1.0; the RC label does not establish a
-compatibility or migration promise. SVG and JSON format markers remain version 0 independently of
-NuGet.
+External RC package integration is accepted with no reported issues. Keep `1.0.0-rc.1` while
+production-template validation continues. The surface is provisionally frozen; necessary shipping
+corrections require a new RC and renewed consumer validation. Formal stable guarantees begin at
+`1.0.0`, not at RC acceptance. SVG and JSON format markers remain version 0 independently of NuGet.
 
 ## Release set
 
@@ -20,6 +21,12 @@ publication.
 
 ## Version and branch policy
 
+Follow the required [Semantic Versioning and compatibility policy](spec/compatibility.md). Classify
+changes by their effect on the public contract: compatible fixes are patches, compatible additions
+and deprecations are minor revisions, and incompatible changes are major revisions. Use the highest
+classification required by either package. Review behavior, defaults and machine output as well as
+API signatures; diff size and labels such as "small fix" do not determine the revision.
+
 `Directory.Build.props` owns the shipping version. [CHANGELOG.md](CHANGELOG.md) must have one
 `Unreleased` section and a dated, populated entry for that version as its latest release. Use
 canonical three-part versions with optional lowercase SemVer prerelease identifiers. Build metadata,
@@ -28,8 +35,8 @@ versions.
 
 Through the first stable 1.0 release, `master` is the active release branch for prereleases and the
 stable release. Integrate reviewed work there using feature branches as needed; there is no separate
-prerelease or maintenance line to protect. Revisit branch and compatibility policy when the first
-stable release is established. Published packages and historical tags remain immutable.
+prerelease or maintenance line to protect. Revisit branch arrangements when the first stable release
+is established. Published packages and historical tags remain immutable.
 
 The existing release guard permits stable or prerelease versions on `master`, and prereleases only
 on `release/*`; that latter capability is not needed for the current development process. Feature
@@ -37,6 +44,25 @@ branches can run ordinary validation but cannot prepare a release tag. An annota
 must identify the exact checked-out commit. Publication refreshes actual branch refs from origin and
 requires that commit to be an ancestor of an eligible remote branch. Stale local tracking refs,
 unpushed commits, failed fetches, dirty trees, and mismatched metadata fail closed.
+
+## Stable acceptance and support
+
+RC integration acceptance and production-template acceptance are separate. Keep the shipping version
+and installation examples at `1.0.0-rc.1` until production-template validation is complete. Record
+consumer-specific evidence in the consumer's tracking and a generic outcome in issue #1.
+
+Before preparing stable `1.0.0`, complete production-template acceptance, review the public
+API/package baseline and enable compatibility checks, then update version, changelog and prerelease
+guidance. Update AGENTS.md to establish the released-project compatibility requirement at that
+transition. Repeat the full gate, allocation checks, isolated three-platform consumption, native
+visual review and nonpublishing rehearsal on the final candidate. Stable publication still requires
+explicit authorization; this policy does not create a tag or authorize a release.
+
+After 1.0, maintain the latest stable minor release. Fixes normally go into that line; consumers may
+need to upgrade within 1.x. There is no promise of backports to older minors, simultaneous support
+for multiple majors, indefinite maintenance or response times. Announce any future support
+retirement explicitly. Older prereleases have no separate maintenance line. Keep SECURITY.md and the
+compatibility policy aligned with the actual support status.
 
 ## Local preparation without publication
 

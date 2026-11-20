@@ -5,6 +5,11 @@ changes. Discuss grammar, public API, dependencies and ownership before implemen
 proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
 Report possible vulnerabilities through the [private security route](SECURITY.md).
 
+Follow the [compatibility and Semantic Versioning policy](spec/compatibility.md). Classify changes
+by their effect on documented APIs, behavior, formats and defaults, not by implementation size. The
+RC is provisionally frozen; formal stable guarantees begin at 1.0. Keep production-template
+acceptance separate from successful package integration.
+
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and
 three MSTest projects running portable fixtures, CLI process tests, boundary tests and package
 inspection checks. A BCL-only engineering executable inspects package metadata and symbols. Package

@@ -33,7 +33,8 @@ pinned SDK. Do not enable automatic major-runtime roll-forward or bundle a runti
 native executables and platform-specific downloads remain separate work.
 
 Both products use the version owned by `Directory.Build.props`. Package versions remain independent
-of SVG/JSON format markers. Preserve the
+of SVG/JSON format markers. Both follow the shared
+[Semantic Versioning and compatibility policy](compatibility.md). Preserve the
 [release version policy](../RELEASING.md#version-and-branch-policy), including its exclusion of
 build metadata from published identities. The CLI's general version formatter still preserves
 genuine build metadata for nonrelease builds.
