@@ -105,6 +105,11 @@ tasks:
       - node eng/package/prepare.mjs --review
       - node eng/package/consume.mjs
 
+  compatibility:check:
+    desc: Validate the built library package against the reviewed compatibility baseline
+    cmds:
+      - node eng/compatibility/check.mjs
+
   package:prepare:
     desc: Prepare a development candidate from a clean commit with a matching gate receipt
     cmds:

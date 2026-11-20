@@ -50,6 +50,7 @@ const checks = [
   ["dotnet", ["format", "SvgTemplates.slnx", "--no-restore", "--verify-no-changes"]],
   ["dotnet", ["build", "SvgTemplates.slnx", "-c", "Release", "--no-restore"]],
   ["dotnet", ["test", "--solution", "SvgTemplates.slnx", "-c", "Release", "--no-build"]],
+  ["node", ["eng/compatibility/check.mjs"]],
   ["npm", ["ci", "--prefix", "eng/visual", "--ignore-scripts"]],
   [
     "node",
@@ -57,12 +58,18 @@ const checks = [
       "--test",
       ...(
         await Promise.all(
-          ["eng/visual", "eng/package", "eng/release", "eng/coverage", "eng/ExportPerformance"].map(
-            async (folder) =>
-              (await readdir(resolve(root, folder)))
-                .filter((name) => name.endsWith(".test.mjs"))
-                .sort()
-                .map((name) => `${folder}/${name}`),
+          [
+            "eng/visual",
+            "eng/package",
+            "eng/release",
+            "eng/coverage",
+            "eng/ExportPerformance",
+            "eng/compatibility",
+          ].map(async (folder) =>
+            (await readdir(resolve(root, folder)))
+              .filter((name) => name.endsWith(".test.mjs"))
+              .sort()
+              .map((name) => `${folder}/${name}`),
           ),
         )
       ).flat(),

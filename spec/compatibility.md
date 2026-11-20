@@ -95,7 +95,10 @@ compatibility checks. Compare later 1.x releases against established stable surf
 additions from intervening minor releases; comparing only with 1.0 is insufficient. Do not silently
 advance a baseline or suppress a failure to admit a breaking change.
 
+The [implemented checks](../eng/compatibility/README.md) use a nullable-aware source API baseline
+and SDK package comparison against the exact published RC, with negative enforcement tests. This is
+a provisional baseline; stable publication still requires review of the complete accepted surface.
+Promote the package baseline only after the new release is publicly available and verified.
+
 API checks supplement conformance, boundary and isolated-consumer tests. Review behavior, defaults,
-formats and diagnostics separately; a compatible assembly surface alone cannot establish them. The
-baseline and automated checks are required stable-release preparation, not tooling already claimed
-to be enabled by this policy.
+formats and diagnostics separately; a compatible assembly surface alone cannot establish them.
