@@ -63,7 +63,7 @@ test("compatibility enforcement rejects contract changes and accepts reviewed ad
     for (const name of [
       "Directory.Build.props",
       "Directory.Packages.props",
-      "NuGet.config",
+      "NuGet.Config",
       "global.json",
       ".editorconfig",
       "LICENSE",
