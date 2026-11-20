@@ -45,8 +45,8 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
    and NOTICE.
 2. Optionally dispatch **NuGet release** on `master`. Dispatch is a non-publishing rehearsal: it
    runs the full gate, prepares both development packages, consumes the same bytes on Ubuntu and
-   Windows, runs the native matrix, and rehearses recovery with fake remote services. It never
-   enters the publishing job. Leave the dispatch mode at `rehearse`.
+   Windows and macOS, runs the native matrix, and rehearses recovery with fake remote services. It
+   never enters the publishing job. Leave the dispatch mode at `rehearse`.
 3. After explicit authorization to publish, update clean local `master` and set `TAG` to the
    reviewed version matching the package metadata and changelog (not an already-published tag):
 
@@ -65,11 +65,17 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
    into a fresh cache and run the isolated consumer. Package, symbols, source, SDK, bundle
    inventory, and both receipts must agree. The completed artifact is
    `validated-package-<version>-<attempt>`.
-5. Native jobs use the packaged CLI and the same library DLL/PDB in authoring-test hosts. The macOS
+5. The macOS ARM64 job first consumes the identical library/tool packages in isolated caches,
+   including global, local-manifest and one-off execution. Retain its receipt and diagnostics with
+   the native evidence; release approval and recovery require that receipt to match the candidate.
+   PR validation remains Ubuntu/Windows only, without a third coverage upload.
+
+   Native jobs use the packaged CLI and the same library DLL/PDB in authoring-test hosts. The macOS
    ARM64 job runs pinned Inkscape native/Plain round trips and deliberate edits, followed by
    Chrome/resvg on the original, saved, and edited corpora (186 comparisons). Ubuntu runs the
    original corpus in both engines (38 comparisons). Preserve reports and images from both jobs.
    Exploratory probes are excluded and do not supply a release verdict.
+
 6. Review complete-state images for content, fitting, clipping, masking, and stacking. The `nuget`
    environment reviewer confirms that evidence, package identity, changelog, and publication intent
    before approving the pending job. Machine checks and human visual review are separate

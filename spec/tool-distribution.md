@@ -222,9 +222,12 @@ registry publication still require explicit authorization.
 
 ## Acceptance evidence
 
-Implementation must pass the full gate, package inspection, isolated Ubuntu/Windows consumption, and
-the installed quickstart. Exercise the nonpublishing release rehearsal with both products and the
-pinned native matrix, recording actual environments and separate visual review.
+PR validation must pass the full gate, package inspection, isolated Ubuntu/Windows consumption, and
+the installed quickstart. Release candidates and nonpublishing rehearsals also require isolated
+macOS library/tool consumption of the same candidate, including global, local-manifest and one-off
+execution. Retain and validate its receipt with the native evidence during approval and recovery.
+Exercise the nonpublishing release rehearsal with both products and the pinned native matrix,
+recording actual environments and separate visual review.
 
 Test recovery without registry writes: inject interruption after each asset-upload, package-upload,
 symbol-upload and verification boundary. Cover partial draft archival, duplicate/conflicting

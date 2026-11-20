@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import { readFile, cp, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { command, verifyBundle, fileHash, json, environment, nonce } from "../package/common.mjs";
+import {
+  command,
+  verifyBundle,
+  fileHash,
+  json,
+  environment,
+  nonce,
+  validateReceipt,
+} from "../package/common.mjs";
 
 assert.ok(
   process.argv.length >= 3 && process.argv.length <= 4,
@@ -35,12 +43,15 @@ try {
     report[name] = "passed";
   }
   const current = JSON.parse(await readFile("artifacts/package-consumption-current.json"));
+  const consumption = JSON.parse(await readFile(current.report));
+  validateReceipt(manifest, report.bundle_manifest_sha256, consumption, process.platform);
   report.consumption_receipt = current.report;
   report.native_receipt = `artifacts/native-candidate-${process.platform}.json`;
   const retained = resolve("artifacts", `rehearsal-archive-${nonce()}`);
   const content = resolve(retained, "content");
   await mkdir(retained);
   await cp(bundle, resolve(content, "bundle"), { recursive: true });
+  await cp(current.report, resolve(content, "consumption.json"));
   const native = JSON.parse(await readFile(report.native_receipt));
   await cp(report.native_receipt, resolve(content, "native-candidate.json"));
   for (const item of native.reports) {

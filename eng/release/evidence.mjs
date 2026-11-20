@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
-import { fileHash, bundlePath, validateReceipts, treeHashes } from "../package/common.mjs";
+import {
+  fileHash,
+  bundlePath,
+  validateReceipts,
+  validateReceipt,
+  treeHashes,
+} from "../package/common.mjs";
 
 export async function verifyNative(folder, manifest, manifestHash, platform) {
   const counts = platform === "darwin" ? [38, null, 46, 46, 14, 14, 14, 14] : [38];
@@ -88,6 +94,13 @@ export async function verifyRetainedEvidence(transfer, nativeRoot, manifest) {
     assert.ok(attempts.length > 0, `Missing native evidence for ${runner}`);
     const folder = resolve(evidenceRoot, attempts[0]);
     await verifyNative(folder, manifest, manifestHash, platform);
+    if (platform === "darwin")
+      validateReceipt(
+        manifest,
+        manifestHash,
+        await read(resolve(folder, "macos-consumption.json")),
+        "darwin",
+      );
   }
   return manifestHash;
 }

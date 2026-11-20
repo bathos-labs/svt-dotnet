@@ -237,36 +237,33 @@ export function validateReceipts(manifest, manifestHash, receipts) {
   );
   assert.equal(manifest.source.dirty, false);
   assert.deepEqual(receipts.map((r) => r.environment.platform).sort(), ["linux", "win32"]);
-  for (const receipt of receipts) {
-    assert.equal(receipt.format_version, 0);
-    assert.equal(receipt.status, "passed");
-    assert.equal(
-      receipt.bundle_manifest_sha256,
-      manifestHash,
-      "Consumption used a different bundle",
-    );
-    assert.equal(receipt.purpose, manifest.purpose);
-    assert.equal(receipt.sdk, manifest.sdk);
-    assert.deepEqual(receipt.source, manifest.source);
-    assert.deepEqual(
-      receipt.products,
-      manifest.products,
-      "Consumption did not validate this exact artifact",
-    );
-    assert.equal(receipt.empty_feed_rejected, true);
-    assert.equal(
-      receipt.distribution,
-      "local-artifact",
-      "Candidate validation requires the original artifact",
-    );
-    assert.deepEqual(receipt.checks, smokeChecks);
-    assert.deepEqual(receipt.tool.checks, toolChecks);
-    assert.equal(receipt.tool.status, "passed");
-    if (receipt.environment.platform === "linux")
-      assert.equal(
-        receipt.environment.distribution?.id,
-        "ubuntu",
-        "Ubuntu consumption is required",
-      );
-  }
+  for (const receipt of receipts)
+    validateReceipt(manifest, manifestHash, receipt, receipt.environment.platform);
+}
+
+export function validateReceipt(manifest, manifestHash, receipt, platform) {
+  assert.match(manifestHash, /^[a-f0-9]{64}$/);
+  assert.equal(receipt.environment.platform, platform, "Consumption used a different platform");
+  assert.equal(receipt.format_version, 0);
+  assert.equal(receipt.status, "passed");
+  assert.equal(receipt.bundle_manifest_sha256, manifestHash, "Consumption used a different bundle");
+  assert.equal(receipt.purpose, manifest.purpose);
+  assert.equal(receipt.sdk, manifest.sdk);
+  assert.deepEqual(receipt.source, manifest.source);
+  assert.deepEqual(
+    receipt.products,
+    manifest.products,
+    "Consumption did not validate this exact artifact",
+  );
+  assert.equal(receipt.empty_feed_rejected, true);
+  assert.equal(
+    receipt.distribution,
+    "local-artifact",
+    "Candidate validation requires the original artifact",
+  );
+  assert.deepEqual(receipt.checks, smokeChecks);
+  assert.deepEqual(receipt.tool.checks, toolChecks);
+  assert.equal(receipt.tool.status, "passed");
+  if (receipt.environment.platform === "linux")
+    assert.equal(receipt.environment.distribution?.id, "ubuntu", "Ubuntu consumption is required");
 }

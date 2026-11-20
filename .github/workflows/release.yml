@@ -101,6 +101,15 @@ jobs:
         run: |
           dotnet restore SvgTemplates.slnx --locked-mode
           dotnet build SvgTemplates.slnx -c Release --no-restore
+      - name: Consume the identical library and tool packages on macOS
+        if: runner.os == 'macOS'
+        run: |
+          node eng/package/consume.mjs artifacts/package-transfer/bundle
+          node --input-type=module <<'JS'
+          import {readFile,copyFile} from 'node:fs/promises';
+          const {report}=JSON.parse(await readFile('artifacts/package-consumption-current.json'));
+          await copyFile(report, 'artifacts/macos-consumption.json');
+          JS
       - name: Install pinned renderers and font
         run: |
           npm ci --prefix eng/visual --ignore-scripts
@@ -112,7 +121,7 @@ jobs:
         env:
           SVT_CHROME_NO_SANDBOX: ${{ runner.os == 'Linux' && '1' || '0' }}
         run: node eng/release/native.mjs artifacts/package-transfer/bundle
-      - name: Retain native reports and images for review
+      - name: Retain native evidence and macOS consumption results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
@@ -120,6 +129,8 @@ jobs:
           path: |
             artifacts/native-candidate-*.json
             artifacts/native-release-check-*/
+            artifacts/macos-consumption.json
+            artifacts/package-consumption/
           if-no-files-found: error
           retention-days: 30
   recovery-rehearsal:
