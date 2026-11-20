@@ -101,6 +101,7 @@ trusted-fixture hosted runner, matching the existing disposable-container policy
 
 These are external settings, not changes made by checking in the workflow:
 
+- Allow squash merging only; disable merge commits and rebase merging in repository settings.
 - Apply or review [the master ruleset](eng/master-branch.ruleset.json). It requires pull requests,
   resolved review threads, and current **Documentation, library and CLI**, **Library and CLI on
   Windows**, and **Complete coverage upload** checks from GitHub Actions, with no bypass actors.
