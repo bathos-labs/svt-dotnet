@@ -6,11 +6,15 @@ import { command, root } from "../package/common.mjs";
 
 import { releaseVersion, eligibleBranch } from "./version.mjs";
 
-export async function metadata(cwd = root) {
+export async function declaredVersion(cwd = root) {
   const props = await readFile(resolve(cwd, "Directory.Build.props"), "utf8");
   const versions = [...props.matchAll(/<Version>([^<]+)<\/Version>/g)];
   assert.equal(versions.length, 1, "Declare exactly one Version in Directory.Build.props");
-  const version = releaseVersion(versions[0][1]);
+  return releaseVersion(versions[0][1]);
+}
+
+export async function metadata(cwd = root) {
+  const version = await declaredVersion(cwd);
   const changelog = await readFile(resolve(cwd, "CHANGELOG.md"), "utf8");
   assert.equal([...changelog.matchAll(/^## \[Unreleased\]$/gm)].length, 1);
   const entries = [

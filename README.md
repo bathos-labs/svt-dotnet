@@ -12,15 +12,15 @@ JSON file. This project is public and prerelease. APIs and the specification may
 
 ## Try it
 
-The tool requires the .NET 10 SDK. **The CLI package is not published yet**; these installation
-commands are for the planned `1.0.0-beta.1` release:
+The tool requires the .NET 10 SDK. **Version 1.0.0-rc.1 is being prepared and is not published
+yet.** These installation commands are for that release candidate:
 
 ```sh
-dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
 svt --version
 ```
 
-For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-beta.1 -- inspect template.svg`.
+For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-rc.1 -- inspect template.svg`.
 Until publication, use the [source command](CONTRIBUTING.md#local-setup) or validate a
 [local package](eng/package/README.md).
 
@@ -72,7 +72,7 @@ Create a local tool manifest and pin the version:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-beta.1
+dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
 ```
 
 Commit `dotnet-tools.json`. In automation, initialize the SDK and run `dotnet tool restore` as
@@ -92,15 +92,17 @@ name, check `command -v svt` on macOS/Linux or `Get-Command svt` in PowerShell, 
 
 ## Use the library
 
-The published library beta is **0.1.0-beta.1**. Pin it explicitly:
+The library and CLI share the planned **1.0.0-rc.1** version. Once published, pin the library
+exactly:
 
 ```sh
-dotnet add package Bathos.Graphics.SvgTemplates --version '[0.1.0-beta.1]'
+dotnet add package Bathos.Graphics.SvgTemplates --version '[1.0.0-rc.1]'
 ```
 
-Start with the [package guide](docs/package-readme.md). The current source includes unreleased
-features; see the [changelog](CHANGELOG.md) before using the latest API documentation with the
-published beta. Package versions are separate from the SVG and JSON format markers.
+Start with the [package guide](docs/package-readme.md). The previously published library is
+`0.1.0-beta.1`; it does not include the new export, metadata or interpretation APIs described here.
+See the [changelog](CHANGELOG.md) for the changes. Package versions are separate from the SVG and
+JSON format markers.
 
 ## Author templates
 

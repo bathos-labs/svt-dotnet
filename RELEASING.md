@@ -1,11 +1,11 @@
 # Releasing
 
-SVT is public, MIT-licensed, and prerelease. `0.1.0-beta.1` is the first published beta. A later
-version in an issue, contract or changelog does not imply publication. The API and specification may
-change between prereleases. Consumers should pin an exact published version
-(`Version="[0.1.0-beta.1]"` in a PackageReference) and validate their integration. There is no
-stable API or format migration promise. The SVG marker and JSON envelopes remain version 0
-independently of NuGet.
+SVT is public, MIT-licensed, and prerelease. The next candidate is `1.0.0-rc.1`; it is not published
+yet. `0.1.0-beta.1` remains the previously published library package. A version in an issue,
+contract or changelog does not imply publication. Consumers should pin an exact published version
+and validate their integration. APIs and the specification may still change before stable 1.0; the
+RC label does not establish a compatibility or migration promise. SVG and JSON format markers remain
+version 0 independently of NuGet.
 
 ## Release set
 
@@ -26,10 +26,10 @@ canonical three-part versions with optional lowercase SemVer prerelease identifi
 leading-zero aliases, and development `dev`, `review`, or `preview` identities are not release
 versions.
 
-Through the first stable 1.0 release, `master` is the active release branch for beta candidates and
-the stable release. Integrate reviewed work there using feature branches as needed; there is no
-separate prerelease or maintenance line to protect. Revisit branch and compatibility policy when the
-first stable release is established. Published beta packages and historical tags remain immutable.
+Through the first stable 1.0 release, `master` is the active release branch for prereleases and the
+stable release. Integrate reviewed work there using feature branches as needed; there is no separate
+prerelease or maintenance line to protect. Revisit branch and compatibility policy when the first
+stable release is established. Published packages and historical tags remain immutable.
 
 The existing release guard permits stable or prerelease versions on `master`, and prereleases only
 on `release/*`; that latter capability is not needed for the current development process. Feature
@@ -37,6 +37,35 @@ branches can run ordinary validation but cannot prepare a release tag. An annota
 must identify the exact checked-out commit. Publication refreshes actual branch refs from origin and
 requires that commit to be an ancestor of an eligible remote branch. Stale local tracking refs,
 unpushed commits, failed fetches, dirty trees, and mismatched metadata fail closed.
+
+## Local preparation without publication
+
+Use a feature branch to update the shipping version, dated changelog and consumer guidance. For an
+uncommitted review on macOS ARM64 or Linux x64, run these commands from the repository root:
+
+```sh
+task docs:format
+# Review the diff before validation.
+task check
+task perf:export
+task native:setup
+task package:check
+CANDIDATE_BUNDLE=$(node -p "JSON.parse(require('fs').readFileSync('artifacts/package-current.json', 'utf8')).bundle")
+task release:rehearse -- "$CANDIDATE_BUNDLE"
+```
+
+The rehearsal consumes the review bundle, runs the host's native matrix and tests recovery without
+remote writes. On macOS it downloads and mounts the pinned Inkscape archive automatically, then
+unmounts it on completion. It does not need an interactive editor session. Review the complete-state
+images separately. Keep the source unchanged between the gate, packaging and rehearsal; editing a
+file invalidates the recorded source fingerprint.
+
+Review bundles use separate development identities and record uncommitted source. They validate
+packaging and behavior but are not the tagged RC or publishable evidence. After review and merge,
+rerun the gate and hosted rehearsal on master for clean-source Ubuntu/Windows/macOS evidence.
+`task release:check TAG=v1.0.0-rc.1` is a read-only metadata/tree/branch check; it intentionally
+fails on an uncommitted feature branch and does not replace tests or verify NuGet account
+permissions. Leave tag creation and publication for the explicitly authorized release steps below.
 
 ## Candidate lifecycle
 

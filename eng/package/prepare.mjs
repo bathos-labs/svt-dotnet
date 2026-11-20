@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, mkdir, copyFile, cp, rm, writeFile, appendFile } from "node:fs/promises";
 import { resolve, relative } from "node:path";
-import { verifyRelease } from "../release/policy.mjs";
+import { declaredVersion, verifyRelease } from "../release/policy.mjs";
 import {
   root,
   packageId,
@@ -34,7 +34,7 @@ const gate = JSON.parse(await readFile(resolve(root, "artifacts/validation/gate.
 requireGate(gate, source, review);
 assert.equal(gate.sdk, sdk, "Package preparation requires a gate run with the exact SDK pin");
 assert.equal((await command("dotnet", ["--version"])).stdout.trim(), sdk);
-const version = release?.version ?? packageVersion(source, review);
+const version = release?.version ?? packageVersion(await declaredVersion(), source, review);
 const output = resolve(root, "artifacts/packages", version);
 await mkdir(resolve(root, "artifacts/packages"), { recursive: true });
 await mkdir(output); // Never overwrite an existing version or artifact.
