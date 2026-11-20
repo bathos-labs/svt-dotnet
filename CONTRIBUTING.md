@@ -148,6 +148,12 @@ merge is configured. Keep lockfiles, compatible test-platform packages and nativ
 in sync. Changes to native tools also need the authoring/rendering checks. SDK, documentation-tool
 and native binary pins outside package manifests still need manual review.
 
+The [dependency-graph workflow](.github/workflows/dependencies.yml) restores locked NuGet packages
+and submits resolved NuGet/npm dependencies after master changes. It can also be run manually on
+master. Only that trusted job has submission write access; PR validation does not submit snapshots.
+The submission action is pinned, but downloads the latest Microsoft Component Detection release.
+This security inventory is separate from reproducible package and native-validation evidence.
+
 ## Review and publication
 
 Commit cohesive changes when requested. PR descriptions lead with the problem and resulting
