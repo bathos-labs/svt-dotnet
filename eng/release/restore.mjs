@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { hash } from "../package/common.mjs";
 import { github } from "./github.mjs";
 import { identityHash, validateIdentity } from "./publication.mjs";
@@ -32,7 +32,8 @@ assert.equal(hash(archive), identity.archive_sha256);
 const seal = await api.readAsset(release, "candidate-sealed.json");
 assert.ok(seal, "Candidate archival was not completed; retry the original archival job");
 assert.deepEqual(JSON.parse(seal), { identity_sha256: expected });
-await mkdir(destination);
+await mkdir(dirname(resolve(destination)), { recursive: true });
+await mkdir(destination); // Refuse an existing candidate, including a partial restore.
 await writeFile(resolve(destination, "candidate-identity.json"), bytes, { flag: "wx" });
 await writeFile(resolve(destination, "candidate.zip"), archive, { flag: "wx" });
 console.log(`Restored approved candidate ${expected}`);

@@ -1,8 +1,8 @@
 # CLI packaging and release contract
 
-The library and CLI are packaged separately. The installation examples below describe the planned
-`1.0.0-rc.1` release, not an available tool package or authorization to publish it. The
-[CLI contract](cli.md) continues to own commands, diagnostics, streams and exit codes.
+The library and CLI are packaged separately at a shared version. The installation examples below use
+`1.0.0-rc.1`. The [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit
+codes.
 
 ## Release unit
 
