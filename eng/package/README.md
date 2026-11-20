@@ -4,6 +4,23 @@ Prepare the library and portable symbols for an isolated consumer trial. Only
 `Bathos.Graphics.SvgTemplates` is packable. The CLI, tests, package inspector and native tools are
 not included in the package. No registry publication or release credentials are involved.
 
+## Agreed two-product extension
+
+The [packaging contract](../../spec/tool-distribution.md) is agreed and not yet implemented. It
+extends the existing manifest, inspector and receipts with required `library` and `cli` products at
+one version/source identity, each with package and symbol hashes. Validate the tool's entry point,
+runtime closure and exact bundled library/PDB identity while preserving independent library
+consumption. Replace the in-development manifest directly; no compatibility reader is required.
+
+The same retained bundle must pass isolated Ubuntu/Windows library and tool consumption, including
+cold/warm one-off execution, global installation and local manifest restore. Prepared execution owns
+the automation-output guarantees. Native checks must use the packaged CLI and library. Publication
+and [draft-release recovery](../../spec/tool-distribution.md#draft-release-recovery) retain both
+products and their evidence before any NuGet upload.
+
+The lifecycle and commands below describe the current library-only tooling. They do not yet validate
+or publish the CLI package.
+
 ## Lifecycle
 
 1. Run `task docs:format`, review the diff, then `task check` (or `node eng/check.mjs`). The gate

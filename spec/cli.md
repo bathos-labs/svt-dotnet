@@ -6,6 +6,14 @@ own template and replacement semantics. The CLI owns bounded file acquisition, r
 diagnostics presentation and output publication. It does not render, fetch references, interpret
 paint, decode images or certify SVG validity.
 
+## Tool distribution
+
+The [packaging and release contract](tool-distribution.md) is agreed and awaiting implementation. It
+defines the separate `Bathos.Graphics.SvgTemplates.Cli` tool package, version-pinned installation,
+prepared execution for automation and recovery of a partially published release. The commands and
+presentation below are implemented in the source-built CLI; no installed tool is published yet. SDK
+setup/restore failures occur outside the SVT diagnostic protocol.
+
 ## Commands and invocation
 
 ```sh

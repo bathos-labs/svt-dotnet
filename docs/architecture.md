@@ -47,6 +47,14 @@ only inspector and binder. Its default refusal to publish after inspection error
 the portable binder continues to admit valid inputs independently of unrelated scoped inspection
 errors.
 
+The agreed [distribution contract](../spec/tool-distribution.md), awaiting implementation, packages
+the existing CLI separately at the library's version and source commit. The tool bundles the exact
+library DLL and matching symbols. Candidate inspection and receipts bind both products to one
+release; no second binder, repository or production framework is introduced. Prepared local-tool
+execution is the automation path. SDK acquisition and contributor build wrappers retain their own
+failure/output behavior. [Release recovery](../spec/tool-distribution.md#draft-release-recovery)
+uses the original validated artifacts retained in a draft GitHub release under protected approval.
+
 Application adapters own their document references, freshness, default/unassigned/bound choices,
 image preparation, rendering and UI. The template library must not acquire those responsibilities
 through callbacks or service location.

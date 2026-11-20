@@ -7,6 +7,27 @@ change between prereleases. Consumers should pin an exact published version
 stable API or format migration promise. The SVG marker and JSON envelopes remain version 0
 independently of NuGet.
 
+## Agreed two-package extension
+
+The [packaging and release contract](spec/tool-distribution.md) is agreed and awaiting
+implementation. The current workflow below publishes only the library. The next release unit will
+contain the library and CLI at one version/commit, with symbols for both; no release version or
+publication authorization changes in this contract checkpoint.
+
+Before the first NuGet upload, the protected job will archive and verify the exact candidate and
+portable/platform/native evidence in a draft GitHub release for the existing tag. Both packages must
+pass public consumption, signature/content, symbol and Source Link verification before that draft is
+published. Give GitHub release writes only to protected release jobs, and confirm NuGet
+ownership/trusted-publishing permissions for both package IDs.
+
+Recovery will use an explicit tag-scoped mode under the same `nuget` approval gate, selecting the
+original candidate identity without rebuilding shipping binaries. Initial and recovery jobs share
+one tag lock. Ordinary dispatch stays a nonpublishing rehearsal. Existing assets must match, known
+registry conflicts block further uploads, and unavailable evidence or pending indexing leaves the
+release incomplete. The [recovery rules](spec/tool-distribution.md#draft-release-recovery) and
+[publication state table](spec/tool-distribution.md#publication-and-partial-completion) are the
+implementation requirements; the commands below do not yet provide this recovery mode.
+
 ## Version and branch policy
 
 `Directory.Build.props` owns the shipping version. [CHANGELOG.md](CHANGELOG.md) must have one
