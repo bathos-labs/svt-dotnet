@@ -39,9 +39,9 @@ dotnet run --project src/Bathos.Graphics.SvgTemplates.Cli -c Release -- inspect 
 
 Task forwards quoted arguments, but maps command failures to its own status (normally 201). Build
 messages are development output. Use a prepared installed tool for automation and exact SVT exit
-codes. The [README walkthrough](README.md#try-it) describes installed usage; the first CLI release
-is still pending. CLI builds embed the version and source revision; `--version` reads these without
-Git or filesystem access and does not claim that a checkout is clean or published.
+codes. The [README walkthrough](README.md#try-it) describes installed usage. CLI builds embed the
+version and source revision; `--version` reads these without Git or filesystem access and does not
+claim that a checkout is clean or published.
 
 ## Null-aware boundaries
 

@@ -12,8 +12,7 @@ JSON file. This project is public and prerelease. APIs and the specification may
 
 ## Try it
 
-The tool requires the .NET 10 SDK. **Version 1.0.0-rc.1 is being prepared and is not published
-yet.** These installation commands are for that release candidate:
+The tool requires the .NET 10 SDK. The current release candidate is **1.0.0-rc.1**:
 
 ```sh
 dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
@@ -21,7 +20,7 @@ svt --version
 ```
 
 For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-rc.1 -- inspect template.svg`.
-Until publication, use the [source command](CONTRIBUTING.md#local-setup) or validate a
+For development, use the [source command](CONTRIBUTING.md#local-setup) or validate a
 [local package](eng/package/README.md).
 
 Save the [example template](examples/quickstart/template.svg) and
@@ -92,8 +91,7 @@ name, check `command -v svt` on macOS/Linux or `Get-Command svt` in PowerShell, 
 
 ## Use the library
 
-The library and CLI share the planned **1.0.0-rc.1** version. Once published, pin the library
-exactly:
+The library and CLI share version **1.0.0-rc.1**. Pin the library exactly:
 
 ```sh
 dotnet add package Bathos.Graphics.SvgTemplates --version '[1.0.0-rc.1]'

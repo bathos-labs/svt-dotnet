@@ -1,17 +1,17 @@
 # Releasing
 
-SVT is public, MIT-licensed, and prerelease. The next candidate is `1.0.0-rc.1`; it is not published
-yet. `0.1.0-beta.1` remains the previously published library package. A version in an issue,
-contract or changelog does not imply publication. Consumers should pin an exact published version
-and validate their integration. APIs and the specification may still change before stable 1.0; the
-RC label does not establish a compatibility or migration promise. SVG and JSON format markers remain
-version 0 independently of NuGet.
+SVT is public, MIT-licensed, and prerelease. `1.0.0-rc.1` is published for both the library and CLI.
+`0.1.0-beta.1` is the earlier library release. A version in an issue, contract or changelog does not
+imply publication. Consumers should pin an exact published version and validate their integration.
+APIs and the specification may still change before stable 1.0; the RC label does not establish a
+compatibility or migration promise. SVG and JSON format markers remain version 0 independently of
+NuGet.
 
 ## Release set
 
 One release contains `Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli` at one
-version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. The first CLI
-release is not published yet. See the [packaging contract](spec/tool-distribution.md).
+version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. Its first published
+release is `1.0.0-rc.1`. See the [packaging contract](spec/tool-distribution.md).
 
 Archive and verify the candidate and its portable/platform/native evidence in a draft GitHub release
 before the first NuGet upload. Publish that draft only after both products pass public consumption,
@@ -189,6 +189,11 @@ Retrying only the failed publishing job also preserves the original candidate. D
 successful preparation to retry publication. A failed initial asset upload can be retried from the
 original retained CI inputs; conflicting or incomplete remote assets require explicit maintainer
 reconciliation, never silent replacement.
+
+For `v1.0.0-rc.1`, retry only the failed publishing job in the original tag run. That tag predates
+the fix for creating the draft restore's parent directory on a fresh runner; its `resume` dispatch
+stops before registry writes. Keep the original candidate artifacts available for this recovery
+path.
 
 Accepted uploads can take time to index. Verification uses bounded calls and fails visibly while
 availability is unresolved. Wait for registry indexing, then resume with the same identity. An
