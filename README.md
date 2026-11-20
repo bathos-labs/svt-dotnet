@@ -116,7 +116,8 @@ standard.
 
 See [Contributing](CONTRIBUTING.md) for setup and validation, and
 [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues) for planned work. The
-[architecture](docs/architecture.md) explains the library and CLI boundaries.
+[architecture](docs/architecture.md) explains the library and CLI boundaries. Use the
+[security policy](SECURITY.md) to report a possible vulnerability privately.
 
 Code, specification, documentation and repository-authored examples are [MIT-licensed](LICENSE). See
 [NOTICE](NOTICE) and the [release policy](RELEASING.md).
