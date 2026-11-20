@@ -1,10 +1,10 @@
 # SVT command-line contract
 
-This is the implemented interface for the thin CLI. The lifecycle is inspect, prepare values, bind,
-then explicitly publish. The [inspection](inspection.md) and [substitution](substitution.md)
-contracts own template and replacement semantics. The CLI owns bounded file acquisition, request
-parsing, diagnostics presentation and output publication. It does not render, fetch references,
-interpret paint, decode images or certify SVG validity.
+This document defines the implemented CLI. The lifecycle is inspect, prepare values, bind, then
+explicitly publish. The [inspection](inspection.md) and [substitution](substitution.md) contracts
+own template and replacement semantics. The CLI owns bounded file acquisition, request parsing,
+diagnostics presentation and output publication. It does not render, fetch references, interpret
+paint, decode images or certify SVG validity.
 
 ## Commands and invocation
 
@@ -14,6 +14,7 @@ svt inspect template.svg --format json
 svt bind template.svg --bindings bindings.json --output result.svg
 svt bind template.svg --bindings bindings.json --output -
 svt --help
+svt -h
 svt inspect --help
 svt bind --help
 svt --version
@@ -39,15 +40,71 @@ input.
 
 Options and values are case-sensitive. Options may precede or follow the template operand; `--` ends
 option recognition. Unknown options, repeated singleton options, extra operands and missing option
-values are invocation errors. There are no short aliases, abbreviated options, interactive prompts,
-implicit configuration searches or environment-variable overrides. Terminal detection does not
-change formats. Human-readable rendering must escape control characters from authored content.
+values are invocation errors. `-h` is the only short alias, equivalent to `--help` at the top level
+and for either command. Mixed/repeated spellings count as a repeated singleton option. After `--`,
+`-h` is an operand. There are no abbreviated options, interactive prompts, implicit configuration
+searches or environment-variable overrides. Terminal detection does not change formats.
+Human-readable rendering follows the escaping rules below.
 
 `-` denotes standard input for the template or binding file, or standard output for the SVG. At most
 one input may consume standard input. Configuration must name a file. A literal file named `-` can
 be addressed as `./-`. Overwrite is invalid with standard output. Paths supplied on the command line
 resolve against the working directory; filenames beginning with `-` can be supplied after `--` as
 the template operand or through an unambiguous relative path as an option value.
+
+### Help and version presentation
+
+Use brief, natural language. State the task or problem first, then the next useful action. Keep
+technical details below the main explanation. Top-level help is a short introduction, two runnable
+command shapes, command descriptions and a command-help hint:
+
+```text
+Inspect and update SVG templates.
+
+svt inspect template.svg
+svt bind template.svg --bindings bindings.json --output result.svg
+
+inspect   Show the template's editable inputs.
+bind      Apply values and save an SVG.
+
+Use svt <command> --help for options and examples.
+```
+
+Command help lists only that command's options, required operands, defaults and two practical
+examples. Explain stdin/stdout, explicit configuration and overwrite where relevant. Bind help shows
+a minimum useful binding request and describes `{}` as “Keep the template's existing values.” Avoid
+implementation terminology in introductory prose; link detailed guidance where needed.
+
+- Valid explicit help writes readable multiline text to stdout and exits 0 without reading inputs.
+  It waives required template/binding/output operands, but does not forgive invalid supplied
+  options, values, duplicates or incompatible combinations. Help is not recognized after `--` or as
+  a missing option's value. Top-level help and version remain standalone invocations.
+- No arguments writes the invocation diagnostic and readable top-level usage to stderr and exits 2,
+  with stdout empty. Other invocation errors give a short explanation and the relevant help hint,
+  rather than a full manual. Name the offending option/value and list accepted choices where known.
+- If JSON diagnostics are selected for an invocation error, emit only the usual diagnostic envelope
+  on stderr, without separate usage text or help on stdout. A missing command with
+  `--diagnostics json` follows this rule. Valid command help still goes to stdout; explicitly
+  requested JSON diagnostics use the normal successful envelope on stderr.
+
+`--version` writes one line to stdout and exits 0, without inspecting files or Git:
+
+```text
+svt 1.0.0-beta.1 (commit cfdb2b429a03)
+```
+
+The example version is illustrative, not a new release target embedded in code. Report the exact
+semantic version supplied when building the executable, including prerelease and explicit build
+metadata. Use embedded package-version and source-revision evidence separately; do not blindly split
+on `+` and discard a genuine version suffix or mistake build metadata for a commit. The assembly
+numeric version is not the product version. When a full hexadecimal Git revision is embedded, append
+its first 12 lowercase hexadecimal digits as shown; otherwise omit the whole commit clause. A
+revision alone does not establish a clean checkout, a published artifact or release status. Do not
+infer or claim those states, query Git at runtime, or print local build paths or timestamps.
+
+Builds must embed a nonempty product version. Missing version metadata is a build defect, covered by
+validation; if encountered at runtime, report an internal failure with exit 4 instead of inventing a
+version. Tool packaging must later verify this same output against the actual package identity.
 
 ## Binding JSON
 
@@ -231,6 +288,125 @@ independent of inspect's `--format`. No banners, progress messages or success pr
 machine streams. JSON output is UTF-8 without BOM, with a terminating newline. Property order and
 indentation are not contracts; array order is.
 
+### Human-readable output
+
+These rules apply to text output only. Keep JSON shapes, complete raw evidence, codes, phase order,
+exit categories and publication protections unchanged. Text is plain UTF-8 with no ANSI colors,
+automatic terminal-width wrapping or terminal-dependent layout. Tool-authored line breaks separate
+records; user-supplied text cannot introduce new report lines. Wording may improve without changing
+these semantics; the examples are not whole-screen snapshot requirements.
+
+#### Diagnostic layout
+
+Lead with `Error:` or `Warning:` and a short explanation or corrective action. Follow with indented
+source/context lines and a `Code:` line. For example:
+
+```text
+Error: Add a "value" to this binding.
+  bindings.json — binding 1, /bindings/0/value
+  Code: svt.cli.json
+
+Error: "result.svg" already exists.
+  Choose another name or use --overwrite.
+  Code: svt.cli.output-exists
+```
+
+Render available source, request source, key, JSON pointer, assignment and limit context; omit
+unavailable fields rather than printing `null`. Show both template and request locations when they
+identify different evidence. Related SVG locations remain associated with their source and retain
+order. For the stream marker `-`, say `stdin` when reading and `stdout` when publishing; retain `-`
+in JSON. A literal filename such as `./-` is still a file, not a stream marker. The image `file`
+field always names a file; its bare `-` is represented as `./-` in diagnostic source context to
+avoid ambiguity with stdin.
+
+Human binding numbers are one-based. JSON assignment indices and JSON-pointer array segments stay
+zero-based: “binding 1” and `/bindings/0/value` identify the same entry. Do not invent an assignment
+for aggregate failures. Label positions explicitly as `SVG line N, UTF-16 column M` or
+`JSON line N, UTF-8 byte column M`; both line and column numbers remain one-based. Include positions
+only when supplied; never attach a template column to a request path.
+
+Keep stable codes and exact limit identifiers in detail lines. CLI-owned error messages should name
+invalid fields/options and a useful remedy. Retain library messages and evidence rather than adding
+a parallel table that rewrites every core diagnostic. Escape dynamic fields wherever they appear,
+including inside messages; tool-controlled prose and line breaks are not JSON-quoted as a whole.
+
+Distinguish missing files/directories, denied access and other I/O failures when the captured
+failure establishes the cause. Use the caller-facing path and operation, such as `File not found:`
+or `Cannot write to:`. If the cause is uncertain, use a neutral operation-specific explanation
+instead of guessing. Do not forward raw exception text, temporary staging paths or expected-failure
+stack traces. These refinements retain `svt.cli.io` and exit 3; output-exists/conflict codes retain
+their existing distinct meanings. A remedy must not suggest bypassing an input collision or promise
+rollback after publication.
+
+#### Inspection layout
+
+Show the resolved label first, retain the exact binding key, and name the kind in ordinary lowercase
+text. Include an optional description preview and the existing target/hook locations:
+
+```text
+Heading [heading] — text
+  Default: "Welcome"
+  Target: text, SVG line 8, UTF-16 column 4
+```
+
+Inputs and targets retain structural discovery order. Show a raw Common default once, with target
+locations beneath it; do not repeat a large shared value for every target. Raw Mixed displays
+`Defaults differ` and a preview or absence marker for each target. All-Absent displays
+`No authored default`. Present empty strings as `""`, distinct from absence. Neither absence nor
+Mixed invents an effective default, and equal interpreted colors do not collapse raw Mixed. The text
+report does not invoke optional interpretation or reorder inputs by presentation metadata.
+
+A usable template with no inputs reports `No editable inputs found.` rather than only a heading. The
+empty inventory itself is not an error; existing inspection findings still determine the exit
+status. An unusable template remains `No usable template.` with its diagnostics on stderr.
+
+#### Preview limits
+
+The fixed per-field limit is 160 displayed Unicode code points after escaping. It applies to raw
+value previews, descriptions and display labels. Identifying keys, paths, pointers, codes and limit
+names remain complete, with escaping; the cap is not a whole-report size limit or a new input
+budget. Surrounding quotes and the separate ` (shortened)` annotation do not count toward the 160
+limit.
+
+An escaped value of exactly 160 code points is complete. If it exceeds 160, emit the longest prefix
+of whole escaped source characters that fits within 159, append `…` inside the value, and append
+` (shortened)` outside any quotes. Never split a Unicode scalar, surrogate pair or escape sequence.
+This counts code points, not screen cells or grapheme clusters; a combining or joined sequence can
+end at a scalar boundary. Quoting and the separate annotation distinguish truncation from an
+authored ellipsis. There is no terminal-width adjustment or preview-length option.
+
+Escape and bound the preview incrementally; do not allocate a complete escaped copy or scan a long
+suffix just to produce a short preview. Complete raw values remain available through
+`--format json`.
+
+For an image default beginning with ASCII case-insensitive `data:`, display exactly
+`Embedded data (payload hidden)` instead of the header or payload, regardless of length. This is a
+presentation rule based only on the prefix, not URI/media validation or optional interpretation;
+malformed data-prefixed references are hidden too. Do not trim or normalize the value to detect the
+prefix, decode content, fetch resources, infer size/type, or copy its payload for display. Other
+image references use the ordinary bounded preview.
+
+#### Unicode escaping
+
+Preserve printable Unicode and ordinary punctuation, including accented text, non-Latin scripts and
+emoji, without normalization. Apply one escaping policy to dynamic values, labels, descriptions,
+keys, paths, pointers and message fragments:
+
+- Render newline, carriage return and tab as `\n`, `\r` and `\t`.
+- Escape remaining C0/C1 control characters (U+0000–U+001F and U+007F–U+009F), Unicode
+  line/paragraph separators (U+2028/U+2029), and invisible directional controls U+061C,
+  U+200E–U+200F, U+202A–U+202E and U+2066–U+206F. Joiners, variation selectors and emoji sequences
+  otherwise remain readable; do not blanket-escape all non-ASCII or Unicode format characters.
+- Use `\uXXXX` with uppercase hexadecimal digits for the remaining escaped characters. If an
+  external UTF-16 string contains an unpaired surrogate, render that code unit as `\uXXXX` rather
+  than silently replacing it. Valid supplementary Unicode scalars remain intact.
+- Escape a literal backslash as `\\` and a double quote as `\"` inside quoted values. Outside quoted
+  values, retain ordinary quotation punctuation but still escape backslashes and controls.
+
+Escaping makes control characters visible; it does not promise identical glyph shaping in every
+terminal or disambiguate all Unicode lookalikes. JSON keeps its existing serialization policy, and
+all underlying raw strings remain unchanged.
+
 ### Discovery JSON
 
 The root contains `format_version: 0`, boolean `template_available` and ordered `inputs`. Each input
@@ -395,6 +571,18 @@ surrogates in JSON names and values, valid pairs, ignored/duplicate-key preceden
 XML-forbidden scalar values that reach binding. Test file behavior on supported operating systems
 without sleeps or polling. Keep process fixtures independent of consumer applications and generated
 evidence out of source control.
+
+The presentation implementation must add behavioral tests for help aliases and strict error
+precedence, command-specific examples/defaults, no-argument stderr usage, and JSON-only error
+reporting. Cover both source locations, one-based human binding numbers versus zero-based pointers,
+missing context, related locations and safe I/O wording. Test Common/Mixed/Absent and empty
+defaults, empty discovery versus unusable templates, 159/160/161-code-point boundaries, escape
+expansion, supplementary characters, combining/joined text, literal ellipses, data-prefixed image
+hiding and complete JSON evidence. Exercise terminal controls, bidirectional controls and malformed
+UTF-16 at available boundaries. Verify exact prerelease/build-metadata preservation, present/absent
+revision metadata, missing-version failure and no input/Git access for help/version. Prefer semantic
+assertions over whole-screen or documentation-wording snapshots; validate actual packed-tool
+identity in the separate distribution work.
 
 The CLI request/report protocol is defined here. Existing conformance JSON remains a test fixture
 format; similar field names do not make fixture options or expected-result files CLI inputs. No

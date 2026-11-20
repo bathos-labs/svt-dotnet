@@ -54,9 +54,10 @@ internal sealed class StagedOutput : IDisposable
         return resolved;
     }
     private static CliFailure Conflict(string source) => new(3, new("publication", "svt.cli.output-conflict", "error",
-        "Output conflicts with a consumed input or is a symbolic link.", Source: source));
+        "Choose an output that is not an input file or a symbolic link.", Source: source));
     private static CliFailure Exists(string source) => new(3, new("publication", "svt.cli.output-exists", "error",
-        "Output exists; explicit overwrite authorization is required.", Source: source));
+        Directory.Exists(source) ? "The output path is a folder. Choose a filename."
+            : "The output file already exists. Choose another name or use --overwrite.", Source: source));
 
     public void Dispose()
     {

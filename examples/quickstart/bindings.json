@@ -1,0 +1,6 @@
+{
+  "bindings": [
+    { "key": "heading", "kind": "text", "value": "Hello, SVG!" },
+    { "key": "accent", "kind": "paint", "value": "#7c3aed" }
+  ]
+}

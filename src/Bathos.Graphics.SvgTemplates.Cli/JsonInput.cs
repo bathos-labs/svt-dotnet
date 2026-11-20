@@ -77,15 +77,15 @@ internal sealed class JsonInput : IDisposable
         if (element.ValueKind != JsonValueKind.Object) throw Error("Expected an object.", pointer);
         foreach (var property in element.EnumerateObject())
             if (!allowed.Contains(property.Name, StringComparer.Ordinal))
-                throw Error("Unknown property.", pointer + "/" + EscapePointer(property.Name));
+                throw Error($"Unknown property: {property.Name}.", pointer + "/" + EscapePointer(property.Name));
     }
     internal JsonElement Required(JsonElement element, string name, string pointer = "") =>
-        element.TryGetProperty(name, out var value) ? value : throw Error("Missing required property.", pointer + "/" + name);
+        element.TryGetProperty(name, out var value) ? value : throw Error($"Add the required {name} property.", pointer + "/" + name);
     internal string String(JsonElement element, string name, string pointer = "")
     {
         var value = Required(element, name, pointer);
         return value.ValueKind == JsonValueKind.String && value.GetString() is { } text
-            ? text : throw Error("Expected a string.", pointer + "/" + name);
+            ? text : throw Error($"Use a string for {name}.", pointer + "/" + name);
     }
     internal void Version()
     {
