@@ -36,4 +36,4 @@ jobs:
           fail-on-empty: true
           detectorsCategories: NuGet,Npm
           detectorArgs: NpmLockfile3=EnableIfDefaultOff
-          directoryExclusionList: artifacts,node_modules,bin,.git
+          directoryExclusionList: '**/artifacts/**;**/node_modules/**;**/bin/**;**/.git/**'
