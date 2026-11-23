@@ -206,6 +206,22 @@ public sealed class CliTests
         Assert.AreEqual("", result.Output);
     }
 
+    /// <summary>JSON escapes decode once; escaped backslashes remain literal through XML output.</summary>
+    [TestMethod]
+    [DataRow("\\u0026", "&")]
+    [DataRow("\\\\u0026", "\\u0026")]
+    [DataRow("\\\\ud800", "\\ud800")]
+    [DataRow("\\ud83d\\ude00", "😀")]
+    public async Task JsonEscapesRoundTrip(string jsonValue, string expected)
+    {
+        using var w = new Workspace();
+        var json = "{\"bindings\":[{\"key\":\"t\",\"kind\":\"text\",\"value\":\"" + jsonValue + "\"}]}";
+        var result = await w.ProcessWithInput(json, "bind", "template.svg", "--bindings", "-", "--output", "-", "--diagnostics", "json");
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.IsEmpty(result.Diagnostics);
+        Assert.AreEqual(expected, XDocument.Parse(result.Output).Root?.Elements().First().Value);
+    }
+
     /// <summary>Malformed Unicode fails before inspection, including ignored and duplicate assignments.</summary>
     [TestMethod]
     public async Task UnicodeAndJsonPositions()
