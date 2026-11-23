@@ -23,6 +23,7 @@ export async function consumeTool({ bundle, manifest, work, output, feed, emptyF
       resolve(bundle, "examples/quickstart/bindings.json"),
       resolve(folder, "bindings with spaces.json"),
     );
+    await cp(resolve(bundle, "examples/quickstart/landscape.png"), resolve(folder, "landscape.png"));
     const config = resolve(folder, "NuGet.config");
     const env = {
       ...process.env,
@@ -248,8 +249,11 @@ export async function consumeTool({ bundle, manifest, work, output, feed, emptyF
     assert.equal(bound.stdout, "");
     assert.equal(bound.stderr, "");
     const svg = await readFile(resolve(folder, "result with spaces.svg"), "utf8");
-    assert.match(svg, /Hello, SVG!/);
-    assert.match(svg, /#7c3aed/);
+    assert.match(svg, /Trail photography/);
+    assert.match(svg, /June 12 · 9 AM · Pine Ridge/);
+    assert.match(svg, /#166534/);
+    const artwork = await readFile(resolve(folder, "landscape.png"));
+    assert.ok(svg.includes(`data:image/png;base64,${artwork.toString("base64")}`));
     const before = await fileHash(resolve(folder, "result with spaces.svg"));
     const collision = await invoke(
       [

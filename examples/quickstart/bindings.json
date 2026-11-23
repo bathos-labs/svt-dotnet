@@ -1,6 +1,25 @@
 {
   "bindings": [
-    { "key": "heading", "kind": "text", "value": "Hello, SVG!" },
-    { "key": "accent", "kind": "paint", "value": "#7c3aed" }
+    {
+      "key": "heading",
+      "kind": "text",
+      "value": "Trail photography"
+    },
+    {
+      "key": "details",
+      "kind": "text",
+      "value": "June 12 · 9 AM · Pine Ridge"
+    },
+    {
+      "key": "accent",
+      "kind": "paint",
+      "value": "#166534"
+    },
+    {
+      "key": "artwork",
+      "kind": "image_content",
+      "file": "landscape.png",
+      "media_type": "image/png"
+    }
   ]
 }

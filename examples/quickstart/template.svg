@@ -1,4 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="480" height="160" viewBox="0 0 480 160" data-svt-version="0">
-  <rect x="0" y="0" width="480" height="160" rx="16" fill="#2563eb" data-svt-fill="accent" data-svt-label="Accent color"/>
-  <text x="32" y="94" font-family="sans-serif" font-size="40" fill="white" data-svt-text="heading" data-svt-label="Heading">Welcome</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="360" viewBox="0 0 720 360" data-svt-version="0">
+  <defs>
+    <clipPath id="artwork"><rect x="410" y="24" width="286" height="312" rx="16"/></clipPath>
+  </defs>
+  <rect x="1" y="1" width="718" height="358" rx="24" fill="#faf8f3" stroke="#d6d3cb"/>
+  <g font-family="sans-serif">
+    <text x="32" y="56" font-size="13" font-weight="700" letter-spacing="2" fill="#334155">FIELD NOTES / WORKSHOPS</text>
+    <path d="M32 80H104" stroke="#2563eb" stroke-width="4" data-svt-stroke="accent" data-svt-label="Accent color"/>
+    <text x="32" y="145" font-size="32" font-weight="700" fill="#172b27" data-svt-text="heading" data-svt-label="Event title">Your event title</text>
+    <text x="32" y="182" font-size="16" fill="#52625b" data-svt-text="details" data-svt-label="Event details">Date · Time · Location</text>
+    <text x="32" y="222" font-size="15" fill="#52625b">Get outside. Learn something new.</text>
+    <rect x="32" y="260" width="172" height="44" rx="22" fill="#2563eb" data-svt-fill="accent" data-svt-label="Accent color"/>
+    <text x="118" y="287" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="1" fill="white">RESERVE A SPOT</text>
+  </g>
+  <image x="410" y="24" width="286" height="312" clip-path="url(#artwork)" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyODYiIGhlaWdodD0iMzEyIiB2aWV3Qm94PSIwIDAgMjg2IDMxMiI+CiAgPHJlY3Qgd2lkdGg9IjI4NiIgaGVpZ2h0PSIzMTIiIGZpbGw9IiNlMmU4ZjAiLz4KICA8Y2lyY2xlIGN4PSIxODMiIGN5PSIxMDQiIHI9IjIyIiBmaWxsPSIjY2JkNWUxIi8+CiAgPHBhdGggZD0iTTAgMjQwIDkxIDEzNiAxNTUgMjA3IDIwNCAxNTkgMjg2IDI1MVYzMTJIMFoiIGZpbGw9IiM5NGEzYjgiLz4KICA8cGF0aCBkPSJtMCAyNzcgMTEyLTgzIDE3NCA5MHYyOEgwWiIgZmlsbD0iIzY0NzQ4YiIvPgo8L3N2Zz4=" data-svt-image="artwork" data-svt-label="Event image"/>
 </svg>
