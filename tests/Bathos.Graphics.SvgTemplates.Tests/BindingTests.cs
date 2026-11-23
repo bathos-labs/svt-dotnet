@@ -245,7 +245,11 @@ public sealed class BindingTests
 
     /// <summary>Preserves document-level nodes, namespaces, foreign content and all unassigned values.</summary>
     [TestMethod]
-    public void DocumentPreservationAcrossEncodings()
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public void DocumentPreservationAcrossEncodings(bool withBom, bool withDeclaration)
     {
         const string body = "<?before keep?>\n<s:svg xmlns:s='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='0' xml:base='assets/'>" +
             "<s:g xml:space='preserve'> before <s:text data-svt-text='t'><!--leading--><![CDATA[old]]><?note keep?>tail</s:text> after " +
@@ -254,7 +258,8 @@ public sealed class BindingTests
         foreach (var encoding in new Encoding[] { Encoding.UTF8, Encoding.Unicode, Encoding.BigEndianUnicode })
         {
             var name = encoding == Encoding.UTF8 ? "utf-8" : "utf-16";
-            var bytes = encoding.GetPreamble().Concat(encoding.GetBytes("<?xml version='1.0' encoding='" + name + "'?>" + body)).ToArray();
+            var declaration = withDeclaration ? "<?xml version='1.0' encoding='" + name + "'?>" : "";
+            var bytes = (withBom ? encoding.GetPreamble() : []).Concat(encoding.GetBytes(declaration + body)).ToArray();
             var inspection = TemplateInspector.Inspect(bytes);
             Assert.IsNotNull(inspection.Template);
             Array.Fill(bytes, (byte)0);
@@ -264,9 +269,10 @@ public sealed class BindingTests
             // XML serialization can replace CDATA with equivalent character data.
             foreach (var cdata in expected.DescendantNodes().OfType<XCData>().ToArray()) cdata.ReplaceWith(new XText(cdata.Value));
             Assert.IsTrue(XNode.DeepEquals(expected, XDocument.Parse(output.Xml, LoadOptions.PreserveWhitespace)));
-            var replaced = XDocument.Parse(Success(inspection.Template.Bind([TemplateBinding.Text("t", "new")])).Xml, LoadOptions.PreserveWhitespace);
+            const string value = "é e\u0301 😀 & < > %2B + #\r\n\t";
+            var replaced = XDocument.Parse(Success(inspection.Template.Bind([TemplateBinding.Text("t", value)])).Xml, LoadOptions.PreserveWhitespace);
             var text = replaced.Descendants(XName.Get("text", "http://www.w3.org/2000/svg")).Single();
-            Assert.AreEqual("new", text.Value);
+            Assert.AreEqual(value, text.Value);
             CollectionAssert.AreEqual(new[] { typeof(XComment), typeof(XText), typeof(XProcessingInstruction) }, text.Nodes().Select(n => n.GetType()).ToArray());
         }
     }
