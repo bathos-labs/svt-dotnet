@@ -106,7 +106,7 @@ Check(DefaultInterpreter.InterpretPaint(interpretedSource.Inputs[2].Targets[0]).
 var imageTarget = interpretedSource.Inputs[3].Targets[0];
 var imageInterpretation = DefaultInterpreter.InterpretImage(imageTarget, new() { MaxReferenceCharacters = 1 });
 Check(ReferenceEquals(imageTarget, imageInterpretation.Target) &&
-    imageInterpretation.Kind == ImageInterpretationKind.DataUri && imageInterpretation.DeclaredMediaType == "image/x#",
+    imageInterpretation.Kind == ImageInterpretationKind.DataUri && imageInterpretation.DeclaredMediaType == "image/x%23",
     "Bounded data header and unexamined payload.");
 var limitedPaint = DefaultInterpreter.InterpretPaint(colorInput.Targets[0], new() { MaxPaintCharacters = 1 });
 Check(limitedPaint.Kind == PaintInterpretationKind.UnsupportedOrUnrecognized && limitedPaint.Color is null &&

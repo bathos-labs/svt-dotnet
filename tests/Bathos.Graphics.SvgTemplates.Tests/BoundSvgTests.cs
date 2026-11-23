@@ -72,7 +72,7 @@ public sealed class BoundSvgTests
     public void EncodedImageOutput(int length)
     {
         var bytes = Enumerable.Range(0, length).Select(i => (byte)(i % 251)).ToArray();
-        var prepared = EncodedImage.Create(bytes, "image/x#test");
+        var prepared = EncodedImage.Create(bytes, "image/x&test");
         Assert.IsNotNull(prepared.Image);
         AssertExports(Success(Inspect().Bind([TemplateBinding.ImageContent("i", prepared.Image)])));
     }

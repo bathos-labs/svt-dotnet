@@ -172,7 +172,7 @@ public sealed class InterpretationTests
         Assert.AreEqual(PaintInterpretationKind.UnsupportedOrUnrecognized, DefaultInterpreter.InterpretPaint(unsupported).Kind);
         PaintLimit(unsupported.Default.Raw ?? throw new AssertFailedException(), new() { MaxPaintCharacters = 1 }, InterpretationLimit.PaintCharacters);
         var image = DefaultInterpreter.InterpretImage(template.Inputs[2].Targets[0]);
-        Assert.AreEqual("image/x#^", image.DeclaredMediaType);
+        Assert.AreEqual("image/x%23%5e", image.DeclaredMediaType);
         Assert.AreEqual(DefaultSource.XLinkHref, image.Target.Default.Source);
         var bound = template.Bind([TemplateBinding.Paint("unsupported", "unfamiliar raw value")]);
         Assert.IsNotNull(bound.Document);
@@ -183,12 +183,12 @@ public sealed class InterpretationTests
         var emptyHref = Inspect("<svg xmlns='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='0'><image data-svt-image='i' href='' x:href='image.png'/></svg>").Inputs[0].Targets[0];
         Assert.AreEqual(ImageInterpretationKind.Empty, DefaultInterpreter.InterpretImage(emptyHref).Kind);
         Assert.AreEqual(DefaultSource.Href, emptyHref.Default.Source);
-        var encoded = EncodedImage.Create(new byte[3], "image/X#^+!");
+        var encoded = EncodedImage.Create(new byte[3], "image/X^+!");
         Assert.IsNotNull(encoded.Image);
         var replacement = template.Bind([TemplateBinding.ImageContent("image", encoded.Image)]);
         Assert.IsNotNull(replacement.Document);
         var replaced = Inspect(replacement.Document.Xml).Inputs[2].Targets[0];
-        Assert.AreEqual("image/x#^+!", DefaultInterpreter.InterpretImage(replaced).DeclaredMediaType);
+        Assert.AreEqual("image/x^+!", DefaultInterpreter.InterpretImage(replaced).DeclaredMediaType);
     }
 
     /// <summary>Decimal parsing and keyword matching do not depend on the current culture.</summary>

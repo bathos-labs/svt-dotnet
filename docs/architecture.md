@@ -20,6 +20,11 @@ or render SVG. Optional authored-literal interpretation may calculate sRGB compo
 specified HSL subset. [Image values](../spec/images.md) describe supplied encoded content or
 references. Hosts retain resource authority. Labels are presentation metadata, not binding identity.
 
+Encoded-image substitution assembles a data URL from a validated literal media type and base64
+bytes, with XML escaping handled by serialization. Optional interpretation reads only a bounded
+data-URL header. General URL parsing, normalization and resource resolution are not responsibilities
+of discovery or binding; supplied image references remain opaque strings.
+
 The [central metadata contract](../spec/metadata.md) extends inspection with optional labels,
 descriptions, ordering and one level of groups. The specified RDF/XML envelope attaches one
 XML-valued input property to the document resource. The core recognizes that bounded XML profile

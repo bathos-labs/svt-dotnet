@@ -329,6 +329,27 @@ public sealed class CliTests
         Assert.IsTrue((await w.Bind()).Output.Contains("data:image/png;base64,", StringComparison.Ordinal));
     }
 
+    /// <summary>SVG content keeps its media type; fragment-bearing types fail at preparation.</summary>
+    [TestMethod]
+    public async Task SvgImageContentAndMediaTypeBoundary()
+    {
+        using var w = new Workspace();
+        const string source = "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='red'/></svg>";
+        w.Write("picture.svg", source);
+        w.Bindings(new { key = "i", kind = "image_content", file = "picture.svg", media_type = "IMAGE/SVG+XML" });
+        var result = await w.Bind();
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.IsTrue(result.Output.Contains("data:image/svg+xml;base64," + Convert.ToBase64String(Encoding.UTF8.GetBytes(source)), StringComparison.Ordinal));
+        w.Bindings(new { key = "i", kind = "image_content", file = "picture.svg", media_type = "image/x#fragment" });
+        result = await w.Bind();
+        Assert.AreEqual("svt.image.media-type", result.Code);
+        Assert.AreEqual(string.Empty, result.Output);
+        w.Bindings(new { key = "i", kind = "image_reference", value = "data:image/svg%2Bxml;base64,invalid#fragment" });
+        result = await w.Bind();
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.IsTrue(result.Output.Contains("data:image/svg%2Bxml;base64,invalid#fragment", StringComparison.Ordinal));
+    }
+
     /// <summary>Only one input owns stdin, raw XML encoding is preserved through discovery, and output stays separate.</summary>
     [TestMethod]
     public async Task StdinAndOutputChannels()

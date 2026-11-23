@@ -102,14 +102,14 @@ public sealed class BindingTests
     {
         var bytes = Enumerable.Range(0, 20000).Select(i => (byte)i).ToArray();
         var original = Convert.ToBase64String(bytes);
-        var image = Image(bytes, "IMAGE/X#TEST");
+        var image = Image(bytes, "IMAGE/X+TEST");
         Array.Fill(bytes, (byte)0);
-        Assert.AreEqual("image/x#test", image.MediaType);
+        Assert.AreEqual("image/x+test", image.MediaType);
         var template = Template("<image xmlns:x='http://www.w3.org/1999/xlink' data-svt-image='i' href='' x:href='original'/>" +
             "<image data-svt-image='j'/>");
         var root = XElement.Parse(Success(template.Bind([TemplateBinding.ImageContent("i", image), TemplateBinding.ImageReference("j", "relative ?%\t")])).Xml);
         var element = root.Elements().First();
-        var expected = "data:image/x%23test;base64," + original;
+        var expected = "data:image/x+test;base64," + original;
         Assert.AreEqual(expected, (string?)element.Attribute("href"));
         Assert.AreEqual(expected, (string?)element.Attribute(XName.Get("href", "http://www.w3.org/1999/xlink")));
         Assert.AreEqual("relative ?%\t", (string?)root.Elements().Last().Attribute("href"));
@@ -155,7 +155,7 @@ public sealed class BindingTests
         Assert.AreEqual("MaxEncodedImageBytes", result.Diagnostics[0].Limit);
         result = EncodedImage.Create(new byte[] { 1 }, "bad", new(imageOptions: new() { MaxMediaTypeCharacters = 2 }));
         Assert.AreEqual("MaxMediaTypeCharacters", result.Diagnostics[0].Limit);
-        foreach (var media in new[] { "", "image/", "image/*", " image/png", "image/png;charset=x", "text/plain", "image/é", "data:image/png" })
+        foreach (var media in new[] { "", "image/", "image/*", " image/png", "image/png;charset=x", "text/plain", "image/é", "data:image/png", "image/x#test", "image/svg%2Bxml", "image/x?query", "image/x,body" })
         {
             result = EncodedImage.Create(ReadOnlyMemory<byte>.Empty, media);
             Assert.IsNull(result.Image);
@@ -297,11 +297,11 @@ public sealed class BindingTests
         foreach (var length in new[] { 0, 1, 2, 3, 12287, 12288, 12289, 12290 })
         {
             var bytes = Enumerable.Range(0, length).Select(i => (byte)(i % 251)).ToArray();
-            var image = Image(bytes, "IMAGE/X!#$&^_.+-");
+            var image = Image(bytes, "IMAGE/X!$&^_.+-");
             var output = XElement.Parse(Success(template.Bind([TemplateBinding.ImageContent("i", image)])).Xml);
             var url = (string?)output.Elements().Single().Attribute("href");
             Assert.IsNotNull(url);
-            Assert.AreEqual("data:image/x%21%23%24%26%5E_.%2B-;base64," + Convert.ToBase64String(bytes), url);
+            Assert.AreEqual("data:image/x!$&^_.+-;base64," + Convert.ToBase64String(bytes), url);
         }
     }
 

@@ -29,7 +29,7 @@ public sealed class EncodedImage
             if (!mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase) || mediaType.Length == 6 ||
                 !mediaType.AsSpan(6).ContainsOnlySubtypeCharacters())
                 return new(null, [new("svt.image.media-type", DiagnosticSeverity.Error,
-                    "Expected image/ followed by an ASCII subtype without parameters.", null, null, [], null)]);
+                    "Expected image/ followed by an ASCII subtype without parameters or fragment delimiters.", null, null, [], null)]);
             var source = content.Span;
             cancellationToken.ThrowIfCancellationRequested();
             var copy = source.ToArray();
@@ -44,7 +44,9 @@ public sealed class EncodedImage
     }
     internal void WriteDataUrl(XmlWriter writer, CancellationToken token)
     {
-        writer.WriteString("data:image/" + Uri.EscapeDataString(MediaType[6..]) + ";base64,");
+        // Data-URL media types are parsed literally, not percent-decoded. The validated
+        // subtype excludes delimiters; XmlWriter handles attribute escaping separately.
+        writer.WriteString("data:" + MediaType + ";base64,");
         for (var offset = 0; offset < _content.Length;)
         {
             token.ThrowIfCancellationRequested();
@@ -60,7 +62,7 @@ internal static class MediaTypeCharacters
     internal static bool ContainsOnlySubtypeCharacters(this ReadOnlySpan<char> value)
     {
         foreach (var character in value)
-            if (!char.IsAsciiLetterOrDigit(character) && !"!#$&^_.+-".Contains(character, StringComparison.Ordinal)) return false;
+            if (!char.IsAsciiLetterOrDigit(character) && !"!$&^_.+-".Contains(character, StringComparison.Ordinal)) return false;
         return true;
     }
 }
