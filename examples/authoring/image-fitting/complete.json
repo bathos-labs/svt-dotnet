@@ -15,8 +15,9 @@
     },
     {
       "key": "reference",
-      "kind": "image_reference",
-      "value": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAAq0lEQVR4nO3WOxGAQBAE0TOCFxQRYwZTmAAB5GCA4PYzS1HXXTUCXjatERFVNy3rrdqxzbIBBAgQIECAAAHmAa9z796vgBZYJrQEGMFFkXJgBi6ClAIzcV6kDKjAeZASoBJnRQK0AitwFiRAgAABAgQIECDAcb7oEEA1shcnBaqQFpwcmI204kqAWUgPrgwYRXpxpUAPNAL7DPi2DAhAgAABAgQIMAAkIsrqAc8gv4IbuKYhAAAAAElFTkSuQmCC"
+      "kind": "image_content",
+      "value": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNlMDIwODAiLz48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxMiIgZmlsbD0iI2ZmZDA2MCIvPjwvc3ZnPgo=",
+      "media_type": "image/svg+xml"
     }
   ]
 }

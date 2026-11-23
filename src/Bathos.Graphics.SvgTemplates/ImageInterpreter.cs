@@ -38,6 +38,7 @@ internal static class ImageInterpreter
         for (var i = 0; i < Math.Min(text.Length, limits.MaxDataUriHeaderCharacters); i++)
         {
             token.ThrowIfCancellationRequested();
+            if (text[i] == '#') return Unsupported(target);
             if (text[i] == ',') { comma = i; break; }
         }
         if (comma < 0) return new(target, ImageInterpretationKind.UnsupportedOrUnrecognized,
@@ -84,17 +85,8 @@ internal static class ImageInterpreter
         {
             token.ThrowIfCancellationRequested();
             var c = text[i];
-            if (c == '%')
-            {
-                if (i + 2 >= text.Length) return false;
-                var high = InterpretationSyntax.Hex(text[i + 1]);
-                var low = InterpretationSyntax.Hex(text[i + 2]);
-                if (high < 0 || low < 0) return false;
-                c = (char)(high * 16 + low);
-                i += 2;
-            }
-            else if (c is '#' or '^') return false;
-            if (!InterpretationSyntax.Letter(c) && !InterpretationSyntax.Digit(c) && !"!#$&^_.+-".Contains(c, StringComparison.Ordinal)) return false;
+            // Percent is a literal MIME token character here, not an escape introducer.
+            if (!InterpretationSyntax.Letter(c) && !InterpretationSyntax.Digit(c) && !"!$%&^_.+-".Contains(c, StringComparison.Ordinal)) return false;
             result.Append(c is >= 'A' and <= 'Z' ? (char)(c + ('a' - 'A')) : c);
         }
         value = result.ToString();

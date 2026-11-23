@@ -5,6 +5,15 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Correct embedded SVG media types: encoded-image binding now emits `image/svg+xml` literally,
+  rather than `image/svg%2Bxml`, so SVG images can render in Chrome and resvg. Preserve other
+  admitted subtype punctuation and reject `#` during encoded-image creation with
+  `svt.image.media-type`; a fragment delimiter cannot preserve the declared type in a data URL.
+- Correct optional data-URL interpretation to report literal, lowercase media-type tokens without
+  percent-decoding. For example, `image/svg%2Bxml` is reported as `image/svg%2bxml`. Discovery and
+  raw-reference binding remain unchanged. These are explicit corrections to the provisional RC
+  contract; publication requires a new RC and renewed consumer validation.
+
 ## [1.0.0-rc.1] - 2026-11-20
 
 - Package the CLI as the version-pinned `Bathos.Graphics.SvgTemplates.Cli` .NET tool, with command

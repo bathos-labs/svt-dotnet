@@ -26,7 +26,7 @@ Choose a new output name or add `--overwrite` to repeat the command. Start with 
 | --------------------- | -------------------------------------------------------------------------------------------- |
 | `text-card`           | Leaf text/span inputs, Unicode, literal XML characters, whitespace, empty and long text      |
 | `shared-palette`      | Shared fill/stroke, raw defaults, central labels/descriptions and ordered groups             |
-| `image-fitting`       | Portrait, landscape and transparent square images; crop and contain; href/XLink              |
+| `image-fitting`       | PNG, JPEG and embedded SVG content; crop and contain; href/XLink                             |
 | `layered-composition` | Clipping, masking, transforms, opacity and foreground order                                  |
 | `hazards`             | Separate expected structural findings, silent hook loss, CSS overrides and missing resources |
 | `references`          | Relative resources and authored XML base context, separate from self-contained examples      |
