@@ -53,9 +53,9 @@ document remains reusable. Export is synchronous, has no cancellation token, and
 atomic publication by a later renderer or transport.
 
 For pooled storage, follow the complete
-[downstream lifetime example](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md#pooled-output-and-downstream-lifetime).
+[downstream lifetime example](https://github.com/svt-project/svt-dotnet/blob/master/docs/binding-api.md#pooled-output-and-downstream-lifetime).
 The
-[allocation and retention guidance](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md#allocation-scope-and-retained-representations)
+[allocation and retention guidance](https://github.com/svt-project/svt-dotnet/blob/master/docs/binding-api.md#allocation-scope-and-retained-representations)
 explains how retaining the XML document, acquiring buffers, and downstream work differ from the
 allocation-free export itself.
 
@@ -66,7 +66,7 @@ programming errors throw, and cancellation throws `OperationCanceledException`.
 
 For editor forms, `InspectedTemplate.InputGroups` supplies ordered groups containing the same input
 objects as `Inputs`; `Inputs` retains structural discovery order. Optional
-[metadata](https://github.com/bathos-labs/svt-dotnet/blob/master/spec/metadata.md) supplies central
+[metadata](https://github.com/svt-project/svt-dotnet/blob/master/spec/metadata.md) supplies central
 labels, plain-text descriptions and ordering. Each input reports `LabelSource`, nullable Description
 and nullable Order. Ungrouped inputs appear in a final section with null group Key and Label; every
 admitted input remains visible. These presentation hints do not impose binding requirements or
@@ -78,7 +78,7 @@ double-precision sRGB and alpha; context dependencies and paint-server reference
 unevaluated. Image interpretation classifies reference text and reads bounded data-URI headers
 without examining payloads. Results retain the original target, and optional InterpretationOptions
 bound the work. Raw evidence and binding admission remain unchanged. See the
-[interpretation API](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/interpretation-api.md).
+[interpretation API](https://github.com/svt-project/svt-dotnet/blob/master/docs/interpretation-api.md).
 
 ## Boundaries
 
@@ -87,11 +87,11 @@ SVG. Raw authored defaults are evidence, not effective rendered styles. Hosts co
 resource policy, rendering and output publication. A successful bind does not prove that an editor
 preserved annotations or that a renderer can display the result.
 
-See the [specification](https://github.com/bathos-labs/svt-dotnet/tree/master/spec),
-[binding API](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/binding-api.md), and
-[authoring examples](https://github.com/bathos-labs/svt-dotnet/tree/master/examples/authoring). The
+See the [specification](https://github.com/svt-project/svt-dotnet/tree/master/spec),
+[binding API](https://github.com/svt-project/svt-dotnet/blob/master/docs/binding-api.md), and
+[authoring examples](https://github.com/svt-project/svt-dotnet/tree/master/examples/authoring). The
 package contains the library, XML API documentation, README and license notices; the CLI and native
 tools are separate.
 
-See the [changelog](https://github.com/bathos-labs/svt-dotnet/blob/master/CHANGELOG.md) for release
+See the [changelog](https://github.com/svt-project/svt-dotnet/blob/master/CHANGELOG.md) for release
 notes. Package versions are independent of the template and JSON format markers, which remain 0.

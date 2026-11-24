@@ -14,7 +14,7 @@ const cli = modulePaths
 assert.ok(cli, "The pinned remark CLI must be available through npx.");
 const repositoryRoot = path.resolve(__dirname, "..");
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "bathos-markdown-links-"));
-const repository = "https://github.com/bathos-labs/svt-dotnet";
+const repository = "https://github.com/svt-project/svt-dotnet";
 const readme = `# Alpha
 
 [local](#alpha)

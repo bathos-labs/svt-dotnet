@@ -11,7 +11,7 @@ concurrency:
 jobs:
   submit:
     name: Submit resolved dependencies
-    if: github.repository == 'bathos-labs/svt-dotnet' && github.ref == 'refs/heads/master'
+    if: github.repository == 'svt-project/svt-dotnet' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

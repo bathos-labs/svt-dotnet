@@ -11,7 +11,7 @@
     <DebugType>portable</DebugType>
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
     <DocumentationRef Condition="'$(DocumentationRef)' == ''">v$(Version)</DocumentationRef>
-    <PackageReleaseNotes>https://github.com/bathos-labs/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/svt-project/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />

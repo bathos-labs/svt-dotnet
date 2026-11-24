@@ -1,7 +1,7 @@
 # Security
 
 Please
-[report a vulnerability privately](https://github.com/bathos-labs/svt-dotnet/security/advisories/new).
+[report a vulnerability privately](https://github.com/svt-project/svt-dotnet/security/advisories/new).
 Include the affected package version or commit, expected impact, and a small reproduction if
 possible. Do not include credentials or sensitive documents. Use public issues for ordinary bugs;
 keep possible vulnerability details in the private report while we investigate.

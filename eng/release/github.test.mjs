@@ -10,7 +10,7 @@ test("release lookup includes paginated drafts and rejects ambiguous or unavaila
     calls.push(url);
     assert.equal(options.headers.Authorization, "Bearer test-token");
     const page = Number(new URL(url).searchParams.get("page"));
-    assert.equal(new URL(url).pathname, "/repos/bathos-labs/svt-dotnet/releases");
+    assert.equal(new URL(url).pathname, "/repos/svt-project/svt-dotnet/releases");
     const value = pages[page - 1];
     if (value instanceof Error) throw value;
     return value instanceof Response ? value : Response.json(value);
@@ -42,7 +42,7 @@ test("release asset reads require complete uploads and writes never overwrite", 
   const release = {
     id: 123,
     upload_url:
-      "https://uploads.github.com/repos/bathos-labs/svt-dotnet/releases/123/assets{?name,label}",
+      "https://uploads.github.com/repos/svt-project/svt-dotnet/releases/123/assets{?name,label}",
   };
   let rows = [{ id: 1, name: "candidate.zip", state: "uploaded" }];
   t.mock.method(globalThis, "fetch", async (url, options) => {

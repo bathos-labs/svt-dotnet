@@ -8,7 +8,7 @@ function fixture() {
   const archive = Buffer.from("retained candidate and visual evidence");
   const identity = {
     format_version: 0,
-    repository: "bathos-labs/svt-dotnet",
+    repository: "svt-project/svt-dotnet",
     tag: "v1.0.0-beta.1",
     commit: "a".repeat(40),
     manifest_sha256: "b".repeat(64),

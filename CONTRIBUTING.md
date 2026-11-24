@@ -2,7 +2,7 @@
 
 The default branch is `master`. Read the [architecture](docs/architecture.md) before structural
 changes. Discuss grammar, public API, dependencies and ownership before implementation. Keep design
-proposals and delivery work in [GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues).
+proposals and delivery work in [GitHub Issues](https://github.com/svt-project/svt-dotnet/issues).
 Report possible vulnerabilities through the [private security route](SECURITY.md).
 
 Follow the [compatibility and Semantic Versioning policy](spec/compatibility.md). Classify changes
