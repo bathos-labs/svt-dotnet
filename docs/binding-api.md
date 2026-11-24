@@ -4,7 +4,7 @@ This is the implemented substitution contract. All types belong to `Bathos.Graph
 The lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
 acquisition, rendering and publication. This guide describes the `1.0.0-rc.1` candidate, including
 the caller-buffer members in [output export](#output-export). Release acceptance is tracked in
-[issue #1](https://github.com/bathos-labs/svt-dotnet/issues/1).
+[issue #1](https://github.com/svt-project/svt-dotnet/issues/1).
 
 ## Reusable configuration
 

@@ -30,7 +30,7 @@ export async function metadata(cwd = root) {
   assert.match(notes, /^- \S/m, "Release notes must describe the consumer-facing changes");
   assert.ok(
     changelog.includes(
-      `[${version}]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v${version}`,
+      `[${version}]: https://github.com/svt-project/svt-dotnet/releases/tag/v${version}`,
     ),
     "Missing release link",
   );

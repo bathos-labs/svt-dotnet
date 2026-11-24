@@ -16,7 +16,7 @@ const inventory = await treeHashes(content);
 await command("dotnet", [tool, "archive", content, resolve(destination, "candidate.zip")]);
 const identity = {
   format_version: 0,
-  repository: "bathos-labs/svt-dotnet",
+  repository: "svt-project/svt-dotnet",
   tag: manifest.release_tag,
   commit: manifest.source.commit,
   manifest_sha256: await fileHash(resolve(transfer, "bundle/manifest.json")),

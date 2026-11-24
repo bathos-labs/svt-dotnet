@@ -43,7 +43,7 @@ export async function verifyPublicDebugging(bundle, manifest, output, role = "li
   assert.ok(documents.length > 0, "No repository source documents to verify");
   for (const name of documents) {
     const bytes = await download(
-      `https://raw.githubusercontent.com/bathos-labs/svt-dotnet/${manifest.source.commit}/${name.split("/").map(encodeURIComponent).join("/")}`,
+      `https://raw.githubusercontent.com/svt-project/svt-dotnet/${manifest.source.commit}/${name.split("/").map(encodeURIComponent).join("/")}`,
     );
     const expected = await command("git", ["show", `${manifest.source.commit}:${name}`], {
       encoding: "buffer",

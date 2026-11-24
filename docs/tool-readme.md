@@ -26,6 +26,6 @@ One-off execution can include SDK installation messages; use a prepared local to
 SVT does not render artwork, fetch resources, fit text or compute CSS. Package versions are
 independent of SVG and binding-file format markers. This project is prerelease.
 
-See the [quickstart](https://github.com/bathos-labs/svt-dotnet/blob/master/README.md),
-[CLI reference](https://github.com/bathos-labs/svt-dotnet/blob/master/spec/cli.md), and
-[authoring guide](https://github.com/bathos-labs/svt-dotnet/blob/master/docs/authoring.md).
+See the [quickstart](https://github.com/svt-project/svt-dotnet/blob/master/README.md),
+[CLI reference](https://github.com/svt-project/svt-dotnet/blob/master/spec/cli.md), and
+[authoring guide](https://github.com/svt-project/svt-dotnet/blob/master/docs/authoring.md).

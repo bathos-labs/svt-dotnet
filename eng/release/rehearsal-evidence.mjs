@@ -20,7 +20,7 @@ export async function rehearseArchive(content, retained, bundle, manifest, manif
   // enter the production publisher, and this command never calls it or creates a real tag.
   const identity = {
     format_version: 0,
-    repository: "bathos-labs/svt-dotnet",
+    repository: "svt-project/svt-dotnet",
     tag: "v0.0.0-rehearsal",
     commit: manifest.source.commit,
     manifest_sha256: manifestHash,

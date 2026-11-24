@@ -20,7 +20,7 @@ internal static class PackageInspector
     internal const string PackageId = "Bathos.Graphics.SvgTemplates";
     internal const string ToolPackageId = PackageId + ".Cli";
     private const string ToolPrefix = "tools/net10.0/any/";
-    internal const string Repository = "https://github.com/bathos-labs/svt-dotnet";
+    internal const string Repository = "https://github.com/svt-project/svt-dotnet";
     private static readonly string[] LegalFiles = ["README.md", "LICENSE", "NOTICE"];
     private static readonly Guid SourceLinkKind = new("cc110556-a091-4d38-9fec-25ab9a351a6a");
     private static readonly Guid EmbeddedSourceKind = new("0e8a571b-6926-466e-b4ad-8ab04611f5fe");
@@ -166,7 +166,7 @@ internal static class PackageInspector
         using var sourceLink = JsonDocument.Parse(links[0]);
         var mappings = sourceLink.RootElement.GetProperty("documents").EnumerateObject().ToArray();
         Require(mappings.Length == 1 && mappings[0].Name == "/_/*" &&
-            mappings[0].Value.GetString() == $"https://raw.githubusercontent.com/bathos-labs/svt-dotnet/{commit}/*", "Unexpected Source Link mapping.");
+            mappings[0].Value.GetString() == $"https://raw.githubusercontent.com/svt-project/svt-dotnet/{commit}/*", "Unexpected Source Link mapping.");
         return new(id, version, commit, FileHash(package), FileHash(symbols), Hash(assemblyBytes),
             files.Keys.Order(StringComparer.Ordinal).ToArray(), symbolFiles.Keys.Order(StringComparer.Ordinal).ToArray(), references, documents,
             debug.Guid.ToString("N").ToUpperInvariant() + "FFFFFFFF",

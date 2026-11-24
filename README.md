@@ -1,8 +1,8 @@
 # SVT — Scalable Vector Templates
 
 [![NuGet](https://img.shields.io/nuget/vpre/Bathos.Graphics.SvgTemplates?label=NuGet)](https://www.nuget.org/packages/Bathos.Graphics.SvgTemplates)
-[![Validation](https://github.com/bathos-labs/svt-dotnet/actions/workflows/validate.yml/badge.svg?branch=master)](https://github.com/bathos-labs/svt-dotnet/actions/workflows/validate.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/bathos-labs/svt-dotnet?branch=master)](https://app.codecov.io/gh/bathos-labs/svt-dotnet)
+[![Validation](https://github.com/svt-project/svt-dotnet/actions/workflows/validate.yml/badge.svg?branch=master)](https://github.com/svt-project/svt-dotnet/actions/workflows/validate.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/svt-project/svt-dotnet?branch=master)](https://app.codecov.io/gh/svt-project/svt-dotnet)
 
 Make editable SVG templates with replaceable text, colors and images. SVT keeps your artwork as
 ordinary SVG; your editor or viewer handles layout and rendering.
@@ -188,7 +188,7 @@ standard.
 ## Contribute
 
 See [Contributing](CONTRIBUTING.md) for setup and validation, and
-[GitHub Issues](https://github.com/bathos-labs/svt-dotnet/issues) for planned work. The
+[GitHub Issues](https://github.com/svt-project/svt-dotnet/issues) for planned work. The
 [architecture](docs/architecture.md) explains the library and CLI boundaries. Use the
 [security policy](SECURITY.md) to report a possible vulnerability privately.
 

@@ -28,7 +28,7 @@ test("public debugging verifies the exact PDB and mapped repository source, reje
     }
     assert.equal(
       url,
-      `https://raw.githubusercontent.com/bathos-labs/svt-dotnet/${commit}/README.md`,
+      `https://raw.githubusercontent.com/svt-project/svt-dotnet/${commit}/README.md`,
     );
     return new Response(corruption === "source" ? "wrong source" : source);
   });

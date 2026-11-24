@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 export function github(token) {
   assert.ok(token, "GitHub release token is required");
-  const base = "https://api.github.com/repos/bathos-labs/svt-dotnet";
+  const base = "https://api.github.com/repos/svt-project/svt-dotnet";
   async function request(path, { method = "GET", body, bytes = false, allow404 = false } = {}) {
     const url = path.startsWith("https://uploads.github.com/") ? path : base + path;
     const response = await fetch(url, {

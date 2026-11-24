@@ -11,7 +11,7 @@ async function fixture(run) {
   const archive = "retained candidate bytes";
   const identity = {
     format_version: 0,
-    repository: "bathos-labs/svt-dotnet",
+    repository: "svt-project/svt-dotnet",
     tag: "v1.0.0-rc.1",
     commit: "a".repeat(40),
     manifest_sha256: "b".repeat(64),

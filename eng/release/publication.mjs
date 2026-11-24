@@ -3,7 +3,7 @@ import { hash } from "../package/common.mjs";
 
 export function validateIdentity(identity) {
   assert.equal(identity.format_version, 0);
-  assert.equal(identity.repository, "bathos-labs/svt-dotnet");
+  assert.equal(identity.repository, "svt-project/svt-dotnet");
   assert.match(identity.tag, /^v[0-9]+\.[0-9]+\.[0-9]+(?:-[a-z0-9.-]+)?$/);
   assert.match(identity.commit, /^[a-f0-9]{40}$/);
   assert.match(identity.manifest_sha256, /^[a-f0-9]{64}$/);

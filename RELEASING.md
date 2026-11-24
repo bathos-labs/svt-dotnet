@@ -175,11 +175,11 @@ These are external settings, not changes made by checking in the workflow:
   available.
 - Configure
   [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
-  for owner `bathos-labs`, repository `svt-dotnet`, workflow `release.yml`, environment `nuget`, and
-  both package IDs (`Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli`). Confirm
-  package ownership/name availability and organization permissions. Set the environment variable
-  `NUGET_USER` to the NuGet account username used for the trust policy, not an organization name or
-  email address. No long-lived API-key secret is required.
+  for GitHub owner `svt-project`, repository `svt-dotnet`, workflow `release.yml`, environment
+  `nuget`, and both package IDs (`Bathos.Graphics.SvgTemplates` and
+  `Bathos.Graphics.SvgTemplates.Cli`). Confirm package ownership/name availability and organization
+  permissions. Set the environment variable `NUGET_USER` to the NuGet account username used for the
+  trust policy, not an organization name or email address. No long-lived API-key secret is required.
 - Enable automatic deletion of merged branches, dependency alerts and Dependabot security updates,
   secret scanning and push protection, and private vulnerability reporting. Verify the private route
   in [SECURITY.md](SECURITY.md). Review access and open alerts; restrict default workflow

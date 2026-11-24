@@ -70,6 +70,6 @@ hosts own resource acquisition, decoding, fonts, CSS interpretation, fitting, an
 evidence covers named tools and environments, not universal SVG rendering. The template marker and
 JSON envelopes remain version 0 independently of the package version.
 
-[Unreleased]: https://github.com/bathos-labs/svt-dotnet/compare/v1.0.0-rc.1...HEAD
-[1.0.0-rc.1]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v1.0.0-rc.1
-[0.1.0-beta.1]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v0.1.0-beta.1
+[Unreleased]: https://github.com/svt-project/svt-dotnet/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.1
+[0.1.0-beta.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v0.1.0-beta.1

@@ -9,7 +9,7 @@ const modulePaths = process.env.PATH.split(path.delimiter).map((entry) =>
 // Pass plugin functions directly: remark's string resolver treats Windows drive letters as
 // URL schemes (and prefixes file URLs). Node.js 24 can require these synchronous ESM modules.
 const dependency = (name) => require(require.resolve(name, { paths: modulePaths })).default;
-const repository = "https://github.com/bathos-labs/svt-dotnet";
+const repository = "https://github.com/svt-project/svt-dotnet";
 
 // remark-validate-links decodes file paths but compares fragments with literal heading IDs.
 function decodeLocalFragments() {

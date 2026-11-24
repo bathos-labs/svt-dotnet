@@ -49,7 +49,7 @@ async function repository(run) {
     );
     await writeFile(
       resolve(cwd, "CHANGELOG.md"),
-      "# Changelog\n\n## [Unreleased]\n\n## [0.1.0-beta.1] - 2026-01-01\n\n- First beta.\n\n[0.1.0-beta.1]: https://github.com/bathos-labs/svt-dotnet/releases/tag/v0.1.0-beta.1\n",
+      "# Changelog\n\n## [Unreleased]\n\n## [0.1.0-beta.1] - 2026-01-01\n\n- First beta.\n\n[0.1.0-beta.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v0.1.0-beta.1\n",
     );
     await git("add", ".");
     await git("commit", "-m", "Release fixture");

@@ -25,8 +25,8 @@
     <Company>Bathos Pty Ltd</Company>
     <Copyright>Copyright © 2026 Bathos Pty Ltd</Copyright>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/bathos-labs/svt-dotnet</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/bathos-labs/svt-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/svt-project/svt-dotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/svt-project/svt-dotnet</PackageProjectUrl>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>
