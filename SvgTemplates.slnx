@@ -4,12 +4,12 @@
     <Project Path="eng/PackageValidation/PackageValidation.csproj" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Bathos.Graphics.SvgTemplates.Cli/Bathos.Graphics.SvgTemplates.Cli.csproj" />
-    <Project Path="src/Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
+    <Project Path="src/ScalableVectorTemplates.Cli/ScalableVectorTemplates.Cli.csproj" />
+    <Project Path="src/ScalableVectorTemplates/ScalableVectorTemplates.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/Bathos.Graphics.SvgTemplates.Cli.Tests/Bathos.Graphics.SvgTemplates.Cli.Tests.csproj" />
-    <Project Path="tests/Bathos.Graphics.SvgTemplates.PackageValidation.Tests/Bathos.Graphics.SvgTemplates.PackageValidation.Tests.csproj" />
-    <Project Path="tests/Bathos.Graphics.SvgTemplates.Tests/Bathos.Graphics.SvgTemplates.Tests.csproj" />
+    <Project Path="tests/ScalableVectorTemplates.Cli.Tests/ScalableVectorTemplates.Cli.Tests.csproj" />
+    <Project Path="tests/ScalableVectorTemplates.PackageValidation.Tests/ScalableVectorTemplates.PackageValidation.Tests.csproj" />
+    <Project Path="tests/ScalableVectorTemplates.Tests/ScalableVectorTemplates.Tests.csproj" />
   </Folder>
 </Solution>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../examples/editor/PaintEditorAdapter.cs" Link="Examples/PaintEditorAdapter.cs" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="coverlet.MTP" PrivateAssets="all" />
+    <ProjectReference Include="../../src/ScalableVectorTemplates/ScalableVectorTemplates.csproj" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <None Include="../../conformance/substitution/**/*" Link="BindingFixtures/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../conformance/inspection/**/*" Link="Fixtures/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../conformance/interpretation/**/*" Link="InterpretationFixtures/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

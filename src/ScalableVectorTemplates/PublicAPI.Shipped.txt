@@ -1,0 +1,196 @@
+#nullable enable
+ScalableVectorTemplates.BindingConfiguration
+ScalableVectorTemplates.BindingConfiguration.BindingConfiguration(ScalableVectorTemplates.BindingOptions? bindingOptions = null, ScalableVectorTemplates.EncodedImageOptions? imageOptions = null) -> void
+ScalableVectorTemplates.BindingConfiguration.BindingOptions.get -> ScalableVectorTemplates.BindingOptions!
+ScalableVectorTemplates.BindingConfiguration.ImageOptions.get -> ScalableVectorTemplates.EncodedImageOptions!
+ScalableVectorTemplates.BindingOptions
+ScalableVectorTemplates.BindingOptions.BindingOptions() -> void
+ScalableVectorTemplates.BindingOptions.MaxBindings.get -> int
+ScalableVectorTemplates.BindingOptions.MaxBindings.init -> void
+ScalableVectorTemplates.BindingOptions.MaxDiagnostics.get -> int
+ScalableVectorTemplates.BindingOptions.MaxDiagnostics.init -> void
+ScalableVectorTemplates.BindingOptions.MaxOutputBytes.get -> int
+ScalableVectorTemplates.BindingOptions.MaxOutputBytes.init -> void
+ScalableVectorTemplates.BindingOptions.MaxTotalEncodedImageBytes.get -> int
+ScalableVectorTemplates.BindingOptions.MaxTotalEncodedImageBytes.init -> void
+ScalableVectorTemplates.BindingOptions.MaxTotalValueCharacters.get -> int
+ScalableVectorTemplates.BindingOptions.MaxTotalValueCharacters.init -> void
+ScalableVectorTemplates.BindingOptions.MaxValueCharacters.get -> int
+ScalableVectorTemplates.BindingOptions.MaxValueCharacters.init -> void
+ScalableVectorTemplates.BindingOptions.UnknownKeyBehavior.get -> ScalableVectorTemplates.UnknownKeyBehavior
+ScalableVectorTemplates.BindingOptions.UnknownKeyBehavior.init -> void
+ScalableVectorTemplates.BindingResult
+ScalableVectorTemplates.BindingResult.Diagnostics.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.Diagnostic!>
+ScalableVectorTemplates.BindingResult.Document.get -> ScalableVectorTemplates.BoundSvg?
+ScalableVectorTemplates.BoundSvg
+ScalableVectorTemplates.BoundSvg.ToUtf8Bytes() -> byte[]!
+ScalableVectorTemplates.BoundSvg.TryWriteUtf8Bytes(System.Span<byte> destination, out int bytesWritten) -> bool
+ScalableVectorTemplates.BoundSvg.Utf8ByteCount.get -> int
+ScalableVectorTemplates.BoundSvg.Xml.get -> string!
+ScalableVectorTemplates.DefaultInterpreter
+ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.DefaultSource.Fill = 1 -> ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.DefaultSource.Href = 3 -> ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.DefaultSource.Stroke = 2 -> ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.DefaultSource.TextContent = 0 -> ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.DefaultSource.XLinkHref = 4 -> ScalableVectorTemplates.DefaultSource
+ScalableVectorTemplates.Diagnostic
+ScalableVectorTemplates.Diagnostic.Code.get -> string!
+ScalableVectorTemplates.Diagnostic.Key.get -> string?
+ScalableVectorTemplates.Diagnostic.Limit.get -> string?
+ScalableVectorTemplates.Diagnostic.Location.get -> ScalableVectorTemplates.SourceLocation?
+ScalableVectorTemplates.Diagnostic.Message.get -> string!
+ScalableVectorTemplates.Diagnostic.RelatedLocations.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.SourceLocation!>
+ScalableVectorTemplates.Diagnostic.Severity.get -> ScalableVectorTemplates.DiagnosticSeverity
+ScalableVectorTemplates.DiagnosticSeverity
+ScalableVectorTemplates.DiagnosticSeverity.Error = 0 -> ScalableVectorTemplates.DiagnosticSeverity
+ScalableVectorTemplates.DiagnosticSeverity.Warning = 1 -> ScalableVectorTemplates.DiagnosticSeverity
+ScalableVectorTemplates.EncodedImage
+ScalableVectorTemplates.EncodedImage.ByteLength.get -> int
+ScalableVectorTemplates.EncodedImage.MediaType.get -> string!
+ScalableVectorTemplates.EncodedImageOptions
+ScalableVectorTemplates.EncodedImageOptions.EncodedImageOptions() -> void
+ScalableVectorTemplates.EncodedImageOptions.MaxEncodedImageBytes.get -> int
+ScalableVectorTemplates.EncodedImageOptions.MaxEncodedImageBytes.init -> void
+ScalableVectorTemplates.EncodedImageOptions.MaxMediaTypeCharacters.get -> int
+ScalableVectorTemplates.EncodedImageOptions.MaxMediaTypeCharacters.init -> void
+ScalableVectorTemplates.EncodedImageResult
+ScalableVectorTemplates.EncodedImageResult.Diagnostics.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.Diagnostic!>
+ScalableVectorTemplates.EncodedImageResult.Image.get -> ScalableVectorTemplates.EncodedImage?
+ScalableVectorTemplates.ImageInterpretation
+ScalableVectorTemplates.ImageInterpretation.DeclaredMediaType.get -> string?
+ScalableVectorTemplates.ImageInterpretation.ExceededLimit.get -> ScalableVectorTemplates.InterpretationLimit?
+ScalableVectorTemplates.ImageInterpretation.Kind.get -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretation.Target.get -> ScalableVectorTemplates.TemplateTarget!
+ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.Absent = 0 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.AbsoluteReference = 4 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.DataUri = 5 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.Empty = 1 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.FragmentReference = 2 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.RelativeReference = 3 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.ImageInterpretationKind.UnsupportedOrUnrecognized = 6 -> ScalableVectorTemplates.ImageInterpretationKind
+ScalableVectorTemplates.InputDefault
+ScalableVectorTemplates.InputDefault.Raw.get -> string?
+ScalableVectorTemplates.InputDefault.State.get -> ScalableVectorTemplates.InputDefaultState
+ScalableVectorTemplates.InputDefaultState
+ScalableVectorTemplates.InputDefaultState.Absent = 2 -> ScalableVectorTemplates.InputDefaultState
+ScalableVectorTemplates.InputDefaultState.Common = 0 -> ScalableVectorTemplates.InputDefaultState
+ScalableVectorTemplates.InputDefaultState.Mixed = 1 -> ScalableVectorTemplates.InputDefaultState
+ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.InputKind.Image = 1 -> ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.InputKind.Paint = 2 -> ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.InputKind.Text = 0 -> ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.InputLabelSource
+ScalableVectorTemplates.InputLabelSource.Element = 1 -> ScalableVectorTemplates.InputLabelSource
+ScalableVectorTemplates.InputLabelSource.Key = 0 -> ScalableVectorTemplates.InputLabelSource
+ScalableVectorTemplates.InputLabelSource.Metadata = 2 -> ScalableVectorTemplates.InputLabelSource
+ScalableVectorTemplates.InspectedTemplate
+ScalableVectorTemplates.InspectedTemplate.Bind(System.Collections.Generic.IReadOnlyList<ScalableVectorTemplates.TemplateBinding!>! bindings, ScalableVectorTemplates.BindingConfiguration? configuration = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> ScalableVectorTemplates.BindingResult!
+ScalableVectorTemplates.InspectedTemplate.InputGroups.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.TemplateInputGroup!>
+ScalableVectorTemplates.InspectedTemplate.Inputs.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.TemplateInput!>
+ScalableVectorTemplates.InspectionOptions
+ScalableVectorTemplates.InspectionOptions.InspectionOptions() -> void
+ScalableVectorTemplates.InspectionOptions.MaxAttributesPerElement.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxAttributesPerElement.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxDiagnostics.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxDiagnostics.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxElementDepth.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxElementDepth.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxElements.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxElements.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxHooks.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxHooks.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxSourceBytes.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxSourceBytes.init -> void
+ScalableVectorTemplates.InspectionOptions.MaxXmlCharacters.get -> int
+ScalableVectorTemplates.InspectionOptions.MaxXmlCharacters.init -> void
+ScalableVectorTemplates.InspectionResult
+ScalableVectorTemplates.InspectionResult.Diagnostics.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.Diagnostic!>
+ScalableVectorTemplates.InspectionResult.Template.get -> ScalableVectorTemplates.InspectedTemplate?
+ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationLimit.DataUriHeaderCharacters = 2 -> ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationLimit.NestingDepth = 4 -> ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationLimit.NumericTokenCharacters = 3 -> ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationLimit.PaintCharacters = 0 -> ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationLimit.ReferenceCharacters = 1 -> ScalableVectorTemplates.InterpretationLimit
+ScalableVectorTemplates.InterpretationOptions
+ScalableVectorTemplates.InterpretationOptions.InterpretationOptions() -> void
+ScalableVectorTemplates.InterpretationOptions.MaxDataUriHeaderCharacters.get -> int
+ScalableVectorTemplates.InterpretationOptions.MaxDataUriHeaderCharacters.init -> void
+ScalableVectorTemplates.InterpretationOptions.MaxNestingDepth.get -> int
+ScalableVectorTemplates.InterpretationOptions.MaxNestingDepth.init -> void
+ScalableVectorTemplates.InterpretationOptions.MaxNumericTokenCharacters.get -> int
+ScalableVectorTemplates.InterpretationOptions.MaxNumericTokenCharacters.init -> void
+ScalableVectorTemplates.InterpretationOptions.MaxPaintCharacters.get -> int
+ScalableVectorTemplates.InterpretationOptions.MaxPaintCharacters.init -> void
+ScalableVectorTemplates.InterpretationOptions.MaxReferenceCharacters.get -> int
+ScalableVectorTemplates.InterpretationOptions.MaxReferenceCharacters.init -> void
+ScalableVectorTemplates.PaintInterpretation
+ScalableVectorTemplates.PaintInterpretation.Color.get -> ScalableVectorTemplates.SrgbColor?
+ScalableVectorTemplates.PaintInterpretation.ExceededLimit.get -> ScalableVectorTemplates.InterpretationLimit?
+ScalableVectorTemplates.PaintInterpretation.Kind.get -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretation.Target.get -> ScalableVectorTemplates.TemplateTarget!
+ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.Absent = 0 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.Literal = 1 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.NoPaint = 2 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.RequiresContext = 3 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.ResourceReference = 4 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.PaintInterpretationKind.UnsupportedOrUnrecognized = 5 -> ScalableVectorTemplates.PaintInterpretationKind
+ScalableVectorTemplates.SourceLocation
+ScalableVectorTemplates.SourceLocation.Column.get -> int
+ScalableVectorTemplates.SourceLocation.Line.get -> int
+ScalableVectorTemplates.SrgbColor
+ScalableVectorTemplates.SrgbColor.Alpha.get -> double
+ScalableVectorTemplates.SrgbColor.Blue.get -> double
+ScalableVectorTemplates.SrgbColor.Green.get -> double
+ScalableVectorTemplates.SrgbColor.Red.get -> double
+ScalableVectorTemplates.TargetDefault
+ScalableVectorTemplates.TargetDefault.Raw.get -> string?
+ScalableVectorTemplates.TargetDefault.Source.get -> ScalableVectorTemplates.DefaultSource?
+ScalableVectorTemplates.TargetDefault.State.get -> ScalableVectorTemplates.TargetDefaultState
+ScalableVectorTemplates.TargetDefaultState
+ScalableVectorTemplates.TargetDefaultState.Absent = 1 -> ScalableVectorTemplates.TargetDefaultState
+ScalableVectorTemplates.TargetDefaultState.Present = 0 -> ScalableVectorTemplates.TargetDefaultState
+ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TargetHook.Fill = 2 -> ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TargetHook.Image = 1 -> ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TargetHook.Stroke = 3 -> ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TargetHook.Text = 0 -> ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TemplateBinding
+ScalableVectorTemplates.TemplateBinding.Key.get -> string!
+ScalableVectorTemplates.TemplateBinding.Kind.get -> ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.TemplateInput
+ScalableVectorTemplates.TemplateInput.Default.get -> ScalableVectorTemplates.InputDefault!
+ScalableVectorTemplates.TemplateInput.Description.get -> string?
+ScalableVectorTemplates.TemplateInput.Key.get -> string!
+ScalableVectorTemplates.TemplateInput.Kind.get -> ScalableVectorTemplates.InputKind
+ScalableVectorTemplates.TemplateInput.Label.get -> string!
+ScalableVectorTemplates.TemplateInput.LabelSource.get -> ScalableVectorTemplates.InputLabelSource
+ScalableVectorTemplates.TemplateInput.Order.get -> int?
+ScalableVectorTemplates.TemplateInput.Targets.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.TemplateTarget!>
+ScalableVectorTemplates.TemplateInputGroup
+ScalableVectorTemplates.TemplateInputGroup.Description.get -> string?
+ScalableVectorTemplates.TemplateInputGroup.Inputs.get -> System.Collections.Immutable.ImmutableArray<ScalableVectorTemplates.TemplateInput!>
+ScalableVectorTemplates.TemplateInputGroup.Key.get -> string?
+ScalableVectorTemplates.TemplateInputGroup.Label.get -> string?
+ScalableVectorTemplates.TemplateInputGroup.Order.get -> int?
+ScalableVectorTemplates.TemplateInspector
+ScalableVectorTemplates.TemplateTarget
+ScalableVectorTemplates.TemplateTarget.Default.get -> ScalableVectorTemplates.TargetDefault!
+ScalableVectorTemplates.TemplateTarget.ElementName.get -> string!
+ScalableVectorTemplates.TemplateTarget.Hook.get -> ScalableVectorTemplates.TargetHook
+ScalableVectorTemplates.TemplateTarget.Location.get -> ScalableVectorTemplates.SourceLocation!
+ScalableVectorTemplates.UnknownKeyBehavior
+ScalableVectorTemplates.UnknownKeyBehavior.Error = 0 -> ScalableVectorTemplates.UnknownKeyBehavior
+ScalableVectorTemplates.UnknownKeyBehavior.IgnoreWithWarning = 1 -> ScalableVectorTemplates.UnknownKeyBehavior
+static ScalableVectorTemplates.BindingConfiguration.Default.get -> ScalableVectorTemplates.BindingConfiguration!
+static ScalableVectorTemplates.DefaultInterpreter.InterpretImage(ScalableVectorTemplates.TemplateTarget! target, ScalableVectorTemplates.InterpretationOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> ScalableVectorTemplates.ImageInterpretation!
+static ScalableVectorTemplates.DefaultInterpreter.InterpretPaint(ScalableVectorTemplates.TemplateTarget! target, ScalableVectorTemplates.InterpretationOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> ScalableVectorTemplates.PaintInterpretation!
+static ScalableVectorTemplates.EncodedImage.Create(System.ReadOnlyMemory<byte> content, string! mediaType, ScalableVectorTemplates.BindingConfiguration? configuration = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> ScalableVectorTemplates.EncodedImageResult!
+static ScalableVectorTemplates.TemplateBinding.ImageContent(string! key, ScalableVectorTemplates.EncodedImage! image) -> ScalableVectorTemplates.TemplateBinding!
+static ScalableVectorTemplates.TemplateBinding.ImageReference(string! key, string! reference) -> ScalableVectorTemplates.TemplateBinding!
+static ScalableVectorTemplates.TemplateBinding.Paint(string! key, string! value) -> ScalableVectorTemplates.TemplateBinding!
+static ScalableVectorTemplates.TemplateBinding.Text(string! key, string! value) -> ScalableVectorTemplates.TemplateBinding!
+static ScalableVectorTemplates.TemplateInspector.Inspect(System.ReadOnlyMemory<byte> source, ScalableVectorTemplates.InspectionOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> ScalableVectorTemplates.InspectionResult!

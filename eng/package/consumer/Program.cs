@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
-using Bathos.Graphics.SvgTemplates;
+using ScalableVectorTemplates;
 using SvgTemplateExamples;
 
 if (args.Length != 4) throw new ArgumentException("Expected samples, package version, assembly hash and commit.");

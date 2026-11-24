@@ -1,8 +1,8 @@
 # .NET binding API
 
-This is the implemented substitution contract. All types belong to `Bathos.Graphics.SvgTemplates`.
-The lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
-acquisition, rendering and publication. This guide describes the `1.0.0-rc.1` candidate, including
+This is the implemented substitution contract. All types belong to `ScalableVectorTemplates`. The
+lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
+acquisition, rendering and publication. This guide describes the `1.0.0-rc.2` candidate, including
 the caller-buffer members in [output export](#output-export). Release acceptance is tracked in
 [issue #1](https://github.com/svt-project/svt-dotnet/issues/1).
 
@@ -152,7 +152,7 @@ budgets. No option defaults, diagnostic codes, SVG annotations or format markers
 
 Keep a rented buffer until every downstream reader has finished, not just until export returns. The
 following host helper takes a completed document, a caller-selected `ArrayPool<byte>`, and a
-synchronous consumer. It uses `System.Buffers` and `Bathos.Graphics.SvgTemplates`:
+synchronous consumer. It uses `System.Buffers` and `ScalableVectorTemplates`:
 
 ```csharp
 static void ConsumePooled(BoundSvg document, ArrayPool<byte> pool,

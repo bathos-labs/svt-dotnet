@@ -5,10 +5,9 @@ describes the interchange contract; the .NET library implements it without ownin
 
 ## Portable core
 
-One assembly, `Bathos.Graphics.SvgTemplates`, owns controlled XML parsing, input discovery,
-structural diagnostics and XML-safe substitution. Separate namespaces may organize those
-responsibilities without adding contracts-only assemblies. The initial implementation uses the .NET
-base libraries.
+One assembly, `ScalableVectorTemplates`, owns controlled XML parsing, input discovery, structural
+diagnostics and XML-safe substitution. Separate namespaces may organize those responsibilities
+without adding contracts-only assemblies. The initial implementation uses the .NET base libraries.
 
 Hosts supply source bytes. Inspection owns an immutable document snapshot; callers do not receive a
 mutable XML tree. Binding creates an independent output, and structurally unusable requests must not

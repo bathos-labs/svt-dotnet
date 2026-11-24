@@ -9,7 +9,7 @@ import { platform, release, arch } from "node:os";
 import { releaseVersion } from "../release/version.mjs";
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-export const packageId = "Bathos.Graphics.SvgTemplates";
+export const packageId = "ScalableVectorTemplates";
 export const cliPackageId = packageId + ".Cli";
 export const productIds = { library: packageId, cli: cliPackageId };
 export const toolChecks = [

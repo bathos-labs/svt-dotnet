@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>svt</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>svt</ToolCommandName>
+    <PackageId>ScalableVectorTemplates.Cli</PackageId>
+    <Description>Inspect SVG templates and apply text, color, and image bindings from the command line.</Description>
+    <PackageTags>svg;templates;cli;dotnet-tool</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <DocumentationRef Condition="'$(DocumentationRef)' == ''">v$(Version)</DocumentationRef>
+    <PackageReleaseNotes>https://github.com/svt-project/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../../NOTICE" Pack="true" PackagePath="/" />
+    <ProjectReference Include="../ScalableVectorTemplates/ScalableVectorTemplates.csproj" />
+    <InternalsVisibleTo Include="ScalableVectorTemplates.Cli.Tests" />
+  </ItemGroup>
+  <Target Name="PrepareToolReadme" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_ToolReadme>$(IntermediateOutputPath)package/README.md</_ToolReadme>
+      <_ToolReadmeText>$([MSBuild]::Escape($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../../docs/tool-readme.md').Replace('/master/', '/$(DocumentationRef)/'))))</_ToolReadmeText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_ToolReadme)" Lines="$(_ToolReadmeText)" Overwrite="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <None Include="$(_ToolReadme)" Pack="true" PackagePath="README.md" />
+    </ItemGroup>
+  </Target>
+  <Target Name="AddCliBuildIdentity" BeforeTargets="GetAssemblyAttributes" DependsOnTargets="InitializeSourceControlInformation">
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>SvtProductVersion</_Parameter1>
+        <_Parameter2>$(Version)</_Parameter2>
+      </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(SourceRevisionId)' != ''">
+        <_Parameter1>SvtSourceRevision</_Parameter1>
+        <_Parameter2>$(SourceRevisionId)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+</Project>

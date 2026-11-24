@@ -1,18 +1,17 @@
 # Releasing
 
-SVT is public, MIT-licensed, and prerelease. `1.0.0-rc.1` is published for both the library and CLI.
-`0.1.0-beta.1` is the earlier library release. A version in an issue, contract or changelog does not
-imply publication. Consumers should pin an exact published version and validate their integration.
-External RC package integration is accepted with no reported issues. Keep `1.0.0-rc.1` while
-production-template validation continues. The surface is provisionally frozen; necessary shipping
-corrections require a new RC and renewed consumer validation. Formal stable guarantees begin at
-`1.0.0`, not at RC acceptance. SVG and JSON format markers remain version 0 independently of NuGet.
+The library and CLI release together with matching versions and source commits. Prepare `1.0.0-rc.2`
+under the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` identities. The previous
+`1.0.0-rc.1` packages were published under `Bathos.Graphics.SvgTemplates` and
+`Bathos.Graphics.SvgTemplates.Cli`; their artifacts and tags remain immutable. A version in source
+or a changelog is not publication authorization. Consumer and production-template acceptance must be
+renewed for the renamed RC. SVG and JSON format markers remain version 0.
 
 ## Release set
 
-One release contains `Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli` at one
-version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. Its first published
-release is `1.0.0-rc.1`. See the [packaging contract](spec/tool-distribution.md).
+One release contains `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` at one
+version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. The CLI command
+remains `svt`. See the [packaging contract](spec/tool-distribution.md).
 
 Archive and verify the candidate and its portable/platform/native evidence in a draft GitHub release
 before the first NuGet upload. Publish that draft only after both products pass public consumption,
@@ -47,18 +46,18 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
 
 ## Stable acceptance and support
 
-RC integration acceptance and production-template acceptance are separate. Keep the shipping version
-and installation examples at `1.0.0-rc.1` until production-template validation is complete. Record
-consumer-specific evidence in the consumer's tracking and a generic outcome in issue #1.
+RC integration acceptance and production-template acceptance are separate. Validate the renamed
+`1.0.0-rc.2` packages and installation examples before approval. Record consumer-specific evidence
+in the consumer's tracking and a generic outcome in issue #1.
 
 Before preparing stable `1.0.0`, complete production-template acceptance and review the accepted
 surface against the [implemented API/package baseline](eng/compatibility/README.md), then update
-version, changelog and prerelease guidance. Keep the published RC baseline pin through stable
-preparation; promote it only after public verification of 1.0. Update AGENTS.md to establish the
-released-project compatibility requirement at that transition. Repeat the full gate, allocation
-checks, isolated three-platform consumption, native visual review and nonpublishing rehearsal on the
-final candidate. Stable publication still requires explicit authorization; this policy does not
-create a tag or authorize a release.
+version, changelog and prerelease guidance. Establish the renamed library binary baseline after
+public verification of rc.2 and retain it through stable preparation; promote it only after public
+verification of 1.0. Update AGENTS.md to establish the released-project compatibility requirement at
+that transition. Repeat the full gate, allocation checks, isolated three-platform consumption,
+native visual review and nonpublishing rehearsal on the final candidate. Stable publication still
+requires explicit authorization; this policy does not create a tag or authorize a release.
 
 After 1.0, maintain the latest stable minor release. Fixes normally go into that line; consumers may
 need to upgrade within 1.x. There is no promise of backports to older minors, simultaneous support
@@ -91,7 +90,7 @@ file invalidates the recorded source fingerprint.
 Review bundles use separate development identities and record uncommitted source. They validate
 packaging and behavior but are not the tagged RC or publishable evidence. After review and merge,
 rerun the gate and hosted rehearsal on master for clean-source Ubuntu/Windows/macOS evidence.
-`task release:check TAG=v1.0.0-rc.1` is a read-only metadata/tree/branch check; it intentionally
+`task release:check TAG=v1.0.0-rc.2` is a read-only metadata/tree/branch check; it intentionally
 fails on an uncommitted feature branch and does not replace tests or verify NuGet account
 permissions. Leave tag creation and publication for the explicitly authorized release steps below.
 
@@ -157,6 +156,10 @@ installation has a separate tool/font pin set. Ubuntu Chrome runs without its sa
 trusted-fixture hosted runner, matching the existing disposable-container policy. See
 [native validation](eng/visual/README.md) and [package preparation](eng/package/README.md).
 
+After the replacement RC is published and verified, deprecate the old `1.0.0-rc.1` package versions
+with replacement guidance; separately decide whether to unlist them. Keep published bytes and tags
+intact. NuGet ownership may remain with BathosLabs.
+
 ## One-time owner setup
 
 These are external settings, not changes made by checking in the workflow:
@@ -176,10 +179,10 @@ These are external settings, not changes made by checking in the workflow:
 - Configure
   [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
   for GitHub owner `svt-project`, repository `svt-dotnet`, workflow `release.yml`, environment
-  `nuget`, and both package IDs (`Bathos.Graphics.SvgTemplates` and
-  `Bathos.Graphics.SvgTemplates.Cli`). Confirm package ownership/name availability and organization
-  permissions. Set the environment variable `NUGET_USER` to the NuGet account username used for the
-  trust policy, not an organization name or email address. No long-lived API-key secret is required.
+  `nuget`, and both package IDs (`ScalableVectorTemplates` and `ScalableVectorTemplates.Cli`).
+  Confirm package ownership/name availability and organization permissions. Set the environment
+  variable `NUGET_USER` to the NuGet account username used for the trust policy, not an organization
+  name or email address. No long-lived API-key secret is required.
 - Enable automatic deletion of merged branches, dependency alerts and Dependabot security updates,
   secret scanning and push protection, and private vulnerability reporting. Verify the private route
   in [SECURITY.md](SECURITY.md). Review access and open alerts; restrict default workflow

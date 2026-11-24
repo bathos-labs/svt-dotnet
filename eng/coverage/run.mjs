@@ -46,11 +46,11 @@ async function execute(name, args) {
 }
 try {
   for (const [name, project, expected] of [
-    ["library", "Bathos.Graphics.SvgTemplates.Tests", ["Bathos.Graphics.SvgTemplates"]],
+    ["library", "ScalableVectorTemplates.Tests", ["ScalableVectorTemplates"]],
     [
       "cli",
-      "Bathos.Graphics.SvgTemplates.Cli.Tests",
-      ["Bathos.Graphics.SvgTemplates", "Bathos.Graphics.SvgTemplates.Cli"],
+      "ScalableVectorTemplates.Cli.Tests",
+      ["ScalableVectorTemplates", "ScalableVectorTemplates.Cli"],
     ],
   ]) {
     const assembly = `tests/${project}/bin/Release/net10.0/${project}.dll`;
@@ -61,7 +61,7 @@ try {
       "--coverlet-output-format",
       "lcov",
       "--coverlet-include",
-      "[Bathos.Graphics.SvgTemplates]*",
+      "[ScalableVectorTemplates]*",
       "--coverlet-exclude-by-file",
       "**/obj/**",
       "--coverlet-exclude-by-attribute",

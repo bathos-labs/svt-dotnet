@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Bathos.Graphics.SvgTemplates.ExportPerformance</RootNamespace>
+    <RootNamespace>ScalableVectorTemplates.ExportPerformance</RootNamespace>
     <!-- Keep compilation tiers from changing during short measurement samples. -->
     <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj" />
+    <ProjectReference Include="../../src/ScalableVectorTemplates/ScalableVectorTemplates.csproj" />
   </ItemGroup>
 </Project>

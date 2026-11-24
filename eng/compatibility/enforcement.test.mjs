@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cp, mkdtemp, mkdir, readFile, writeFile, rm, utimes } from "node:fs/promises";
+import { cp, mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve, basename } from "node:path";
 import { command, root } from "../package/common.mjs";
@@ -9,10 +9,10 @@ import { command, root } from "../package/common.mjs";
 // or use a failed compile as evidence of an API diagnostic.
 test("compatibility enforcement rejects contract changes and accepts reviewed additions", async (t) => {
   const work = await mkdtemp(resolve(tmpdir(), "svt-compatibility-"));
-  const project = "src/Bathos.Graphics.SvgTemplates/Bathos.Graphics.SvgTemplates.csproj";
-  const folder = "src/Bathos.Graphics.SvgTemplates";
-  const cliFolder = "src/Bathos.Graphics.SvgTemplates.Cli";
-  const cliProject = `${cliFolder}/Bathos.Graphics.SvgTemplates.Cli.csproj`;
+  const project = "src/ScalableVectorTemplates/ScalableVectorTemplates.csproj";
+  const folder = "src/ScalableVectorTemplates";
+  const cliFolder = "src/ScalableVectorTemplates.Cli";
+  const cliProject = `${cliFolder}/ScalableVectorTemplates.Cli.csproj`;
   let packAttempt = 0;
   const run = (args) => command("dotnet", args, { cwd: work });
   const build = (properties = []) =>
@@ -70,7 +70,7 @@ test("compatibility enforcement rejects contract changes and accepts reviewed ad
       "NOTICE",
       "docs/package-readme.md",
       "docs/tool-readme.md",
-      "eng/compatibility/PackageBaseline.props",
+      "eng/compatibility/PackageValidation.props",
     ]) {
       const path = resolve(work, name);
       await mkdir(resolve(path, ".."), { recursive: true });
@@ -85,50 +85,25 @@ test("compatibility enforcement rejects contract changes and accepts reviewed ad
       filter: (path) => !["bin", "obj"].includes(basename(path)),
     });
     await run(["restore", cliProject, "--locked-mode"]);
-    const properties = JSON.parse(
-      (
-        await run([
-          "msbuild",
-          project,
-          "-p:Configuration=Release",
-          "-getProperty:_ApiCompatValidatePackageSemaphoreFile,NuGetPackageRoot,PackageValidationBaselineName,PackageValidationBaselineVersion",
-        ])
-      ).stdout,
-    ).Properties;
-
-    await t.test("unchanged RC surface and exact published package pass", async () => {
+    await t.test("reviewed renamed API and package validation pass", async () => {
       await build();
       await pack();
     });
-    await t.test("removed members fail source and package checks independently", async () => {
+    await t.test("removed members fail source API checks", async () => {
       await change(
         `${folder}/BindingResult.cs`,
         (s) => s.replace("public byte[] ToUtf8Bytes()", "internal byte[] ToUtf8Bytes()"),
         async () => {
           await rejects(() => build(), /error RS0017/);
-          // Bypass only the source analyzer to prove the independent binary package comparison.
-          await build(["-p:RunAnalyzers=false"]);
-          // A cached successful verdict must not hide the broken assembly. Use a deterministic
-          // future stamp rather than sleeping or depending on filesystem timestamp resolution.
-          const stamp = resolve(
-            work,
-            folder,
-            properties._ApiCompatValidatePackageSemaphoreFile.replaceAll("\\", "/"),
-          );
-          const future = new Date("2100-01-01T00:00:00Z");
-          await utimes(stamp, future, future);
-          await rejects(() => pack(), /error CP0002/);
         },
       );
     });
-    await t.test("renamed parameters fail source and package checks independently", async () => {
+    await t.test("renamed parameters fail source API checks", async () => {
       await change(
         `${folder}/TemplateBinding.cs`,
         (s) => s.replaceAll(/\bkey\b/g, "renamedKey"),
         async () => {
           await rejects(() => build(), /error RS001[67]/);
-          await build(["-p:RunAnalyzers=false"]);
-          await rejects(() => pack(), /error CP0017/);
         },
       );
     });
@@ -170,66 +145,39 @@ test("compatibility enforcement rejects contract changes and accepts reviewed ad
         await writeFile(path, bytes);
       }
     });
-    await t.test(
-      "a new API needs explicit review but does not break the package baseline",
-      async () => {
-        await change(
-          `${folder}/BindingResult.cs`,
-          (s) =>
-            s.replace(
-              "public int Utf8ByteCount { get; }",
-              "public int Utf8ByteCount { get; }\n    /// <summary>Fixture addition.</summary>\n    public int AdditionalByteCount => Utf8ByteCount;",
-            ),
-          async () => {
-            await rejects(() => build(), /error RS0016/);
-            await change(
-              `${folder}/PublicAPI.Unshipped.txt`,
-              (s) => s + "Bathos.Graphics.SvgTemplates.BoundSvg.AdditionalByteCount.get -> int\n",
-              async () => {
-                await build();
-                await pack();
-              },
-            );
-          },
-        );
-      },
-    );
-    await t.test("an incorrect baseline digest fails closed", async () => {
+    await t.test("a new API needs explicit review before package validation", async () => {
+      await change(
+        `${folder}/BindingResult.cs`,
+        (s) =>
+          s.replace(
+            "public int Utf8ByteCount { get; }",
+            "public int Utf8ByteCount { get; }\n    /// <summary>Fixture addition.</summary>\n    public int AdditionalByteCount => Utf8ByteCount;",
+          ),
+        async () => {
+          await rejects(() => build(), /error RS0016/);
+          await change(
+            `${folder}/PublicAPI.Unshipped.txt`,
+            (s) => s + "ScalableVectorTemplates.BoundSvg.AdditionalByteCount.get -> int\n",
+            async () => {
+              await build();
+              await pack();
+            },
+          );
+        },
+      );
+    });
+    await t.test("an arbitrary binary baseline is rejected before publication", async () => {
       await build();
-      await rejects(
-        () => pack(["-p:SvtPackageBaselineSha256=" + "0".repeat(64)]),
-        /baseline package differs/,
-      );
+      for (const property of [
+        "PackageValidationBaselineName=Other.Package",
+        "PackageValidationBaselineVersion=1.0.0",
+        "PackageValidationBaselinePath=unreviewed.nupkg",
+      ]) {
+        await rejects(() => pack([`-p:${property}`]), /No published binary baseline is configured/);
+      }
     });
-    await t.test("a replacement baseline path cannot bypass the verified download", async () => {
-      await rejects(
-        () => pack(["-p:PackageValidationBaselinePath=unreviewed.nupkg"]),
-        /not a replacement baseline path/,
-      );
-    });
-    await t.test(
-      "missing or altered baseline bytes fail in an isolated package cache",
-      async () => {
-        const cache = resolve(work, "baseline cache");
-        const id = properties.PackageValidationBaselineName.toLowerCase();
-        const version = properties.PackageValidationBaselineVersion;
-        const relativePath = `${id}/${version}/${id}.${version}.nupkg`;
-        const baseline = resolve(cache, relativePath);
-        // Also exercise a cache path containing spaces, without a trailing separator.
-        const args = [`-p:NuGetPackageRoot=${cache}`];
-        await rejects(() => pack(args), /baseline package is missing/);
-        await mkdir(resolve(baseline, ".."), { recursive: true });
-        const bytes = await readFile(resolve(properties.NuGetPackageRoot, relativePath));
-        await writeFile(baseline, bytes);
-        await pack(args);
-        bytes[0] ^= 1;
-        await writeFile(baseline, bytes);
-        await rejects(() => pack(args), /baseline package differs/);
-      },
-    );
     for (const property of [
       "EnablePackageValidation=false",
-      "DisablePackageBaselineValidation=true",
       "RunApiCompat=false",
       "ApiCompatEnableRuleCannotChangeParameterName=false",
     ]) {
@@ -267,7 +215,7 @@ test("compatibility enforcement rejects contract changes and accepts reviewed ad
       const target = "-p:TargetFramework=net10.0-windows";
       await run(["restore", project, target, "-p:RestoreLockedMode=false"]);
       await build([target]);
-      await rejects(() => pack([target]), /error PKV006/);
+      await rejects(() => pack([target]), /must retain portable net10.0 support/);
     });
   } finally {
     await rm(work, { recursive: true, force: true });

@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Bathos.Graphics.SvgTemplates.PackageValidation;
+namespace ScalableVectorTemplates.PackageValidation;
 
 internal sealed record InspectionReport(string PackageId, string Version, string Commit,
     string PackageSha256, string SymbolsSha256, string AssemblySha256, string[] PackageFiles,
@@ -17,7 +17,7 @@ internal sealed record InspectionReport(string PackageId, string Version, string
 
 internal static class PackageInspector
 {
-    internal const string PackageId = "Bathos.Graphics.SvgTemplates";
+    internal const string PackageId = "ScalableVectorTemplates";
     internal const string ToolPackageId = PackageId + ".Cli";
     private const string ToolPrefix = "tools/net10.0/any/";
     internal const string Repository = "https://github.com/svt-project/svt-dotnet";
@@ -49,7 +49,7 @@ internal static class PackageInspector
         Require(Encoding.UTF8.GetString(files["LICENSE"]).Contains("MIT License", StringComparison.Ordinal), "Missing MIT license text.");
         var xml = ReadXml(files["lib/net10.0/" + PackageId + ".xml"]);
         Require(xml.Root?.Element("assembly")?.Element("name")?.Value == PackageId, "Incorrect XML documentation assembly.");
-        Require(xml.Descendants("member").Any(e => (string?)e.Attribute("name") == "T:Bathos.Graphics.SvgTemplates.BindingConfiguration"), "Missing public API documentation.");
+        Require(xml.Descendants("member").Any(e => (string?)e.Attribute("name") == "T:ScalableVectorTemplates.BindingConfiguration"), "Missing public API documentation.");
 
         var assemblyBytes = files["lib/net10.0/" + PackageId + ".dll"];
         return InspectAssembly(package, symbols, PackageId, PackageId, version, commit, files, symbolFiles,

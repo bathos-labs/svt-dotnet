@@ -9,7 +9,7 @@ paint, decode images or certify SVG validity.
 ## Tool distribution
 
 The [packaging and release contract](tool-distribution.md) defines the separate
-`Bathos.Graphics.SvgTemplates.Cli` tool package, version-pinned installation, prepared execution for
+`ScalableVectorTemplates.Cli` tool package, version-pinned installation, prepared execution for
 automation and recovery of a partially published release. The commands and presentation below are
 implemented in the source-built CLI; no installed tool is published yet. SDK setup/restore failures
 occur outside the SVT diagnostic protocol.
@@ -98,7 +98,7 @@ implementation terminology in introductory prose; link detailed guidance where n
 `--version` writes one line to stdout and exits 0, without inspecting files or Git:
 
 ```text
-svt 1.0.0-rc.1 (commit cfdb2b429a03)
+svt 1.0.0-rc.2 (commit cfdb2b429a03)
 ```
 
 The example version is illustrative, not a new release target embedded in code. Report the exact

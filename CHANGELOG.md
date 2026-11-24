@@ -5,6 +5,15 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+## [1.0.0-rc.2] - 2026-11-24
+
+- Rename the library package, assembly, and .NET namespace to `ScalableVectorTemplates`, and the CLI
+  package and namespace to `ScalableVectorTemplates.Cli`. Update package references and `using`
+  directives when adopting this RC. The CLI command remains `svt`; the XML metadata URI and format
+  markers are unchanged. No old-name aliases or forwarding assemblies are provided.
+- Retain source API and behavioral checks under the reviewed new identities. Establish the first
+  binary package baseline for the renamed library after this RC is published and verified.
+
 - Correct embedded SVG media types: encoded-image binding now emits `image/svg+xml` literally,
   rather than `image/svg%2Bxml`, so SVG images can render in Chrome and resvg. Preserve other
   admitted subtype punctuation and reject `#` during encoded-image creation with
@@ -70,6 +79,7 @@ hosts own resource acquisition, decoding, fonts, CSS interpretation, fitting, an
 evidence covers named tools and environments, not universal SVG rendering. The template marker and
 JSON envelopes remain version 0 independently of the package version.
 
-[Unreleased]: https://github.com/svt-project/svt-dotnet/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/svt-project/svt-dotnet/compare/v1.0.0-rc.2...HEAD
+[1.0.0-rc.2]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.1
 [0.1.0-beta.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v0.1.0-beta.1

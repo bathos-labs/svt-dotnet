@@ -11,8 +11,8 @@ With the .NET 10 SDK, build from the repository root and inspect the shared-colo
 
 ```sh
 dotnet build SvgTemplates.slnx -c Release
-dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll inspect examples/authoring/shared-palette/input.svg
-dotnet src/Bathos.Graphics.SvgTemplates.Cli/bin/Release/net10.0/svt.dll bind examples/authoring/shared-palette/input.svg --bindings examples/authoring/shared-palette/partial.json --output palette.svg
+dotnet src/ScalableVectorTemplates.Cli/bin/Release/net10.0/svt.dll inspect examples/authoring/shared-palette/input.svg
+dotnet src/ScalableVectorTemplates.Cli/bin/Release/net10.0/svt.dll bind examples/authoring/shared-palette/input.svg --bindings examples/authoring/shared-palette/partial.json --output palette.svg
 ```
 
 Open `palette.svg` in a browser or Inkscape and compare it with

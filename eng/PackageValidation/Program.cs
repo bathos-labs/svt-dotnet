@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Bathos.Graphics.SvgTemplates.PackageValidation;
+using ScalableVectorTemplates.PackageValidation;
 
 if (args.Length != 4 && !(args.Length == 3 && args[0] is "archive" or "extract") && !(args.Length == 7 && args[0] == "inspect-tool") && !(args.Length == 3 && args[0] == "compare-published"))
 {

@@ -40,7 +40,7 @@ does not change ordinary solution build roll-forward settings. Source identity i
 after preparation. Run tools against a stable checkout, not while editing files concurrently.
 
 Development packages use the numeric version from `Directory.Build.props`, followed by a unique
-`review` or `preview` suffix. For `1.0.0-rc.1`, the examples above keep the same `1.0.0` assembly
+`review` or `preview` suffix. For `1.0.0-rc.2`, the examples above keep the same `1.0.0` assembly
 version as the portable test hosts. Only tagged release preparation uses the exact shipping package
 identity.
 

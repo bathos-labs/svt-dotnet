@@ -31,7 +31,7 @@ const testFolder = resolve(hosts, "tests");
 const hostEnv = {
   ...process.env,
   SVT_CLI_DLL: resolve(cliFolder, "svt.dll"),
-  SVT_AUTHORING_TEST_HOST: resolve(testFolder, "Bathos.Graphics.SvgTemplates.Cli.Tests.dll"),
+  SVT_AUTHORING_TEST_HOST: resolve(testFolder, "ScalableVectorTemplates.Cli.Tests.dll"),
 };
 const report = {
   format_version: 0,
@@ -69,7 +69,7 @@ try {
   await mkdir(cliFolder);
   if (process.platform === "darwin")
     await cp(
-      resolve(root, "tests/Bathos.Graphics.SvgTemplates.Cli.Tests/bin/Release/net10.0"),
+      resolve(root, "tests/ScalableVectorTemplates.Cli.Tests/bin/Release/net10.0"),
       testFolder,
       { recursive: true },
     );

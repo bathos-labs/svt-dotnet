@@ -1,17 +1,17 @@
 # CLI packaging and release contract
 
 The library and CLI are packaged separately at a shared version. The installation examples below use
-`1.0.0-rc.1`. The [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit
+`1.0.0-rc.2`. The [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit
 codes.
 
 ## Release unit
 
 One release contains two independently installable packages at one version and source commit:
 
-| Role    | Package                            | Purpose                      |
-| ------- | ---------------------------------- | ---------------------------- |
-| Library | `Bathos.Graphics.SvgTemplates`     | Application API              |
-| CLI     | `Bathos.Graphics.SvgTemplates.Cli` | .NET tool with command `svt` |
+| Role    | Package                       | Purpose                      |
+| ------- | ----------------------------- | ---------------------------- |
+| Library | `ScalableVectorTemplates`     | Application API              |
+| CLI     | `ScalableVectorTemplates.Cli` | .NET tool with command `svt` |
 
 Reuse the existing projects, library and binding lifecycle. The CLI package contains its runtime
 closure, including the exact library DLL shipped in the library package. Installing the CLI does not
@@ -48,7 +48,7 @@ with no SVT auto-update behavior.
 For regular personal use:
 
 ```sh
-dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
+dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.2
 svt inspect template.svg
 ```
 
@@ -60,7 +60,7 @@ For a project, create a manifest deliberately and commit it:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
+dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.2
 ```
 
 Restore and run from the project's trusted directory. The manifest selects the exact tool version;
@@ -69,7 +69,7 @@ use `dotnet tool run svt` to select the local tool rather than a global PATH com
 For a quick trial:
 
 ```sh
-dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-rc.1 -- inspect template.svg
+dnx ScalableVectorTemplates.Cli@1.0.0-rc.2 -- inspect template.svg
 ```
 
 The equivalent SDK entry point is `dotnet tool exec`. One-off execution may acquire packages and

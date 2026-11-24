@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-const modules = ["Bathos.Graphics.SvgTemplates", "Bathos.Graphics.SvgTemplates.Cli"];
+const modules = ["ScalableVectorTemplates", "ScalableVectorTemplates.Cli"];
 
 // LCOV keeps both line and branch evidence inspectable without an XML parser dependency.
 export function normalizeCoverage(text, repositoryRoot, sourceFiles, expectedModules) {
