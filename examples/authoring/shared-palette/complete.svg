@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-svt-version="0" width="480" height="320" viewBox="0 0 480 320" font-family="DejaVu Sans" font-size="18">
-<metadata xmlns:svt="https://bathos-labs.github.io/svt" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata xmlns:svt="https://svt-project.github.io/ns/svt" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:RDF><rdf:Description rdf:about=""><svt:inputs rdf:parseType="Literal">
 <svt:group key="appearance" label="Appearance" order="20"><svt:description>Direct colors in the artwork.</svt:description></svt:group>
 <svt:group key="advanced" label="Inherited paint" order="10"/>

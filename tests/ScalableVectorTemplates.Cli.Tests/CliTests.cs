@@ -53,7 +53,7 @@ public sealed class CliTests
     {
         using var workspace = new Workspace();
         var source = workspace.Write("metadata.svg", """
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://bathos-labs.github.io/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
             <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal"><s:input key="heading" label="Headline" order="bad"/><s:input key="missing"/></s:inputs></r:Description></r:RDF></metadata>
             <text data-svt-text="heading" data-svt-label="Inline">Before</text>
             </svg>
@@ -71,7 +71,7 @@ public sealed class CliTests
         Assert.HasCount(2, bound.Diagnostics);
         var document = XDocument.Parse(bound.Output);
         Assert.AreEqual("After", document.Descendants(XName.Get("text", "http://www.w3.org/2000/svg")).Single().Value);
-        Assert.AreEqual("bad", (string?)document.Descendants(XName.Get("input", "https://bathos-labs.github.io/svt")).First().Attribute("order"));
+        Assert.AreEqual("bad", (string?)document.Descendants(XName.Get("input", "https://svt-project.github.io/ns/svt")).First().Attribute("order"));
     }
 
     /// <summary>JSON and human diagnostics retain the library's specific metadata rule explanations.</summary>
@@ -80,7 +80,7 @@ public sealed class CliTests
     {
         using var workspace = new Workspace();
         const string xml = """
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://bathos-labs.github.io/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
               <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal">
                 <s:input key="a" order="-1"/>
                 <s:input key="b"><s:description>Before<g/>After</s:description></s:input>

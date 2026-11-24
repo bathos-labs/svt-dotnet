@@ -7,8 +7,9 @@ Report possible vulnerabilities through the [private security route](SECURITY.md
 
 Follow the [compatibility and Semantic Versioning policy](spec/compatibility.md). Classify changes
 by their effect on documented APIs, behavior, formats and defaults, not by implementation size. The
-RC is provisionally frozen; formal stable guarantees begin at 1.0. Keep production-template
-acceptance separate from successful package integration.
+RC.2 freeze follows the approved identity changes and formal content separation; formal stable
+guarantees begin at 1.0. Keep production-template acceptance separate from successful package
+integration.
 
 Both shipping projects use the private, centrally pinned public API analyzer. Review declaration
 changes in `PublicAPI.Unshipped.txt`; preserve shipped declarations and nullable annotations. The

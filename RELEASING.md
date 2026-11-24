@@ -7,6 +7,14 @@ under the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` identities
 or a changelog is not publication authorization. Consumer and production-template acceptance must be
 renewed for the renamed RC. SVG and JSON format markers remain version 0.
 
+Before freezing RC.2, complete the formal separation of portable specification, conformance data and
+authoring content from .NET API, CLI and release policy. Track acceptance in the
+[coordinator extraction issue](https://github.com/svt-project/.github/issues/2). Record the exact
+authoritative specification/fixture revision used by the candidate, verify clean-checkout
+consumption and documentation links, and rerun validation after integration. A successful URI-change
+build alone does not satisfy this gate. The approved metadata URI is
+`https://svt-project.github.io/ns/svt`; acceptance must include templates updated to that namespace.
+
 ## Release set
 
 One release contains `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` at one

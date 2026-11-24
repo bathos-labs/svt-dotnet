@@ -7,13 +7,15 @@ behavior, rather than the size of a diff.
 ## RC evaluation and stable adoption
 
 The approved `1.0.0-rc.2` identity change replaces the Bathos-named packages and .NET namespaces
-with `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli`. The XML metadata identity is
-unchanged. Consumer and production-template acceptance must be renewed for this RC; acceptance of
-the earlier `Bathos.Graphics.SvgTemplates` RC does not establish acceptance of the new identities.
+with `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli`. The XML metadata namespace changes
+to `https://svt-project.github.io/ns/svt`. Format markers remain 0. Consumer and production-template
+acceptance must be renewed for this RC; acceptance of the earlier `Bathos.Graphics.SvgTemplates` RC
+does not establish acceptance of the new identities.
 
-The RC surface is provisionally frozen. Avoid planned API or format changes during evaluation.
-Necessary shipping corrections require a new RC, explicit release notes and renewed consumer
-validation. Published artifacts and tags remain immutable. No prerelease migration layer is
+RC.2 preparation includes the approved identity changes and formal specification separation before
+its contract freeze. Once a candidate is frozen, avoid planned API or format changes during
+evaluation. Necessary shipping corrections require a new RC, explicit release notes and renewed
+consumer validation. Published artifacts and tags remain immutable. No prerelease migration layer is
 required.
 
 The stable guarantees below take effect at `1.0.0`. Until then, the project remains prerelease. The
@@ -58,10 +60,11 @@ contents, dependencies or runtime requirements still need compatibility review.
 
 ## Format versions
 
-Package versions and SVG/JSON format markers are independent. Stable `1.0.0` retains
-`data-svt-version="0"` and JSON `format_version: 0`. Once stable, 0 identifies a supported format;
-it does not imply experimental behavior. Omitted versions in binding/configuration JSON select
-format 0 permanently, never the latest format.
+The portable [format identity and versioning contract](versions.md) defines the SVG marker, metadata
+namespace and fixture envelope independently of package versions. Stable `1.0.0` retains
+`data-svt-version="0"` and JSON `format_version: 0`. The implementation's CLI separately guarantees
+that omitted versions in binding/configuration JSON select format 0 permanently, never the latest
+format.
 
 Throughout 1.x, existing format-0 templates and requests retain their documented meaning. An
 incompatible format requires a new explicit marker; dropping support for an established format

@@ -9,8 +9,14 @@ exact package version while evaluating them.
 
 - Rename the library package, assembly, and .NET namespace to `ScalableVectorTemplates`, and the CLI
   package and namespace to `ScalableVectorTemplates.Cli`. Update package references and `using`
-  directives when adopting this RC. The CLI command remains `svt`; the XML metadata URI and format
-  markers are unchanged. No old-name aliases or forwarding assemblies are provided.
+  directives when adopting this RC. The CLI command remains `svt`; format markers remain 0. No
+  old-name aliases or forwarding assemblies are provided.
+- Change the XML metadata namespace from `https://bathos-labs.github.io/svt` to
+  `https://svt-project.github.io/ns/svt`. Update namespace declarations in templates that use
+  central metadata. Old-URI metadata is preserved as foreign content but no longer supplies labels,
+  descriptions, groups or ordering; inline/key fallback and binding hooks continue to work. No
+  alternate-URI reader is provided. SVG/RDF namespaces and unnamespaced `data-svt-*` hooks are
+  unchanged.
 - Retain source API and behavioral checks under the reviewed new identities. Establish the first
   binary package baseline for the renamed library after this RC is published and verified.
 
