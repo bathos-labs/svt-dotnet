@@ -4,7 +4,7 @@ Prepare the library, CLI tool and their portable symbols as one candidate. Both 
 version and commit. The CLI includes the exact library DLL/PDB; library consumers do not depend on
 the CLI. Preparation and consumption do not publish or need registry credentials.
 
-The [packaging contract](../../spec/tool-distribution.md) defines the two-product manifest,
+The [packaging contract](../../docs/tool-distribution.md) defines the two-product manifest,
 installation behavior and [draft recovery](../../RELEASING.md#failures-retries-and-evidence).
 
 ## Lifecycle

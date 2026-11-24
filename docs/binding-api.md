@@ -45,7 +45,8 @@ diagnostics, cancellation token, resource callbacks or mutable operation state. 
 concurrent reuse and requires no disposal. `Default` is immutable, not a global mutable setting.
 
 Both operations below accept nullable configuration; null selects `BindingConfiguration.Default`.
-There is no second per-call options layer. The [substitution contract](../spec/substitution.md)
+There is no second per-call options layer. The
+[substitution contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/substitution.md)
 defines budget counting and failure policy.
 
 ## Assignment and binding
@@ -279,7 +280,9 @@ success; failure returns one diagnostic. Result and image constructors are inter
 its bytes, exposes no buffer, retains no configuration and needs no disposal. Creation does not
 produce base64 or decode pixels. Bind rechecks the image against its own configuration, even when
 creation used a more permissive configuration. Creation checks byte limit, media-type length, then
-grammar before capture. See [images](../spec/images.md) for formatting.
+grammar before capture. See
+[images](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/images.md)
+for formatting.
 
 ```csharp
 var configuration = new BindingConfiguration(
@@ -312,3 +315,15 @@ access, and at preparation, assignment and binding-serialization boundaries. Ima
 binding are synchronous CPU work over supplied memory; no async wrapper, stream overload or
 filesystem/network access is part of this API. Completed-document export follows the separate
 [output export](#output-export) contract and accepts no cancellation token.
+
+## Export acceptance
+
+For the caller-buffer extension, verify exact byte/count equivalence across Unicode (including
+supplementary characters), XML-sensitive text, empty values, encoded-image URLs and preserved XML
+structure. Cover empty/default, exact, one-byte-short and oversized spans, sliced destinations with
+sentinel bytes, unchanged storage on insufficient capacity, and unchanged suffixes on success.
+Verify repeated and concurrent exports into disjoint storage, mutation independence, and mixed use
+with Xml and newly allocated ToUtf8Bytes results. Check output-budget equality and rejection below
+the required size during Bind; an oversized destination must not change that admission policy.
+Measure export allocations and throughput separately from binding and destination allocation for
+small and near-budget documents; preserve the distinction from native renderer performance.

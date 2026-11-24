@@ -13,7 +13,7 @@
   repository-authored assets; preserve LICENSE and applicable third-party notices. Do not publish
   packages, push release tags or change repository visibility without explicit authorization. Do not
   introduce compatibility readers, aliases or migrations for development formats. Follow the
-  required SemVer policy in spec/compatibility.md. Stable guarantees take effect at 1.0.0. Prepare
+  required SemVer policy in docs/compatibility.md. Stable guarantees take effect at 1.0.0. Prepare
   1.0.0-rc.2 with the approved ScalableVectorTemplates identities and metadata URI
   https://svt-project.github.io/ns/svt. Complete formal specification/content separation before the
   RC.2 freeze; publication requires explicit authorization. Format envelopes remain version 0 at
@@ -51,3 +51,6 @@
   polling.
 - Keep Markdown concise; run `task docs:format`, review changes, then `task check` before
   committing. Report native rendering evidence separately from portable XML/binding conformance.
+- Portable contracts are authoritative in svt-project/svt-spec. Keep the accepted canonical asset
+  snapshot stamped and verified under conformance/; do not fetch live spec content during builds.
+  Keep local regressions, authoring harness examples and implementation policy here.

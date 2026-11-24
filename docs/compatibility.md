@@ -60,11 +60,12 @@ contents, dependencies or runtime requirements still need compatibility review.
 
 ## Format versions
 
-The portable [format identity and versioning contract](versions.md) defines the SVG marker, metadata
-namespace and fixture envelope independently of package versions. Stable `1.0.0` retains
-`data-svt-version="0"` and JSON `format_version: 0`. The implementation's CLI separately guarantees
-that omitted versions in binding/configuration JSON select format 0 permanently, never the latest
-format.
+The portable
+[format identity and versioning contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/versions.md)
+defines the SVG marker, metadata namespace and fixture envelope independently of package versions.
+Stable `1.0.0` retains `data-svt-version="0"` and JSON `format_version: 0`. The implementation's CLI
+separately guarantees that omitted versions in binding/configuration JSON select format 0
+permanently, never the latest format.
 
 Throughout 1.x, existing format-0 templates and requests retain their documented meaning. An
 incompatible format requires a new explicit marker; dropping support for an established format

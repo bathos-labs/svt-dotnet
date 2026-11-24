@@ -1,18 +1,21 @@
 # SVT command-line contract
 
 This document defines the implemented CLI. The lifecycle is inspect, prepare values, bind, then
-explicitly publish. The [inspection](inspection.md) and [substitution](substitution.md) contracts
-own template and replacement semantics. The CLI owns bounded file acquisition, request parsing,
-diagnostics presentation and output publication. It does not render, fetch references, interpret
-paint, decode images or certify SVG validity.
+explicitly publish. The
+[inspection](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/inspection.md)
+and
+[substitution](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/substitution.md)
+contracts own template and replacement semantics. The CLI owns bounded file acquisition, request
+parsing, diagnostics presentation and output publication. It does not render, fetch references,
+interpret paint, decode images or certify SVG validity.
 
 ## Tool distribution
 
 The [packaging and release contract](tool-distribution.md) defines the separate
 `ScalableVectorTemplates.Cli` tool package, version-pinned installation, prepared execution for
-automation and recovery of a partially published release. The commands and presentation below are
-implemented in the source-built CLI; no installed tool is published yet. SDK setup/restore failures
-occur outside the SVT diagnostic protocol.
+automation and recovery of a partially published release. The same command contract applies to
+source-built and installed execution. SDK setup/restore failures occur outside the SVT diagnostic
+protocol.
 
 ## Commands and invocation
 
@@ -168,9 +171,8 @@ the SVG root marker or the explicit version markers in discovery and diagnostic 
 
 For image content, `value` uses the standard base64 alphabet with padding where required, without
 whitespace or a data-URL prefix. Empty base64 represents zero bytes. The media type is supplied
-explicitly and validated by
-[encoded-image construction](../docs/binding-api.md#encoded-image-preparation). Do not infer it from
-a filename, inspect signatures or decode pixels.
+explicitly and validated by [encoded-image construction](binding-api.md#encoded-image-preparation).
+Do not infer it from a filename, inspect signatures or decode pixels.
 
 JSON inputs use UTF-8 with an optional BOM. Reject malformed UTF-8, unknown or duplicate object
 properties, unknown kinds, missing required fields, invalid field combinations, null values,
@@ -221,9 +223,9 @@ configuration, then command-line overrides. Validate the configuration before ap
 override does not repair an invalid configuration. There are no paths or output destinations in
 configuration.
 
-The first three groups map to [InspectionOptions](../docs/inspection-api.md), BindingOptions and
-EncodedImageOptions in the [.NET binding API](../docs/binding-api.md). JSON property names use
-snake_case; library diagnostic Limit values retain the exact public option names. Supported fields:
+The first three groups map to [InspectionOptions](inspection-api.md), BindingOptions and
+EncodedImageOptions in the [.NET binding API](binding-api.md). JSON property names use snake_case;
+library diagnostic Limit values retain the exact public option names. Supported fields:
 
 - `inspection`: `max_source_bytes`, `max_xml_characters`, `max_element_depth`, `max_elements`,
   `max_attributes_per_element`, `max_hooks`, `max_diagnostics`.
@@ -424,16 +426,17 @@ all underlying raw strings remain unchanged.
 
 The root contains `format_version: 0`, boolean `template_available` and ordered `inputs`. Each input
 contains `key`, `label`, `kind`, ordered `targets` and `default`, corresponding to the complete
-[inspection model](../docs/inspection-api.md#immutable-result-model). Field names and enum values
-use snake_case. Each target contains `hook`, `element_name`, `location` and `default`. Defaults
-carry `state` and `raw`; target defaults also carry `source`. Use explicit nulls for unavailable
-values. Retain raw strings, locations, source evidence and discovery order without interpretation.
+[inspection model](inspection-api.md#immutable-result-model). Field names and enum values use
+snake_case. Each target contains `hook`, `element_name`, `location` and `default`. Defaults carry
+`state` and `raw`; target defaults also carry `source`. Use explicit nulls for unavailable values.
+Retain raw strings, locations, source evidence and discovery order without interpretation.
 
 Diagnostics appear only on stderr, not in this discovery object. A root rejection produces
 `template_available: false` and an empty inputs array. A scoped error may accompany usable inputs.
 If inspection never runs because acquisition or request validation failed, stdout is empty.
 
-[Metadata](metadata.md) fields are included on every discovery report, with `format_version: 0`:
+[Metadata](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
+fields are included on every discovery report, with `format_version: 0`:
 
 - Each input also contains `description`, `label_source` (`key`, `element` or `metadata`) and
   `order`. `label` is the resolved effective label. Description and order use explicit nulls when
@@ -441,7 +444,7 @@ If inspection never runs because acquisition or request validation failed, stdou
 - The root also contains ordered `input_groups`. Each entry contains `key`, `label`, `description`,
   `order` and ordered `input_keys`. The keys reference the existing inputs; do not repeat full input
   objects. Group order, input order, omissions and unnamed-section nulls follow the
-  [presentation model](../docs/inspection-api.md#presentation-metadata-extension).
+  [presentation model](inspection-api.md#presentation-metadata-extension).
 - A root rejection or usable template with no inputs has an empty `input_groups` array. A usable
   hook-only template with inputs has one unnamed section. Every admitted key appears exactly once
   across the groups, with exact case-sensitive spelling.

@@ -1,6 +1,6 @@
 # Compatibility checks
 
-The [compatibility policy](../../spec/compatibility.md) is enforced through nullable-aware source
+The [compatibility policy](../../docs/compatibility.md) is enforced through nullable-aware source
 API analysis, package validation and behavioral tests. These checks protect signatures, defaults and
 behavior independently of package publication.
 

@@ -27,5 +27,5 @@ SVT does not render artwork, fetch resources, fit text or compute CSS. Package v
 independent of SVG and binding-file format markers. This project is prerelease.
 
 See the [quickstart](https://github.com/svt-project/svt-dotnet/blob/master/README.md),
-[CLI reference](https://github.com/svt-project/svt-dotnet/blob/master/spec/cli.md), and
+[CLI reference](https://github.com/svt-project/svt-dotnet/blob/master/docs/cli.md), and
 [authoring guide](https://github.com/svt-project/svt-dotnet/blob/master/docs/authoring.md).

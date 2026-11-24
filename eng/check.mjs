@@ -21,6 +21,7 @@ const remark = [
 const checks = [
   ["git", ["diff", "--check"]],
   ["git", ["diff", "--cached", "--check"]],
+  ["node", ["eng/conformance/check.mjs"]],
   [
     "node",
     [
@@ -65,6 +66,7 @@ const checks = [
             "eng/coverage",
             "eng/ExportPerformance",
             "eng/compatibility",
+            "eng/conformance",
           ].map(async (folder) =>
             (await readdir(resolve(root, folder)))
               .filter((name) => name.endsWith(".test.mjs"))

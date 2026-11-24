@@ -1,8 +1,9 @@
 # .NET authored-value interpretation API
 
 These types are implemented in the existing BCL-only `ScalableVectorTemplates` assembly and
-namespace. The [portable interpretation contract](../spec/interpretation.md) owns grammar,
-classification, precision, budget precedence and recovery.
+namespace. The
+[portable interpretation contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/interpretation.md)
+owns grammar, classification, precision, budget precedence and recovery.
 
 ## Entry points and lifecycle
 

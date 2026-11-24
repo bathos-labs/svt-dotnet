@@ -2,8 +2,8 @@
 
 Use ordinary SVG artwork with `data-svt-version="0"` on its SVG root. Add a stable binding key to
 its target and an optional `data-svt-label` for display. See the
-[binding contract](../spec/bindings.md) and the
-[original examples](../examples/authoring/README.md).
+[binding contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/bindings.md)
+and the [original examples](../examples/authoring/README.md).
 
 ## Try a template first
 
@@ -31,13 +31,15 @@ inspect it again before applying bindings. The
 
 ## Polish the input list
 
-Use optional [central metadata](../spec/metadata.md) for logical input labels, plain-text help,
-ordering and one level of groups. Place it in the specified RDF/XML document description with
-`rdf:about=""` and `rdf:parseType="Literal"`; the envelope gives the input declarations a
-document-metadata meaning. Keep binding keys stable. Central labels override inline labels; inputs
-without a central label retain the first target's inline label or their key. Use spaced orders such
-as 10 and 20 to allow later insertion. Ungrouped inputs remain visible in a final unnamed section.
-These hints describe presentation, not required values or binding constraints.
+Use optional
+[central metadata](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
+for logical input labels, plain-text help, ordering and one level of groups. Place it in the
+specified RDF/XML document description with `rdf:about=""` and `rdf:parseType="Literal"`; the
+envelope gives the input declarations a document-metadata meaning. Keep binding keys stable. Central
+labels override inline labels; inputs without a central label retain the first target's inline label
+or their key. Use spaced orders such as 10 and 20 to allow later insertion. Ungrouped inputs remain
+visible in a final unnamed section. These hints describe presentation, not required values or
+binding constraints.
 
 The [shared-palette example](../examples/authoring/shared-palette/input.svg) demonstrates this
 polish without changing the artwork or raw defaults. SVG metadata and embedded samples are

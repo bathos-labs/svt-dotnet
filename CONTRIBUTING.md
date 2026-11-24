@@ -5,7 +5,7 @@ changes. Discuss grammar, public API, dependencies and ownership before implemen
 proposals and delivery work in [GitHub Issues](https://github.com/svt-project/svt-dotnet/issues).
 Report possible vulnerabilities through the [private security route](SECURITY.md).
 
-Follow the [compatibility and Semantic Versioning policy](spec/compatibility.md). Classify changes
+Follow the [compatibility and Semantic Versioning policy](docs/compatibility.md). Classify changes
 by their effect on documented APIs, behavior, formats and defaults, not by implementation size. The
 RC.2 freeze follows the approved identity changes and formal content separation; formal stable
 guarantees begin at 1.0. Keep production-template acceptance separate from successful package
@@ -26,6 +26,9 @@ warnings as errors, recommended analyzers, deterministic builds, central package
 CI restore. NuGet sources are restricted to nuget.org. Test dependencies are centrally pinned, and
 all seven solution projects have lockfiles. The library and CLI are separately packable. A BCL-only
 engineering executable measures completed-document export allocations and throughput.
+
+The [reference snapshot guide](docs/conformance.md) describes the embedded canonical fixtures and
+explicit adoption process. Builds and tests use the checked-in snapshot without fetching the spec.
 
 ## Local setup
 
