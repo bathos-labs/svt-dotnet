@@ -7,10 +7,9 @@ behavior independently of package publication.
 ## Reviewed source contract
 
 The library's [PublicAPI.Shipped.txt](../../src/ScalableVectorTemplates/PublicAPI.Shipped.txt)
-retains the reviewed API declarations with only the approved namespace replacement. The filename is
-the analyzer's contract baseline, not a claim that the renamed package has been published. Both API
-files enable nullable tracking. Additions belong in `PublicAPI.Unshipped.txt` and require review.
-The CLI has an empty public assembly API: its supported interface is the `svt` command.
+records the API published in `ScalableVectorTemplates` `1.0.0-rc.2`. Both API files enable nullable
+tracking. Additions belong in `PublicAPI.Unshipped.txt` and require review. The CLI has an empty
+public assembly API: its supported interface is the `svt` command.
 
 The `1.0.0-rc.2` package and assembly identity change intentionally breaks binary compatibility with
 `Bathos.Graphics.SvgTemplates` `1.0.0-rc.1`. Its published bytes and historical API records remain
@@ -19,16 +18,24 @@ added.
 
 ## Package validation
 
-[PackageValidation.props](PackageValidation.props) enables SDK validation within the package,
-requires portable `net10.0`, rejects validation-disable flags, and forces fresh validation on each
-pack. There is no previous published binary package with the renamed identity. No cross-version
-binary comparison is claimed during rc.2 preparation; arbitrary baseline overrides fail closed.
+[PackageValidation.props](PackageValidation.props) enables SDK validation within the package and
+against the exact published `ScalableVectorTemplates` `1.0.0-rc.2` package. The NuGet
+repository-signed artifact has SHA-256
+`37c3c2104608a06a76d8c0f41585791f3485e4c172e977a0555700c887d38214`, verified against the
+[release completion receipt](https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.2) and
+an independent public download. This is the distributed package digest, not the unsigned upload
+digest. No package binary is checked into the repository.
 
-After rc.2 is published and publicly verified, establish a baseline against that exact signed
-package and digest in a reviewed follow-up before further API development. Reinstate the verified
-baseline download and cross-version negative tests, including removed APIs, parameter changes,
-missing/modified baseline bytes, and stale SDK validation stamps. Do not point the baseline at an
-unpublished package or suppress incompatibilities to obtain a passing result.
+Locked restore acquires the exact baseline through the SDK's package download. Each pack verifies
+its bytes, requires portable `net10.0`, rejects identity/path substitutions and validation-disable
+flags, and removes the SDK's incremental validation stamp before comparison. Missing or altered
+baseline bytes fail closed, including when using a custom NuGet cache.
+
+Promote the baseline only after a later release is publicly verified and its full accepted surface
+is reviewed. Update the version/digest and shipped source declarations together where needed; never
+suppress incompatibilities or point the baseline at an unpublished package to make checks pass. RC.2
+has no pending source API additions to promote. The CLI retains an empty public assembly API; its
+command behavior remains covered separately.
 
 ## Running and testing enforcement
 
@@ -37,11 +44,13 @@ enforcement checks. After locked restore and a Release build, `task compatibilit
 package validation separately and writes a diagnostic package under ignored
 `artifacts/compatibility/`.
 
-Enforcement tests use isolated copies of the actual projects. They verify rejection of removed APIs,
-parameter changes, nullability changes, enum values, optional defaults, missing API files and
-accidentally public CLI types. An additive API requires an explicit declaration before build/pack
-passes. Package checks reject disabled enforcement, arbitrary binary baselines, and loss of portable
-framework support. A compilation error is never accepted as evidence of an API analyzer diagnostic.
+Enforcement tests use isolated copies of the actual projects. Removed APIs and renamed parameters
+fail both source analysis and independent binary comparison, even with a future-dated SDK stamp.
+They also verify rejection of removed APIs, parameter changes, nullability changes, enum values,
+optional defaults, missing API files and accidentally public CLI types. An additive API requires an
+explicit declaration before build/pack passes. Package checks reject disabled enforcement, arbitrary
+binary baselines, missing/altered baseline bytes, and loss of portable framework support. A
+compilation error is never accepted as evidence of an API analyzer diagnostic.
 
 These checks supplement conformance, boundary, package inspection and isolated-consumer tests.
 Behavioral compatibility, allocation guarantees, native rendering and production-template acceptance

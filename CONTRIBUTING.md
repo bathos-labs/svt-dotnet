@@ -14,7 +14,7 @@ integration.
 Both shipping projects use the private, centrally pinned public API analyzer. Review declaration
 changes in `PublicAPI.Unshipped.txt`; preserve shipped declarations and nullable annotations. The
 full gate also validates the library package and runs deliberate source API breaking-change checks.
-The renamed packages establish a binary baseline after RC publication. See
+The library binary baseline pins the verified published RC.2 package and its distributed digest. See
 [compatibility enforcement](eng/compatibility/README.md) for scope and baseline updates.
 
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and

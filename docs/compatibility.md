@@ -102,10 +102,10 @@ additions from intervening minor releases; comparing only with 1.0 is insufficie
 advance a baseline or suppress a failure to admit a breaking change.
 
 The [implemented checks](../eng/compatibility/README.md) use a nullable-aware source API baseline
-and SDK validation within the package, with negative enforcement tests. The renamed package has no
-published binary baseline during rc.2 preparation. Establish that baseline from the verified rc.2
-artifact after publication, before further API development. Stable publication still requires review
-of the complete accepted surface.
+and SDK validation within the package and against the verified published `ScalableVectorTemplates`
+`1.0.0-rc.2` artifact. Its exact version and distributed SHA-256 are pinned, with negative tests for
+source/binary breaks and baseline integrity. Stable publication still requires review of the
+complete accepted surface.
 
 API checks supplement conformance, boundary and isolated-consumer tests. Review behavior, defaults,
 formats and diagnostics separately; a compatible assembly surface alone cannot establish them.
