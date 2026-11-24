@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Bathos.Graphics.SvgTemplates.PackageValidation</RootNamespace>
+    <RootNamespace>ScalableVectorTemplates.PackageValidation</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="Bathos.Graphics.SvgTemplates.PackageValidation.Tests" />
+    <InternalsVisibleTo Include="ScalableVectorTemplates.PackageValidation.Tests" />
   </ItemGroup>
 </Project>

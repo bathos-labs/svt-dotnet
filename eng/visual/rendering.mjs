@@ -86,7 +86,7 @@ export async function runRendering({ purpose, source, baseline = null }, checks)
     report.hashes["eng/visual/" + name] = await fileHash(resolve(root, "eng/visual", name));
   report.hashes["svt.dll"] = await fileHash(cli);
   report.hashes["library.dll"] = await fileHash(
-    resolve(cli, "../Bathos.Graphics.SvgTemplates.dll"),
+    resolve(cli, "../ScalableVectorTemplates.dll"),
   );
   let browser;
   const server = createServer(async (request, response) => {

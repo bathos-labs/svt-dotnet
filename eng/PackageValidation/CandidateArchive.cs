@@ -1,6 +1,6 @@
 using System.IO.Compression;
 
-namespace Bathos.Graphics.SvgTemplates.PackageValidation;
+namespace ScalableVectorTemplates.PackageValidation;
 
 internal static class CandidateArchive
 {

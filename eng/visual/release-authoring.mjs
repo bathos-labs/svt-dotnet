@@ -53,12 +53,12 @@ const tests = resolve(
   process.env.SVT_AUTHORING_TEST_HOST ??
     resolve(
       root,
-      "tests/Bathos.Graphics.SvgTemplates.Cli.Tests/bin/Release/net10.0/Bathos.Graphics.SvgTemplates.Cli.Tests.dll",
+      "tests/ScalableVectorTemplates.Cli.Tests/bin/Release/net10.0/ScalableVectorTemplates.Cli.Tests.dll",
     ),
 );
 for (const [name, path] of [
   ["svt.dll", cli],
-  ["library.dll", resolve(cli, "../Bathos.Graphics.SvgTemplates.dll")],
+  ["library.dll", resolve(cli, "../ScalableVectorTemplates.dll")],
   ["tests.dll", tests],
   ["suite.json", resolve(source, "suite.json")],
 ])

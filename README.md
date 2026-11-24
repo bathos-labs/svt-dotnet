@@ -1,6 +1,6 @@
 # SVT — Scalable Vector Templates
 
-[![NuGet](https://img.shields.io/nuget/vpre/Bathos.Graphics.SvgTemplates?label=NuGet)](https://www.nuget.org/packages/Bathos.Graphics.SvgTemplates)
+[![NuGet](https://img.shields.io/nuget/vpre/ScalableVectorTemplates?label=NuGet)](https://www.nuget.org/packages/ScalableVectorTemplates)
 [![Validation](https://github.com/svt-project/svt-dotnet/actions/workflows/validate.yml/badge.svg?branch=master)](https://github.com/svt-project/svt-dotnet/actions/workflows/validate.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/svt-project/svt-dotnet?branch=master)](https://app.codecov.io/gh/svt-project/svt-dotnet)
 
@@ -73,10 +73,10 @@ the complete annotation rules. The walkthrough below applies these same replacem
 
 ## Use the library
 
-The library and CLI share version **1.0.0-rc.1**. Pin the library exactly:
+The library and CLI share version **1.0.0-rc.2**. Pin the library exactly:
 
 ```sh
-dotnet add package Bathos.Graphics.SvgTemplates --version '[1.0.0-rc.1]'
+dotnet add package ScalableVectorTemplates --version '[1.0.0-rc.2]'
 ```
 
 Start with the [package guide](docs/package-readme.md) for API usage and integration examples. See
@@ -86,15 +86,15 @@ separate from the SVG and JSON format markers.
 
 ## Try it
 
-The tool requires the .NET 10 SDK. The current release candidate is **1.0.0-rc.1**:
+The tool requires the .NET 10 SDK. The current release candidate is **1.0.0-rc.2**:
 
 ```sh
-dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
+dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.2
 svt --version
 ```
 
-For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@1.0.0-rc.1 -- inspect template.svg`.
-For development, use the [source command](CONTRIBUTING.md#local-setup) or validate a
+For a quick trial, use `dnx ScalableVectorTemplates.Cli@1.0.0-rc.2 -- inspect template.svg`. For
+development, use the [source command](CONTRIBUTING.md#local-setup) or validate a
 [local package](eng/package/README.md).
 
 Save the [example template](examples/quickstart/template.svg),
@@ -157,7 +157,7 @@ Create a local tool manifest and pin the version:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local Bathos.Graphics.SvgTemplates.Cli --version 1.0.0-rc.1
+dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.2
 ```
 
 Commit `dotnet-tools.json`. In automation, initialize the SDK and run `dotnet tool restore` as

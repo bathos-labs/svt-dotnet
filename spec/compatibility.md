@@ -6,9 +6,10 @@ behavior, rather than the size of a diff.
 
 ## RC evaluation and stable adoption
 
-`1.0.0-rc.1` has passed external package integration with no reported issues. Production-template
-validation remains pending. Keep the exact RC pin during that evaluation; integration acceptance
-does not authorize stable publication.
+The approved `1.0.0-rc.2` identity change replaces the Bathos-named packages and .NET namespaces
+with `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli`. The XML metadata identity is
+unchanged. Consumer and production-template acceptance must be renewed for this RC; acceptance of
+the earlier `Bathos.Graphics.SvgTemplates` RC does not establish acceptance of the new identities.
 
 The RC surface is provisionally frozen. Avoid planned API or format changes during evaluation.
 Necessary shipping corrections require a new RC, explicit release notes and renewed consumer
@@ -39,8 +40,8 @@ contents, dependencies or runtime requirements still need compatibility review.
 
 ## Stable 1.x boundaries
 
-- Preserve the `Bathos.Graphics.SvgTemplates` and `Bathos.Graphics.SvgTemplates.Cli` package IDs,
-  existing public namespaces, and the `svt` command.
+- Preserve the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` package IDs, existing
+  public namespaces, and the `svt` command.
 - Preserve existing public .NET signatures, named parameters, nullability contracts and documented
   exceptions. Check source and binary compatibility; adding an overload can make existing calls
   ambiguous. New enum values or result kinds require explicit compatibility review, not automatic
@@ -96,9 +97,10 @@ additions from intervening minor releases; comparing only with 1.0 is insufficie
 advance a baseline or suppress a failure to admit a breaking change.
 
 The [implemented checks](../eng/compatibility/README.md) use a nullable-aware source API baseline
-and SDK package comparison against the exact published RC, with negative enforcement tests. This is
-a provisional baseline; stable publication still requires review of the complete accepted surface.
-Promote the package baseline only after the new release is publicly available and verified.
+and SDK validation within the package, with negative enforcement tests. The renamed package has no
+published binary baseline during rc.2 preparation. Establish that baseline from the verified rc.2
+artifact after publication, before further API development. Stable publication still requires review
+of the complete accepted surface.
 
 API checks supplement conformance, boundary and isolated-consumer tests. Review behavior, defaults,
 formats and diagnostics separately; a compatible assembly surface alone cannot establish them.

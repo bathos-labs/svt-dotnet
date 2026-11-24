@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../eng/compatibility/PackageValidation.props" />
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>Portable SVG template inspection and atomic text, paint, and image substitution. Rendering and resource access remain host responsibilities.</Description>
+    <PackageTags>svg;templates;graphics</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <DocumentationRef Condition="'$(DocumentationRef)' == ''">v$(Version)</DocumentationRef>
+    <PackageReleaseNotes>https://github.com/svt-project/svt-dotnet/blob/$(DocumentationRef)/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../../NOTICE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Target Name="PreparePackageReadme" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_PackageReadme>$(IntermediateOutputPath)package/README.md</_PackageReadme>
+      <_PackageReadmeText>$([MSBuild]::Escape($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../../docs/package-readme.md').Replace('/master/', '/$(DocumentationRef)/'))))</_PackageReadmeText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_PackageReadme)" Lines="$(_PackageReadmeText)" Overwrite="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <None Include="$(_PackageReadme)" Pack="true" PackagePath="README.md" />
+    </ItemGroup>
+  </Target>
+</Project>

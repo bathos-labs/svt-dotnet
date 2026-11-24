@@ -6,7 +6,7 @@ Inspect editable SVG templates and apply text, colors and images from a JSON fil
 Install this package at the exact version you intend to use:
 
 ```sh
-dotnet tool install --global Bathos.Graphics.SvgTemplates.Cli --version <version>
+dotnet tool install --global ScalableVectorTemplates.Cli --version <version>
 svt inspect template.svg
 svt bind template.svg --bindings bindings.json --output result.svg
 ```
@@ -20,8 +20,8 @@ instead of `--global`, and commit the manifest. In automation, initialize the SD
 `dotnet tool run svt -- inspect template.svg --format json --diagnostics json`. SDK setup errors are
 separate from SVT's JSON diagnostics.
 
-For a quick trial, use `dnx Bathos.Graphics.SvgTemplates.Cli@<version> -- inspect template.svg`.
-One-off execution can include SDK installation messages; use a prepared local tool for scripts.
+For a quick trial, use `dnx ScalableVectorTemplates.Cli@<version> -- inspect template.svg`. One-off
+execution can include SDK installation messages; use a prepared local tool for scripts.
 
 SVT does not render artwork, fetch resources, fit text or compute CSS. Package versions are
 independent of SVG and binding-file format markers. This project is prerelease.

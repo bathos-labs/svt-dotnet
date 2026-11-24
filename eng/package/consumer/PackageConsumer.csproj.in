@@ -11,6 +11,6 @@
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Bathos.Graphics.SvgTemplates" Version="[@VERSION@]" />
+    <PackageReference Include="ScalableVectorTemplates" Version="[@VERSION@]" />
   </ItemGroup>
 </Project>

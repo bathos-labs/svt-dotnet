@@ -39,7 +39,7 @@ tasks:
   svt:
     desc: Run the CLI from source (Task may map a failing exit to 201)
     cmds:
-      - dotnet run --project src/Bathos.Graphics.SvgTemplates.Cli -c Release -- {{.CLI_ARGS}}
+      - dotnet run --project src/ScalableVectorTemplates.Cli -c Release -- {{.CLI_ARGS}}
 
   release:rehearse:
     desc: Check a local candidate and rehearse recovery without publication

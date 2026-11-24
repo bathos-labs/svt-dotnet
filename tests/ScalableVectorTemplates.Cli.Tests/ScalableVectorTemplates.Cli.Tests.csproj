@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="coverlet.MTP" PrivateAssets="all" />
+    <ProjectReference Include="../../src/ScalableVectorTemplates.Cli/ScalableVectorTemplates.Cli.csproj" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <None Include="../../examples/authoring/**/*" Link="Authoring/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../conformance/**/*" Link="Fixtures/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

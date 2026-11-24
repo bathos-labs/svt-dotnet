@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizeCoverage } from "./evidence.mjs";
 
-const module = "Bathos.Graphics.SvgTemplates";
+const module = "ScalableVectorTemplates";
 const source = `src/${module}/Template.cs`;
 const files = new Set([source]);
 const fixture = (path) =>
@@ -58,7 +58,7 @@ test("coverage requires the complete production scope and meaningful instrumenta
   assert.throws(() =>
     normalizeCoverage(fixture(source), "/checkout", files, [
       module,
-      "Bathos.Graphics.SvgTemplates.Cli",
+      "ScalableVectorTemplates.Cli",
     ]),
   );
   assert.throws(() => check(fixture(source).replace("DA:1,1", "DA:1,0").replace("LH:1", "LH:0")));

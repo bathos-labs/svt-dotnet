@@ -1,4 +1,4 @@
-# Bathos.Graphics.SvgTemplates
+# ScalableVectorTemplates
 
 A BCL-only .NET 10 library for inspecting SVG template annotations and atomically replacing text,
 paint, and image values. Templates remain ordinary SVG artwork with authored preview content.
@@ -14,7 +14,7 @@ application. Each successful bind produces independently owned output; omission 
 content, while an empty text value replaces it.
 
 ```csharp
-using Bathos.Graphics.SvgTemplates;
+using ScalableVectorTemplates;
 using System.Text;
 
 var source = Encoding.UTF8.GetBytes("""

@@ -12,9 +12,9 @@ acceptance separate from successful package integration.
 
 Both shipping projects use the private, centrally pinned public API analyzer. Review declaration
 changes in `PublicAPI.Unshipped.txt`; preserve shipped declarations and nullable annotations. The
-full gate also packs the library against the published RC baseline and runs deliberate
-breaking-change checks. See [compatibility enforcement](eng/compatibility/README.md) for scope and
-baseline updates.
+full gate also validates the library package and runs deliberate source API breaking-change checks.
+The renamed packages establish a binary baseline after RC publication. See
+[compatibility enforcement](eng/compatibility/README.md) for scope and baseline updates.
 
 The solution contains a BCL-only inspection and substitution library, a BCL-only CLI executable, and
 three MSTest projects running portable fixtures, CLI process tests, boundary tests and package
@@ -45,7 +45,7 @@ task svt -- inspect examples/quickstart/template.svg
 Without Task:
 
 ```sh
-dotnet run --project src/Bathos.Graphics.SvgTemplates.Cli -c Release -- inspect examples/quickstart/template.svg
+dotnet run --project src/ScalableVectorTemplates.Cli -c Release -- inspect examples/quickstart/template.svg
 ```
 
 Task forwards quoted arguments, but maps command failures to its own status (normally 201). Build

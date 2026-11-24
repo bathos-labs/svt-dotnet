@@ -1,6 +1,6 @@
 # .NET authored-value interpretation API
 
-These types are implemented in the existing BCL-only `Bathos.Graphics.SvgTemplates` assembly and
+These types are implemented in the existing BCL-only `ScalableVectorTemplates` assembly and
 namespace. The [portable interpretation contract](../spec/interpretation.md) owns grammar,
 classification, precision, budget precedence and recovery.
 

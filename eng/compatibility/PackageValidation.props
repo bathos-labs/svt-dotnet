@@ -1,0 +1,18 @@
+<Project>
+  <!-- The renamed packages establish their first published binary baseline after rc.2 verification.
+       Source API declarations and behavioral tests enforce the reviewed contract in the meantime. -->
+  <PropertyGroup>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <ApiCompatEnableRuleCannotChangeParameterName>true</ApiCompatEnableRuleCannotChangeParameterName>
+  </PropertyGroup>
+  <Target Name="RequireSvtPackageValidation" BeforeTargets="Pack">
+    <Error Condition="'$(EnablePackageValidation)' != 'true' or '$(RunApiCompat)' == 'false' or '$(ApiCompatEnableRuleCannotChangeParameterName)' != 'true'"
+           Text="Package compatibility validation and named-parameter checks are required. Remove validation disable flags." />
+    <Error Condition="'$(TargetFramework)' != 'net10.0'" Text="The library package must retain portable net10.0 support." />
+    <Error Condition="'$(PackageValidationBaselineName)' != '' or '$(PackageValidationBaselineVersion)' != '' or '$(PackageValidationBaselinePath)' != ''"
+           Text="No published binary baseline is configured for the renamed package. Establish it after public verification of rc.2." />
+  </Target>
+  <Target Name="RefreshSvtPackageValidation" BeforeTargets="RunPackageValidation" DependsOnTargets="RequireSvtPackageValidation">
+    <Delete Files="$(_ApiCompatValidatePackageSemaphoreFile)" />
+  </Target>
+</Project>

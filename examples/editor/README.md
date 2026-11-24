@@ -2,10 +2,9 @@
 
 [PaintEditorAdapter.cs](PaintEditorAdapter.cs) is a framework-independent example for an opaque,
 8-bit RGB chooser. Its internal types belong to the host, not the library API. The same source is
-compiled into
-[behavioral tests](../../tests/Bathos.Graphics.SvgTemplates.Tests/EditorAdapterTests.cs) and the
-[isolated package consumer](../../eng/package/README.md#isolated-consumption). Repository-authored
-example code is covered by the [MIT license](../../LICENSE).
+compiled into [behavioral tests](../../tests/ScalableVectorTemplates.Tests/EditorAdapterTests.cs)
+and the [isolated package consumer](../../eng/package/README.md#isolated-consumption).
+Repository-authored example code is covered by the [MIT license](../../LICENSE).
 
 ## Keep three states separate
 

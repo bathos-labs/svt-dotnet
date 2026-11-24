@@ -3,7 +3,7 @@ using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using Bathos.Graphics.SvgTemplates;
+using ScalableVectorTemplates;
 
 RequireRelease();
 if (args.Length != 0) throw new ArgumentException("This runner accepts no arguments.");

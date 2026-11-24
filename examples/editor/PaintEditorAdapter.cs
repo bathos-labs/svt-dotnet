@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using System.Globalization;
-using Bathos.Graphics.SvgTemplates;
+using ScalableVectorTemplates;
 
 namespace SvgTemplateExamples;
 
