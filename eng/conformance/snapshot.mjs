@@ -8,6 +8,12 @@ const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 export async function verifySnapshot(directory) {
   const snapshot = JSON.parse(await readFile(resolve(directory, "snapshot.json"), "utf8"));
   assert.equal(snapshot.manifest_version, 1);
+  assert.match(snapshot.specification_version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+  assert.equal(snapshot.template_format, "1.0", "Unsupported reference template format");
+  assert.equal(
+    snapshot.template_format,
+    snapshot.specification_version.split(".").slice(0, 2).join("."),
+  );
   assert.equal(snapshot.source_repository, "https://github.com/svt-project/svt-spec");
   assert.match(snapshot.source_commit, /^[a-f0-9]{40}$/);
   assert.deepEqual(snapshot.exclusions, [], "This snapshot accepts the complete reference corpus");

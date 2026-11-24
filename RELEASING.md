@@ -5,7 +5,8 @@ under the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` identities
 `1.0.0-rc.1` packages were published under `Bathos.Graphics.SvgTemplates` and
 `Bathos.Graphics.SvgTemplates.Cli`; their artifacts and tags remain immutable. A version in source
 or a changelog is not publication authorization. Consumer and production-template acceptance must be
-renewed for the renamed RC. SVG and JSON format markers remain version 0.
+renewed for the renamed RC. SVG templates require marker 1.0; independent JSON envelopes retain
+version 0.
 
 Before freezing RC.2, complete the formal separation of portable specification, conformance data and
 authoring content from .NET API, CLI and release policy. Track acceptance in the

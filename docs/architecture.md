@@ -17,9 +17,9 @@ unusable root document.
 The core does not fetch images, probe paths, decode pixels, perform color management, resolve fonts
 or render SVG. Optional authored-literal interpretation may calculate sRGB components from the
 specified HSL subset.
-[Image values](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/images.md)
-describe supplied encoded content or references. Hosts retain resource authority. Labels are
-presentation metadata, not binding identity.
+[Image values](https://github.com/svt-project/svt-spec/blob/master/spec/images.md) describe supplied
+encoded content or references. Hosts retain resource authority. Labels are presentation metadata,
+not binding identity.
 
 Encoded-image substitution assembles a data URL from a validated literal media type and base64
 bytes, with XML escaping handled by serialization. Optional interpretation reads only a bounded
@@ -27,7 +27,7 @@ data-URL header. General URL parsing, normalization and resource resolution are 
 of discovery or binding; supplied image references remain opaque strings.
 
 The
-[central metadata contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
+[central metadata contract](https://github.com/svt-project/svt-spec/blob/master/spec/metadata.md)
 extends inspection with optional labels, descriptions, ordering and one level of groups. The
 specified RDF/XML envelope attaches one XML-valued input property to the document resource. The core
 recognizes that bounded XML profile without general RDF processing or resource resolution. Resolve
@@ -73,9 +73,9 @@ Renderer integration checks establish preview behavior for named environments. N
 identical pixels in every SVG viewer or preservation of annotations by every authoring tool.
 
 The [inspection API](inspection-api.md) and
-[SVT specification](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/README.md)
-define the first implementation boundary. The agreed [binding API](binding-api.md) and
-[substitution contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/substitution.md)
+[SVT specification](https://github.com/svt-project/svt-spec/blob/master/spec/README.md) define the
+first implementation boundary. The agreed [binding API](binding-api.md) and
+[substitution contract](https://github.com/svt-project/svt-spec/blob/master/spec/substitution.md)
 define substitution behavior. BindingConfiguration groups reusable immutable policy; it is not a
 service or mutable binding session. Encoded images own captured bytes; each bind produces an
 independent immutable document. The [interpretation API](interpretation-api.md) provides explicit
@@ -84,7 +84,7 @@ per-target operations after inspection.
 ## Optional value interpretation
 
 The
-[interpretation contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/interpretation.md)
+[interpretation contract](https://github.com/svt-project/svt-spec/blob/master/spec/interpretation.md)
 defines pure, opt-in operations over one inspected target at a time, in the existing assembly.
 Results retain the original immutable target and distinguish literal values, no paint, context
 requirements, resource references and unrecognized syntax. Discovery and binding do not invoke

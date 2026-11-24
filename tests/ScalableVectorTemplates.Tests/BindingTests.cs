@@ -11,7 +11,7 @@ namespace ScalableVectorTemplates.Tests;
 [TestClass]
 public sealed class BindingTests
 {
-    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='0'>";
+    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.0'>";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -251,7 +251,7 @@ public sealed class BindingTests
     [DataRow(true, true)]
     public void DocumentPreservationAcrossEncodings(bool withBom, bool withDeclaration)
     {
-        const string body = "<?before keep?>\n<s:svg xmlns:s='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='0' xml:base='assets/'>" +
+        const string body = "<?before keep?>\n<s:svg xmlns:s='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='1.0' xml:base='assets/'>" +
             "<s:g xml:space='preserve'> before <s:text data-svt-text='t'><!--leading--><![CDATA[old]]><?note keep?>tail</s:text> after " +
             "<foreign xmlns='urn:other' x:href='untouched' data-svt-fill='bad'><![CDATA[<raw>]]></foreign>" +
             "<s:image data-svt-image='i' href='' x:href='different'/></s:g></s:svg>\n<!--after-->";

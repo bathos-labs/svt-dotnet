@@ -2,12 +2,11 @@
 
 This document defines the implemented CLI. The lifecycle is inspect, prepare values, bind, then
 explicitly publish. The
-[inspection](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/inspection.md)
-and
-[substitution](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/substitution.md)
-contracts own template and replacement semantics. The CLI owns bounded file acquisition, request
-parsing, diagnostics presentation and output publication. It does not render, fetch references,
-interpret paint, decode images or certify SVG validity.
+[inspection](https://github.com/svt-project/svt-spec/blob/master/spec/inspection.md) and
+[substitution](https://github.com/svt-project/svt-spec/blob/master/spec/substitution.md) contracts
+own template and replacement semantics. The CLI owns bounded file acquisition, request parsing,
+diagnostics presentation and output publication. It does not render, fetch references, interpret
+paint, decode images or certify SVG validity.
 
 ## Tool distribution
 
@@ -435,8 +434,8 @@ Diagnostics appear only on stderr, not in this discovery object. A root rejectio
 `template_available: false` and an empty inputs array. A scoped error may accompany usable inputs.
 If inspection never runs because acquisition or request validation failed, stdout is empty.
 
-[Metadata](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
-fields are included on every discovery report, with `format_version: 0`:
+[Metadata](https://github.com/svt-project/svt-spec/blob/master/spec/metadata.md) fields are included
+on every discovery report, with `format_version: 0`:
 
 - Each input also contains `description`, `label_source` (`key`, `element` or `metadata`) and
   `order`. `label` is the resolved effective label. Description and order use explicit nulls when

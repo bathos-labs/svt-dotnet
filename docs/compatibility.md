@@ -8,9 +8,9 @@ behavior, rather than the size of a diff.
 
 The approved `1.0.0-rc.2` identity change replaces the Bathos-named packages and .NET namespaces
 with `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli`. The XML metadata namespace changes
-to `https://svt-project.github.io/ns/svt`. Format markers remain 0. Consumer and production-template
-acceptance must be renewed for this RC; acceptance of the earlier `Bathos.Graphics.SvgTemplates` RC
-does not establish acceptance of the new identities.
+to `https://svt-project.github.io/ns/svt`. Templates require marker `1.0`; JSON envelopes retain
+version 0. Consumer and production-template acceptance must be renewed for this RC; acceptance of
+the earlier `Bathos.Graphics.SvgTemplates` RC does not establish acceptance of the new identities.
 
 RC.2 preparation includes the approved identity changes and formal specification separation before
 its contract freeze. Once a candidate is frozen, avoid planned API or format changes during
@@ -61,17 +61,18 @@ contents, dependencies or runtime requirements still need compatibility review.
 ## Format versions
 
 The portable
-[format identity and versioning contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/versions.md)
+[format identity and versioning contract](https://github.com/svt-project/svt-spec/blob/master/spec/versions.md)
 defines the SVG marker, metadata namespace and fixture envelope independently of package versions.
-Stable `1.0.0` retains `data-svt-version="0"` and JSON `format_version: 0`. The implementation's CLI
-separately guarantees that omitted versions in binding/configuration JSON select format 0
-permanently, never the latest format.
+The implementation supports template format `1.0`, defined by specification edition `1.0.0`, and
+JSON `format_version: 0`. The implementation's CLI separately guarantees that omitted versions in
+binding/configuration JSON select format 0 permanently, never the latest format.
 
-Throughout 1.x, existing format-0 templates and requests retain their documented meaning. An
-incompatible format requires a new explicit marker; dropping support for an established format
-requires a major package release. Adding a format does not authorize changing the meaning of an
-existing marker or changing the default output format incompatibly. Do not implement speculative
-readers or migrations before a concrete format change is agreed.
+Throughout package 1.x, supported format-1.0 templates and format-0 JSON requests retain their
+documented meaning. Template marker `0` is unsupported. An incompatible format requires a new
+explicit marker; dropping support for an established format requires a major package release. Adding
+a format does not authorize changing the meaning of an existing marker or changing the default
+output format incompatibly. Do not implement speculative readers or migrations before a concrete
+format change is agreed.
 
 ## CLI and diagnostic evolution
 

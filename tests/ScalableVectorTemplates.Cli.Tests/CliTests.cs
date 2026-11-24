@@ -10,7 +10,7 @@ namespace ScalableVectorTemplates.Cli.Tests;
 [TestClass]
 public sealed class CliTests
 {
-    internal const string TemplateText = "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='0'><text data-svt-text='t'>original</text><image data-svt-image='i'/></svg>";
+    internal const string TemplateText = "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.0'><text data-svt-text='t'>original</text><image data-svt-image='i'/></svg>";
     internal const string EmptyBindings = "{\"format_version\":0,\"bindings\":[]}";
 
     /// <summary>Portable conformance executes through the real command entry point.</summary>
@@ -53,7 +53,7 @@ public sealed class CliTests
     {
         using var workspace = new Workspace();
         var source = workspace.Write("metadata.svg", """
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="1.0">
             <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal"><s:input key="heading" label="Headline" order="bad"/><s:input key="missing"/></s:inputs></r:Description></r:RDF></metadata>
             <text data-svt-text="heading" data-svt-label="Inline">Before</text>
             </svg>
@@ -80,7 +80,7 @@ public sealed class CliTests
     {
         using var workspace = new Workspace();
         const string xml = """
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="1.0">
               <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal">
                 <s:input key="a" order="-1"/>
                 <s:input key="b"><s:description>Before<g/>After</s:description></s:input>

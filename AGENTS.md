@@ -16,8 +16,9 @@
   required SemVer policy in docs/compatibility.md. Stable guarantees take effect at 1.0.0. Prepare
   1.0.0-rc.2 with the approved ScalableVectorTemplates identities and metadata URI
   https://svt-project.github.io/ns/svt. Complete formal specification/content separation before the
-  RC.2 freeze; publication requires explicit authorization. Format envelopes remain version 0 at
-  stable 1.0 as well as during prerelease.
+  RC.2 freeze; publication requires explicit authorization. Templates require the exact marker 1.0,
+  matching the specification edition's major/minor components; no format-0 template reader.
+  Independent JSON envelopes remain version 0.
 - Treat all repository content as future public material, including issues, PRs, commit messages,
   comments, tests, examples and agent guidance. Describe consumers by generic capabilities and
   roles; never include private product names, repository links, issue identifiers, source paths or

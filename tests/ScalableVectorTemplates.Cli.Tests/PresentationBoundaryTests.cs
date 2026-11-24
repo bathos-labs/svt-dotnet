@@ -76,7 +76,7 @@ public sealed class PresentationBoundaryTests
     {
         using var w = new Workspace();
         w.Write("template.svg", """
-            <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="1.0">
               <text data-svt-text="heading"><tspan>Child</tspan></text>
             </svg>
             """);

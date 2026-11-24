@@ -6,17 +6,23 @@ Specification updates do not change this checkout automatically.
 
 ## Snapshot provenance
 
-`conformance/snapshot.json` records the source repository, full specification commit, asset-set
-digest, license and full accepted file inventory. `node eng/conformance/check.mjs` verifies the
-local bytes and detects missing, changed or extra canonical files without network access. The full
-gate runs this check before tests. Imported data is unchanged; implementation-specific tests live
-under `tests/`, and visual examples remain under `examples/authoring/`.
+The accepted specification edition is **1.0.0**, defining template format **1.0**.
+`conformance/snapshot.json` records the source repository, specification edition, template format,
+full specification commit, asset-set digest, license and full accepted file inventory.
+`node eng/conformance/check.mjs` verifies the local bytes and detects missing, changed or extra
+canonical files without network access. The full gate runs this check before tests. Imported data is
+unchanged; implementation-specific tests live under `tests/`, and visual examples remain under
+`examples/authoring/`.
 
-To adopt a new snapshot, review the source commit and its portable contract changes, copy the listed
-canonical files from that revision, and update the provenance manifest in the same reviewed change.
-Retain LICENSE and any applicable notices; record exclusions explicitly (none in this snapshot). Run
-the full gate and relevant package/native checks before accepting the update. Never fetch a floating
-specification revision during builds or tests.
+General specification links lead to current repository documentation. The accepted edition and exact
+tested source are identified by the snapshot; later documentation corrections do not require asset
+updates or imply support for newer template formats. Published editions use immutable SemVer tags.
+
+To adopt a new snapshot, review the edition and source commit and its portable contract changes,
+copy the listed canonical files from that revision, and update the provenance manifest in the same
+reviewed change. Retain LICENSE and any applicable notices; record exclusions explicitly (none in
+this snapshot). Run the full gate and relevant package/native checks before accepting the update.
+Never fetch a floating specification revision during builds or tests.
 
 The .NET implementation uses the accepted reference budget profiles as its current defaults; changes
 remain subject to [compatibility policy](compatibility.md). Cancellation maps to the exceptions in

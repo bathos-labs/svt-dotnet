@@ -33,14 +33,14 @@ failures or programming defects into authoring diagnostics.
 - `TargetDefault` exposes State (Present or Absent), nullable `Raw`, and nullable `Source`
   (TextContent, Fill, Stroke, Href or XLinkHref). Present always contains a string, including empty;
   Absent never does. Source follows the
-  [default evidence contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/defaults.md).
+  [default evidence contract](https://github.com/svt-project/svt-spec/blob/master/spec/defaults.md).
 - `InputDefault` exposes State (Common, Mixed or Absent) and nullable common `Raw`. Only Common
   contains a string. No typed color or parsed URI appears in the discovery model.
 - `Diagnostic` contains `Code`, `Severity` (Error or Warning), `Message`, nullable `Key`, nullable
   `Location`, immutable `RelatedLocations` and nullable `Limit`. Limit is present only for a budget
   diagnostic and uses the exact option name.
 - `SourceLocation` contains positive one-based `Line` and `Column` using the
-  [specified source convention](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/inspection.md).
+  [specified source convention](https://github.com/svt-project/svt-spec/blob/master/spec/inspection.md).
 - `InspectionOptions` exposes the seven positive integer budgets in that contract with the stated
   defaults. Snapshot options at call entry; no global mutable defaults.
 
@@ -58,9 +58,9 @@ color/URI properties to TemplateTarget or TemplateInput.
 ## Presentation metadata extension
 
 Resolve the
-[metadata contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
-during inspection, after structural input admission. These public members expose resolved
-presentation in the existing assembly and namespace:
+[metadata contract](https://github.com/svt-project/svt-spec/blob/master/spec/metadata.md) during
+inspection, after structural input admission. These public members expose resolved presentation in
+the existing assembly and namespace:
 
 ```csharp
 public enum InputLabelSource { Key, Element, Metadata }

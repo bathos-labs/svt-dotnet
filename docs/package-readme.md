@@ -18,7 +18,7 @@ using ScalableVectorTemplates;
 using System.Text;
 
 var source = Encoding.UTF8.GetBytes("""
-    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="1.0">
       <text data-svt-text="heading" data-svt-label="Heading">Welcome</text>
     </svg>
     """);
@@ -66,11 +66,11 @@ programming errors throw, and cancellation throws `OperationCanceledException`.
 
 For editor forms, `InspectedTemplate.InputGroups` supplies ordered groups containing the same input
 objects as `Inputs`; `Inputs` retains structural discovery order. Optional
-[metadata](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/metadata.md)
-supplies central labels, plain-text descriptions and ordering. Each input reports `LabelSource`,
-nullable Description and nullable Order. Ungrouped inputs appear in a final section with null group
-Key and Label; every admitted input remains visible. These presentation hints do not impose binding
-requirements or change raw defaults.
+[metadata](https://github.com/svt-project/svt-spec/blob/master/spec/metadata.md) supplies central
+labels, plain-text descriptions and ordering. Each input reports `LabelSource`, nullable Description
+and nullable Order. Ungrouped inputs appear in a final section with null group Key and Label; every
+admitted input remains visible. These presentation hints do not impose binding requirements or
+change raw defaults.
 
 For typed editor controls, explicitly call `DefaultInterpreter.InterpretPaint(target)` on a fill or
 stroke target, or `InterpretImage(target)` on an image target. Literal paints expose normalized
@@ -87,8 +87,7 @@ SVG. Raw authored defaults are evidence, not effective rendered styles. Hosts co
 resource policy, rendering and output publication. A successful bind does not prove that an editor
 preserved annotations or that a renderer can display the result.
 
-See the
-[specification](https://github.com/svt-project/svt-spec/tree/6a3ad4f809e33306035e82f1d22c862d385fed03/spec),
+See the [specification](https://github.com/svt-project/svt-spec/tree/master/spec),
 [binding API](https://github.com/svt-project/svt-dotnet/blob/master/docs/binding-api.md), and
 [authoring examples](https://github.com/svt-project/svt-dotnet/tree/master/examples/authoring). The
 package contains the library, XML API documentation, README and license notices; the CLI and native

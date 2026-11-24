@@ -46,7 +46,7 @@ concurrent reuse and requires no disposal. `Default` is immutable, not a global 
 
 Both operations below accept nullable configuration; null selects `BindingConfiguration.Default`.
 There is no second per-call options layer. The
-[substitution contract](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/substitution.md)
+[substitution contract](https://github.com/svt-project/svt-spec/blob/master/spec/substitution.md)
 defines budget counting and failure policy.
 
 ## Assignment and binding
@@ -281,8 +281,7 @@ its bytes, exposes no buffer, retains no configuration and needs no disposal. Cr
 produce base64 or decode pixels. Bind rechecks the image against its own configuration, even when
 creation used a more permissive configuration. Creation checks byte limit, media-type length, then
 grammar before capture. See
-[images](https://github.com/svt-project/svt-spec/blob/6a3ad4f809e33306035e82f1d22c862d385fed03/spec/images.md)
-for formatting.
+[images](https://github.com/svt-project/svt-spec/blob/master/spec/images.md) for formatting.
 
 ```csharp
 var configuration = new BindingConfiguration(

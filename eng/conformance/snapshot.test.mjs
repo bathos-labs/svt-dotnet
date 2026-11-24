@@ -36,6 +36,15 @@ test("changed, missing and additional reference files fail verification", async 
 test("invalid source identity or digest cannot attest a snapshot", async () => {
   for (const change of [
     (s) => {
+      s.specification_version = "latest";
+    },
+    (s) => {
+      s.specification_version = "1.1.0";
+    },
+    (s) => {
+      s.template_format = "0";
+    },
+    (s) => {
       s.source_commit = "master";
     },
     (s) => {
