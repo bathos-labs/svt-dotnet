@@ -13,12 +13,13 @@
   repository-authored assets; preserve LICENSE and applicable third-party notices. Do not publish
   packages, push release tags or change repository visibility without explicit authorization. Do not
   introduce compatibility readers, aliases or migrations for development formats. Follow the
-  required SemVer policy in docs/compatibility.md. Stable guarantees take effect at 1.0.0. Prepare
-  1.0.0-rc.2 with the approved ScalableVectorTemplates identities and metadata URI
-  https://svt-project.github.io/ns/svt. Complete formal specification/content separation before the
-  RC.2 freeze; publication requires explicit authorization. Templates require the exact marker 1.0,
-  matching the specification edition's major/minor components; no format-0 template reader.
-  Independent JSON envelopes remain version 0.
+  required SemVer policy in docs/compatibility.md. Stable guarantees take effect at 1.0.0. Published
+  1.0.0-rc.2 uses the ScalableVectorTemplates identities and metadata URI
+  https://svt-project.github.io/ns/svt. Specification/content separation is complete. Preserve the
+  verified RC.2 binary baseline alongside source API and behavioral checks; further publication
+  requires explicit authorization. Templates require the exact marker 1.0, matching the
+  specification edition's major/minor components; no format-0 template reader. Independent JSON
+  envelopes remain version 0.
 - Treat all repository content as future public material, including issues, PRs, commit messages,
   comments, tests, examples and agent guidance. Describe consumers by generic capabilities and
   roles; never include private product names, repository links, issue identifiers, source paths or
