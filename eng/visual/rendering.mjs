@@ -1,3 +1,4 @@
+import { verifySnapshot } from "../conformance/snapshot.mjs";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir, cp, readdir, mkdtemp } from "node:fs/promises";
@@ -27,6 +28,7 @@ export async function runRendering({ purpose, source, baseline = null }, checks)
   const report = {
     format_version: 0,
     purpose,
+    reference_snapshot: await verifySnapshot(resolve(root, "conformance")),
     git_head: (await command("git", ["rev-parse", "HEAD"])).stdout.trim(),
     dirty: Boolean((await command("git", ["status", "--porcelain"])).stdout.trim()),
     environment: {

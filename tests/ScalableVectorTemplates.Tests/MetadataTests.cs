@@ -7,7 +7,7 @@ namespace ScalableVectorTemplates.Tests;
 [TestClass]
 public sealed class MetadataTests
 {
-    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' xmlns:s='https://svt-project.github.io/ns/svt' xmlns:r='http://www.w3.org/1999/02/22-rdf-syntax-ns#' data-svt-version='0'>";
+    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' xmlns:s='https://svt-project.github.io/ns/svt' xmlns:r='http://www.w3.org/1999/02/22-rdf-syntax-ns#' data-svt-version='1.0'>";
     private const string Paint = "<rect data-svt-fill='a' data-svt-stroke='b' data-svt-label='Inline' fill='red' stroke='none'/>";
     private static string Envelope(string declarations) => "<metadata><r:RDF><r:Description r:about=''><s:inputs r:parseType='Literal'>" + declarations + "</s:inputs></r:Description></r:RDF></metadata>";
     private static string Xml(string declarations, string artwork = Paint) => Start + Envelope(declarations) + artwork + "</svg>";
@@ -36,7 +36,7 @@ public sealed class MetadataTests
                 .Replace("xmlns:s=", "xmlns:svt=", StringComparison.Ordinal).Replace("<s:", "<svt:", StringComparison.Ordinal).Replace("</s:", "</svt:", StringComparison.Ordinal),
             xml.Replace("<r:RDF>", "<RDF xmlns='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>", StringComparison.Ordinal)
                 .Replace("</r:RDF>", "</RDF>", StringComparison.Ordinal).Replace("r:Description", "Description", StringComparison.Ordinal),
-            xml.Replace("data-svt-version='0'", "data-svt-version='0' xml:base='https://example.test/template.svg'", StringComparison.Ordinal)
+            xml.Replace("data-svt-version='1.0'", "data-svt-version='1.0' xml:base='https://example.test/template.svg'", StringComparison.Ordinal)
         })
         {
             var result = Inspect(variant);

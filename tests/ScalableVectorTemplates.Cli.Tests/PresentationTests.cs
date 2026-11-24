@@ -111,7 +111,7 @@ public sealed class PresentationTests
     {
         using var w = new Workspace();
         const string svg = """
-            <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="1.0">
               <text data-svt-text="heading" data-svt-label="Heading">Welcome</text>
               <g data-svt-fill="shared" fill="red"/><g data-svt-stroke="shared" stroke="red"/>
               <g data-svt-fill="mixed" fill="red"/><g data-svt-stroke="mixed"/>
@@ -138,7 +138,7 @@ public sealed class PresentationTests
         var inputs = JsonNode.Parse(json.Output)?["inputs"]?.AsArray();
         Assert.IsNotNull(inputs);
         Assert.AreEqual("DaTa:invalid,secret-payload", (string?)inputs[5]?["default"]?["raw"]);
-        w.Write("template.svg", "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='0'/>");
+        w.Write("template.svg", "<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.0'/>");
         var empty = await w.Run("inspect", "template.svg");
         Assert.AreEqual(0, empty.ExitCode);
         Assert.AreEqual("No editable inputs found.\n", empty.Output);
@@ -156,7 +156,7 @@ public sealed class PresentationTests
         var longKey = new string('k', 200);
         var longText = new string('x', 200) + "é😀";
         w.Write("template.svg", $$"""
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="0">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:s="https://svt-project.github.io/ns/svt" xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#" data-svt-version="1.0">
             <metadata><r:RDF><r:Description r:about=""><s:inputs r:parseType="Literal">
               <s:input key="{{longKey}}" label="{{longText}}" order="20"><s:description>{{longText}}</s:description></s:input>
               <s:input key="second" order="10"/>

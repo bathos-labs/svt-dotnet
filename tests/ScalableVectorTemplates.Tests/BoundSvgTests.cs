@@ -12,7 +12,7 @@ public sealed class BoundSvgTests
     private const string Source = """
         <?before keep?>
         <?xml-stylesheet href="style.css" type="text/css"?>
-        <s:svg xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="0">
+        <s:svg xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="1.0">
           <s:text data-svt-text="t"><!--before-->old<?note keep?><!--after--></s:text>
           <s:text data-svt-text="empty">clear</s:text>
           <s:image data-svt-image="i" href="old" x:href="other"/>

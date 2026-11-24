@@ -27,8 +27,8 @@ public static class TemplateInspector
             var root = Parse(text, limits, cancellationToken);
             if (root.Name != XName.Get("svg", Svg))
                 return Failure("svt.root.invalid", "Expected an SVG root.", Point(root));
-            if ((string?)root.Attribute("data-svt-version") != "0")
-                return Failure("svt.version.invalid", "Expected version zero.", Point(root.Attribute("data-svt-version") ?? (XObject)root));
+            if ((string?)root.Attribute("data-svt-version") != "1.0")
+                return Failure("svt.version.invalid", "Expected template format 1.0.", Point(root.Attribute("data-svt-version") ?? (XObject)root));
             return Discover(text, root, limits, cancellationToken);
         }
         catch (InspectionFailure failure)

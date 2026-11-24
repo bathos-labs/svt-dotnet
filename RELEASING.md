@@ -5,7 +5,8 @@ under the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` identities
 `1.0.0-rc.1` packages were published under `Bathos.Graphics.SvgTemplates` and
 `Bathos.Graphics.SvgTemplates.Cli`; their artifacts and tags remain immutable. A version in source
 or a changelog is not publication authorization. Consumer and production-template acceptance must be
-renewed for the renamed RC. SVG and JSON format markers remain version 0.
+renewed for the renamed RC. SVG templates require marker 1.0; independent JSON envelopes retain
+version 0.
 
 Before freezing RC.2, complete the formal separation of portable specification, conformance data and
 authoring content from .NET API, CLI and release policy. Track acceptance in the
@@ -19,7 +20,7 @@ build alone does not satisfy this gate. The approved metadata URI is
 
 One release contains `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` at one
 version/commit, with symbols for both. The CLI bundles the same library DLL/PDB. The CLI command
-remains `svt`. See the [packaging contract](spec/tool-distribution.md).
+remains `svt`. See the [packaging contract](docs/tool-distribution.md).
 
 Archive and verify the candidate and its portable/platform/native evidence in a draft GitHub release
 before the first NuGet upload. Publish that draft only after both products pass public consumption,
@@ -28,7 +29,7 @@ publication.
 
 ## Version and branch policy
 
-Follow the required [Semantic Versioning and compatibility policy](spec/compatibility.md). Classify
+Follow the required [Semantic Versioning and compatibility policy](docs/compatibility.md). Classify
 changes by their effect on the public contract: compatible fixes are patches, compatible additions
 and deprecations are minor revisions, and incompatible changes are major revisions. Use the highest
 classification required by either package. Review behavior, defaults and machine output as well as

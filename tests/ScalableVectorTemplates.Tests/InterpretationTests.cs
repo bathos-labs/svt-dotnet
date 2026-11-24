@@ -152,7 +152,7 @@ public sealed class InterpretationTests
     public void EvidenceAndBindingIndependence()
     {
         var template = Inspect("""
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="0" opacity=".2">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="1.0" opacity=".2">
               <g data-svt-fill="paint" fill="red" fill-opacity=".1"/>
               <g data-svt-stroke="paint" stroke="#ff0000"/>
               <g data-svt-fill="unsupported" fill="color(display-p3 1 0 0)"/>
@@ -180,7 +180,7 @@ public sealed class InterpretationTests
         Assert.AreEqual(InputDefaultState.Mixed, paint.Default.State);
         Assert.AreEqual("red", paint.Targets[0].Default.Raw);
         Assert.AreEqual("#ff0000", paint.Targets[1].Default.Raw);
-        var emptyHref = Inspect("<svg xmlns='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='0'><image data-svt-image='i' href='' x:href='image.png'/></svg>").Inputs[0].Targets[0];
+        var emptyHref = Inspect("<svg xmlns='http://www.w3.org/2000/svg' xmlns:x='http://www.w3.org/1999/xlink' data-svt-version='1.0'><image data-svt-image='i' href='' x:href='image.png'/></svg>").Inputs[0].Targets[0];
         Assert.AreEqual(ImageInterpretationKind.Empty, DefaultInterpreter.InterpretImage(emptyHref).Kind);
         Assert.AreEqual(DefaultSource.Href, emptyHref.Default.Source);
         var encoded = EncodedImage.Create(new byte[3], "image/X^+!");
@@ -248,7 +248,7 @@ public sealed class InterpretationTests
             if (hook == TargetHook.Text) element.Value = raw;
             else element.Add(new XAttribute(field, raw));
         }
-        var root = new XElement(Svg + "svg", new XAttribute("data-svt-version", "0"), element);
+        var root = new XElement(Svg + "svg", new XAttribute("data-svt-version", "1.0"), element);
         return Inspect(root.ToString(SaveOptions.DisableFormatting)).Inputs[0].Targets[0];
     }
 

@@ -10,7 +10,7 @@ namespace ScalableVectorTemplates.Tests;
 [TestClass]
 public sealed class InspectionTests
 {
-    private const string Start = "<svg xmlns=\"http://www.w3.org/2000/svg\" data-svt-version=\"0\">";
+    private const string Start = "<svg xmlns=\"http://www.w3.org/2000/svg\" data-svt-version=\"1.0\">";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
@@ -102,6 +102,15 @@ public sealed class InspectionTests
     [DataRow("<svg/>", "svt.root.invalid")]
     [DataRow("<svg xmlns='http://www.w3.org/2000/svg'/>", "svt.version.invalid")]
     [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='0'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.0.0'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.1'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='2.0'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='01.0'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.00'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version=' 1.0 '/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version='1.0-rc.1'/>", "svt.version.invalid")]
+    [DataRow("<svg xmlns='http://www.w3.org/2000/svg' data-svt-version=''/>", "svt.version.invalid")]
     [DataRow("<!DOCTYPE svg SYSTEM 'file:///unavailable'><svg/>", "svt.xml.dtd")]
     [DataRow("<!DOCTYPE svg [<!ENTITY x 'value'>]><svg>&x;</svg>", "svt.xml.dtd")]
     [DataRow("<?xml version='1.0' encoding='iso-8859-1'?><svg/>", "svt.xml.encoding")]
@@ -159,7 +168,7 @@ public sealed class InspectionTests
             "<foreign xmlns='urn:foreign' data-svt-fill='色'/>" +
             "<text data-svt-text='t'><tspan/></text>" +
             "<text data-svt-text='t'/>" +
-            "<g data-svt-fill='' data-svt-unknown='' data-svt-version='0'/>" +
+            "<g data-svt-fill='' data-svt-unknown='' data-svt-version='1.0'/>" +
             "<image data-svt-image='i' href='not a uri %'/>");
         Assert.IsNotNull(result.Template);
         Assert.HasCount(3, result.Template.Inputs);
@@ -178,7 +187,7 @@ public sealed class InspectionTests
     [TestMethod]
     public void LocationsAndNamespaces()
     {
-        var result = TemplateInspector.Inspect(Encoding.UTF8.GetBytes("<s:svg xmlns:s='http://www.w3.org/2000/svg' data-svt-version='0'>\r\n\t<s:g title='😀é' data-svt-fill='x'/>\r\n</s:svg>"));
+        var result = TemplateInspector.Inspect(Encoding.UTF8.GetBytes("<s:svg xmlns:s='http://www.w3.org/2000/svg' data-svt-version='1.0'>\r\n\t<s:g title='😀é' data-svt-fill='x'/>\r\n</s:svg>"));
         Assert.IsNotNull(result.Template);
         var point = result.Template.Inputs[0].Targets[0].Location;
         Assert.AreEqual(2, point.Line);

@@ -27,7 +27,7 @@ readability. Download the linked template for a runnable example:
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="360"
-     viewBox="0 0 720 360" data-svt-version="0">
+     viewBox="0 0 720 360" data-svt-version="1.0">
   <!-- Fixed artwork and styling omitted. -->
   <path d="M32 80H104" stroke="#2563eb" data-svt-stroke="accent"/>
   <text x="32" y="145" data-svt-text="heading"
@@ -68,8 +68,10 @@ The changed values in the output are:
 Both excerpts abbreviate the image payload; the output contains the replacement image's bytes as a
 base64 data URI. Image bindings can embed supplied content or replace a URI reference. The
 annotations remain in the output; omitted inputs keep their authored values. See the
-[specification](spec/README.md) for the format overview and [binding syntax](spec/bindings.md) for
-the complete annotation rules. The walkthrough below applies these same replacements with the CLI.
+[specification](https://github.com/svt-project/svt-spec/blob/master/spec/README.md) for the format
+overview and [binding syntax](https://github.com/svt-project/svt-spec/blob/master/spec/bindings.md)
+for the complete annotation rules. The walkthrough below applies these same replacements with the
+CLI.
 
 ## Use the library
 
@@ -81,7 +83,7 @@ dotnet add package ScalableVectorTemplates --version '[1.0.0-rc.2]'
 
 Start with the [package guide](docs/package-readme.md) for API usage and integration examples. See
 the [changelog](CHANGELOG.md) for release history and the
-[compatibility policy](spec/compatibility.md) for versioning guarantees. Package versions are
+[compatibility policy](docs/compatibility.md) for versioning guarantees. Package versions are
 separate from the SVG and JSON format markers.
 
 ## Try it
@@ -149,7 +151,7 @@ If a command fails:
 
 Add `--help` or `-h` after `inspect` or `bind` for options. Use `inspect --format json` for complete
 values and `--diagnostics json` for machine-readable errors on stderr. See the
-[CLI reference](spec/cli.md) for configuration and image bindings.
+[CLI reference](docs/cli.md) for configuration and image bindings.
 
 ### Use in a project or script
 
@@ -179,7 +181,8 @@ name, check `command -v svt` on macOS/Linux or `Get-Command svt` in PowerShell, 
 
 Add binding keys and optional labels to ordinary SVG elements. Start with the
 [authoring guide](docs/authoring.md) and [more examples](examples/authoring/README.md), or read the
-[specification](spec/README.md) for the full contract.
+[specification](https://github.com/svt-project/svt-spec/blob/master/spec/README.md) for the full
+contract.
 
 SVT replaces values; it does not render, fetch images, fit text or compute CSS. Applications supply
 resources and choose how to display the result. `SVT` is a working format name, not an established

@@ -124,7 +124,7 @@ Console.WriteLine(JsonSerializer.Serialize(new
 static BoundSvg CreateDocument(bool large)
 {
     const string source = """
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="0">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="1.0">
           <text data-svt-text="heading"/>
           <image data-svt-image="first" href="old" x:href="old"/>
           <image data-svt-image="second" href="old" x:href="old"/>

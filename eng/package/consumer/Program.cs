@@ -63,7 +63,7 @@ Check(prepared.Diagnostics.IsEmpty, "Image preparation diagnostics.");
 var image = prepared.Image ?? throw new InvalidOperationException("Image preparation failed.");
 Array.Fill(imageBytes, (byte)0);
 var images = Inspect(Encoding.UTF8.GetBytes("""
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="0">
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" data-svt-version="1.0">
       <image data-svt-image="content" href="old" x:href="old"/>
       <image data-svt-image="reference" href="original"/>
     </svg>
@@ -81,7 +81,7 @@ Check(Success(images.Bind(assignments, configuration)).Xml == originalImageOutpu
 checks.Add("encoded-images-references-and-policy-recheck");
 
 var interpretedSource = Inspect(Encoding.UTF8.GetBytes("""
-    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="0">
+    <svg xmlns="http://www.w3.org/2000/svg" data-svt-version="1.0">
       <g data-svt-fill="color" fill="hsl(120 100% 50% / 25%)"/>
       <g data-svt-stroke="color" stroke="rgb(0 255 0 / .25)"/>
       <g data-svt-fill="context" fill="var(--accent)"/>
@@ -122,7 +122,7 @@ checks.Add("per-target-interpretation-and-preservation");
 foreach (var raw in new[] { "red", "#abc", "rgb(.1 50% 0)" })
 {
     var editorTemplate = Inspect(Encoding.UTF8.GetBytes(
-        $"<svg xmlns=\"http://www.w3.org/2000/svg\" data-svt-version=\"0\"><g data-svt-fill=\"paint\" fill=\"{raw}\"/></svg>"));
+        $"<svg xmlns=\"http://www.w3.org/2000/svg\" data-svt-version=\"1.0\"><g data-svt-fill=\"paint\" fill=\"{raw}\"/></svg>"));
     var adapter = new PaintEditorAdapter(editorTemplate.Inputs[0]);
     var seed = adapter.InitialChooserValue ?? throw new InvalidOperationException("Missing chooser seed.");
     var initialized = adapter.OpenChooser();

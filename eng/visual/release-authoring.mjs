@@ -1,3 +1,4 @@
+import { verifySnapshot } from "../conformance/snapshot.mjs";
 import assert from "node:assert/strict";
 import { readFile, writeFile, mkdir, cp, copyFile, mkdtemp } from "node:fs/promises";
 import { resolve, relative } from "node:path";
@@ -26,6 +27,7 @@ const output = await mkdtemp(resolve(root, "artifacts/native-release-check-autho
 const report = {
   format_version: 0,
   purpose: "release-check",
+  reference_snapshot: await verifySnapshot(resolve(root, "conformance")),
   git_head: (await command("git", ["rev-parse", "HEAD"])).stdout.trim(),
   dirty: Boolean((await command("git", ["status", "--porcelain"])).stdout.trim()),
   hashes: {},

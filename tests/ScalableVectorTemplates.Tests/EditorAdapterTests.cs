@@ -171,7 +171,7 @@ public sealed class EditorAdapterTests
         XNamespace svg = "http://www.w3.org/2000/svg";
         var elements = raw.Select(value => new XElement(svg + "g", new XAttribute("data-svt-fill", "paint"),
             value is null ? null : new XAttribute("fill", value)));
-        var xml = new XElement(svg + "svg", new XAttribute("data-svt-version", "0"), elements);
+        var xml = new XElement(svg + "svg", new XAttribute("data-svt-version", "1.0"), elements);
         var inspection = TemplateInspector.Inspect(Encoding.UTF8.GetBytes(xml.ToString()));
         Assert.IsEmpty(inspection.Diagnostics);
         Assert.IsNotNull(inspection.Template);
