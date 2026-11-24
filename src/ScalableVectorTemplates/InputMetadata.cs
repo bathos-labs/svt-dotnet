@@ -8,7 +8,7 @@ namespace ScalableVectorTemplates;
 internal sealed class InputMetadata
 {
     internal static readonly XName SvgMetadata = XName.Get("metadata", "http://www.w3.org/2000/svg");
-    private static readonly XNamespace Namespace = "https://bathos-labs.github.io/svt";
+    private static readonly XNamespace Namespace = "https://svt-project.github.io/ns/svt";
     private static readonly XNamespace Rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     internal sealed record Fields(string? Label, string? Description, int? Order, string? Group);
     internal Dictionary<string, Fields> Inputs { get; } = new(StringComparer.Ordinal);

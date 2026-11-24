@@ -7,7 +7,7 @@ namespace ScalableVectorTemplates.Tests;
 [TestClass]
 public sealed class MetadataTests
 {
-    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' xmlns:s='https://bathos-labs.github.io/svt' xmlns:r='http://www.w3.org/1999/02/22-rdf-syntax-ns#' data-svt-version='0'>";
+    private const string Start = "<svg xmlns='http://www.w3.org/2000/svg' xmlns:s='https://svt-project.github.io/ns/svt' xmlns:r='http://www.w3.org/1999/02/22-rdf-syntax-ns#' data-svt-version='0'>";
     private const string Paint = "<rect data-svt-fill='a' data-svt-stroke='b' data-svt-label='Inline' fill='red' stroke='none'/>";
     private static string Envelope(string declarations) => "<metadata><r:RDF><r:Description r:about=''><s:inputs r:parseType='Literal'>" + declarations + "</s:inputs></r:Description></r:RDF></metadata>";
     private static string Xml(string declarations, string artwork = Paint) => Start + Envelope(declarations) + artwork + "</svg>";
@@ -50,6 +50,36 @@ public sealed class MetadataTests
                 XElement.Parse(bound.Document.Xml).Element(InputMetadataName())));
             Assert.AreEqual("Central", Template(Inspect(bound.Document.Xml)).Inputs[0].Label);
         }
+    }
+
+    /// <summary>Namespace names match exactly; unrecognized metadata is preserved without affecting hooks.</summary>
+    [TestMethod]
+    [DataRow("urn:example:foreign")]
+    [DataRow("https://svt-project.github.io/ns/svt/")]
+    [DataRow("https://svt-project.github.io/ns/SVT")]
+    [DataRow("http://svt-project.github.io/ns/svt")]
+    public void UnrecognizedMetadataNamespaceIsOpaque(string namespaceName)
+    {
+        var xml = Xml("<s:group key='g' label='Group'/><s:input key='a' label='Central' order='1' group='g'><s:description>Help</s:description></s:input>")
+            .Replace("https://svt-project.github.io/ns/svt", namespaceName, StringComparison.Ordinal);
+        var result = Inspect(xml);
+        Assert.IsEmpty(result.Diagnostics);
+        var template = Template(result);
+        Assert.HasCount(2, template.Inputs);
+        var input = template.Inputs[0];
+        Assert.AreEqual("Inline", input.Label);
+        Assert.AreEqual(InputLabelSource.Element, input.LabelSource);
+        Assert.IsNull(input.Description);
+        Assert.IsNull(input.Order);
+        Assert.HasCount(1, template.InputGroups);
+        Assert.IsNull(template.InputGroups[0].Key);
+        var bound = template.Bind([TemplateBinding.Paint("a", "blue")]);
+        Assert.IsNotNull(bound.Document);
+        Assert.IsEmpty(bound.Diagnostics);
+        var output = XElement.Parse(bound.Document.Xml);
+        Assert.IsTrue(XNode.DeepEquals(XElement.Parse(xml).Element(InputMetadataName()), output.Element(InputMetadataName())));
+        Assert.AreEqual("blue", (string?)output.Element(XName.Get("rect", "http://www.w3.org/2000/svg"))?.Attribute("fill"));
+        Assert.AreEqual("Inline", Template(Inspect(bound.Document.Xml)).Inputs[0].Label);
     }
 
     /// <summary>Other subjects, namespaces and placements cannot activate the XML literal.</summary>
