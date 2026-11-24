@@ -1,5 +1,9 @@
 # .NET binding API
 
+Detailed validation, diagnostics, resource accounting and cancellation follow the
+[.NET processing policy](processing-policy.md). These are implementation promises, not requirements
+for other SVT implementations.
+
 This is the implemented substitution contract. All types belong to `ScalableVectorTemplates`. The
 lifecycle is inspect, prepare values, bind, then consume the independent output. Hosts own
 acquisition, rendering and publication. This guide describes the `1.0.0-rc.2` candidate, including
@@ -46,8 +50,8 @@ concurrent reuse and requires no disposal. `Default` is immutable, not a global 
 
 Both operations below accept nullable configuration; null selects `BindingConfiguration.Default`.
 There is no second per-call options layer. The
-[substitution contract](https://github.com/svt-project/svt-spec/blob/master/spec/substitution.md)
-defines budget counting and failure policy.
+[.NET processing policy](processing-policy.md#binding-request-policy) defines budget counting and
+failure policy. The portable substitution contract defines successful output semantics.
 
 ## Assignment and binding
 

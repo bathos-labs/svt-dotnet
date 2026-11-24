@@ -1,9 +1,14 @@
 # .NET authored-value interpretation API
 
+Detailed validation, diagnostics, resource accounting and cancellation follow the
+[.NET processing policy](processing-policy.md). These are implementation promises, not requirements
+for other SVT implementations.
+
 These types are implemented in the existing BCL-only `ScalableVectorTemplates` assembly and
 namespace. The
 [portable interpretation contract](https://github.com/svt-project/svt-spec/blob/master/spec/interpretation.md)
-owns grammar, classification, precision, budget precedence and recovery.
+owns grammar, classification and precision. Budget precedence and operational failures follow the
+[.NET interpretation resource policy](processing-policy.md#interpretation-resource-policy).
 
 ## Entry points and lifecycle
 
@@ -112,7 +117,7 @@ Enforce these state invariants:
   kind also has null. Do not invent an image type or expose a partial invalid header.
 - ExceededLimit is non-null only for UnsupportedOrUnrecognized caused by that budget. Other
   unsupported results have null ExceededLimit. A limit outcome contains no color or media type.
-  Exactly one limit is reported, following portable precedence.
+  Exactly one limit is reported, following .NET policy precedence.
 
 There is no separate diagnostic collection or message string. Kinds and ExceededLimit provide
 machine-readable outcomes without introducing warning text or severity into template inspection.
