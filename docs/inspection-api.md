@@ -1,5 +1,8 @@
 # .NET inspection API
 
+Detailed diagnostics, recovery and resource behavior belong to the
+[.NET processing policy](processing-policy.md), independently of portable SVT conformance.
+
 This is the implemented inspection contract for the unreleased .NET 10 BCL-only assembly named
 `ScalableVectorTemplates`. The root namespace matches the assembly name. Keep parsing and mutable
 XML implementation types internal.
@@ -40,9 +43,10 @@ failures or programming defects into authoring diagnostics.
   `Location`, immutable `RelatedLocations` and nullable `Limit`. Limit is present only for a budget
   diagnostic and uses the exact option name.
 - `SourceLocation` contains positive one-based `Line` and `Column` using the
-  [specified source convention](https://github.com/svt-project/svt-spec/blob/master/spec/inspection.md).
-- `InspectionOptions` exposes the seven positive integer budgets in that contract with the stated
-  defaults. Snapshot options at call entry; no global mutable defaults.
+  [.NET source convention](processing-policy.md#diagnostic-model).
+- `InspectionOptions` exposes the seven positive integer budgets in the
+  [.NET policy](processing-policy.md#inspection-budgets) with the stated defaults. Snapshot options
+  at call entry; no global mutable defaults.
 
 Use immutable arrays for ordered public collections. Expose only states that satisfy the documented
 invariants: Present target states and Common summary states always contain raw strings; other states

@@ -56,3 +56,15 @@ The [authoring corpus](../examples/authoring/README.md) adds independently autho
 raw inventories and expected SVGs. The API/CLI tests exercise these alongside portable conformance.
 The [native runner](../eng/visual/README.md) separately records editor round trips, resource
 readiness and rendered comparisons; its reports are not portable conformance fixtures.
+
+## Conforming-input candidate review
+
+The specification is preparing candidate `1.0.0-rc.2` with portable observations separated from
+implementation diagnostics, source locations, recovery and budgets. This checkout has not adopted
+that candidate: its snapshot stamp and runner remain unchanged. Existing tests retain all stronger
+.NET behavior. [Processing policy](processing-policy.md) records those implementation commitments.
+
+A future adoption updates the portable observation projection and stamped assets together. Retain
+policy-only cases as local regressions rather than deleting malformed-input, ambiguity, recovery,
+budget or cancellation coverage. Candidate conformance can be evaluated independently before that
+explicit adoption; it does not relabel the accepted snapshot.
