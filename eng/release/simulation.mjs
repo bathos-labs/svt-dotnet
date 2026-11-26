@@ -37,12 +37,9 @@ export function simulatePublication(identity, archive, artifacts) {
     async completion() {
       return state.completion ?? null;
     },
-    async verifyCompletion(receipt) {
-      assert.equal(receipt.verification, "public-evidence");
-    },
     async state(artifact) {
       const value = state.registry.get(artifact.key);
-      if (value === "pending") return "pending";
+      if (value === "pending" || value === "accepted") return value;
       if (value) {
         assert.equal(value, artifact.sha256, "Registry conflict");
         return "matching";
@@ -54,11 +51,6 @@ export function simulatePublication(identity, archive, artifacts) {
       assert.ok(!state.registry.has(artifact.key));
       state.uploads.push(artifact.key);
       state.registry.set(artifact.key, artifact.sha256);
-    },
-    async verifyPublic() {
-      for (const artifact of artifacts)
-        assert.equal(state.registry.get(artifact.key), artifact.sha256);
-      return "public-evidence";
     },
     async saveCompletion(receipt) {
       assert.ok(!state.completion);

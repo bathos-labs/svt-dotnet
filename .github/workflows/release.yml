@@ -262,19 +262,18 @@ jobs:
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         with:
           user: ${{ vars.NUGET_USER }}
-      - name: Archive, publish missing artifacts, verify and finalize
+      - name: Archive, publish missing artifacts and finalize on acceptance
         env:
           GH_TOKEN: ${{ github.token }}
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           CANDIDATE_IDENTITY: ${{ steps.candidate.outputs.identity }}
         run: node eng/release/publish.mjs artifacts/release-archive "$CANDIDATE_IDENTITY"
-      - name: Retain publication verification
+      - name: Retain publication receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: publication-verification-${{ github.run_attempt }}
+          name: publication-receipts-${{ github.run_attempt }}
           path: |
-            artifacts/package-consumption/
             artifacts/release-archive/attempt/
             artifacts/release-archive/candidate-identity.json
           if-no-files-found: ignore

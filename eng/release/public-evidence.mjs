@@ -58,7 +58,7 @@ export async function verifyPublicDebugging(bundle, manifest, output, role = "li
   };
 }
 
-// Retained completion must prove the same checks as a fresh public consumer run.
+// Verify the on-demand report against the exact release candidate.
 export function validatePublicCompletion(report, manifest, manifestHash) {
   assert.equal(report.format_version, 0);
   assert.equal(report.status, "passed");

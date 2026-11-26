@@ -18,7 +18,7 @@ import {
   tool,
 } from "./common.mjs";
 import { consumeTool } from "./tool-consumer.mjs";
-import { verifyPublicDebugging } from "../release/public-evidence.mjs";
+import { validatePublicCompletion, verifyPublicDebugging } from "../release/public-evidence.mjs";
 
 const published = process.argv[3] === "--published";
 assert.ok(
@@ -225,6 +225,7 @@ try {
     "Bundle changed during consumption",
   );
   report.status = "passed";
+  if (published) validatePublicCompletion(report, manifest, manifestHash);
 } catch (error) {
   report.status = "failed";
   report.error = redact((error.stdout ?? "") + (error.stderr ?? "") + error.message);
