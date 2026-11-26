@@ -69,9 +69,9 @@
     "substitution/text-placement/output.svg": "d0edacbb6987f564154478c3c1baa4c8109e3374eb052eef37acf4856113c230"
   },
   "source_repository": "https://github.com/svt-project/svt-spec",
-  "source_commit": "10f7f1edb7aec76d4ab5b964491db61f05aafa1f",
+  "source_commit": "8682a284a87669a744753be80d8a0277ac90dc39",
   "license": "LICENSE",
   "exclusions": [],
-  "specification_version": "1.0.0-rc.2",
+  "specification_version": "1.0.0",
   "template_format": "1.0"
 }

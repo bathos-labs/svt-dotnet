@@ -6,7 +6,7 @@ Specification updates do not change this checkout automatically.
 
 ## Snapshot provenance
 
-The accepted specification working edition is **1.0.0-rc.2**, defining template format **1.0**.
+The accepted specification edition is **1.0.0**, defining template format **1.0**.
 `conformance/snapshot.json` records the source repository, specification edition, template format,
 full specification commit, asset-set digest, license and full accepted file inventory.
 `node eng/conformance/check.mjs` verifies the local bytes and detects missing, changed or extra
