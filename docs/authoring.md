@@ -19,9 +19,11 @@ inspect it again before applying bindings. The
 - Put paint values directly on the marked `fill` or `stroke` attribute. A stylesheet or inline style
   can override that attribute. Binding can succeed without visibly changing the paint; SVT does not
   repair CSS precedence.
-- Use the same paint key for deliberately shared fill/stroke targets. Different authored values
-  remain mixed, and missing direct attributes remain absent even when SVG inheritance supplies a
-  visible value. Omission preserves each target independently.
+- Reuse a key for any number of targets of the same kind. For example, two `data-svt-text="title"`
+  hooks display one title in different positions. Two `data-svt-image="photo"` hooks can display the
+  same replacement with different crops. A paint key can appear on both fill and stroke. Different
+  authored values remain mixed, and missing direct attributes remain absent even when SVG
+  inheritance supplies a visible value. Omission preserves each target independently.
 - Keep image geometry, clipping and `preserveAspectRatio` in SVG. Use real embedded image bytes for
   self-contained previews. Relative references need their original effective base location; saving
   output somewhere else does not make SVT rewrite them.
@@ -58,9 +60,9 @@ declaration or indentation. Meaningful text whitespace and authored values remai
 
 Keep structural findings separate from rendering problems. For example, a text hook with child
 elements is structurally invalid; an unavailable image reference can remain structurally valid.
-Without a central label override, conflicting inline labels on a shared paint input warn while
-retaining its first label. Preserve those findings instead of changing discovery admission to suit
-one editor or renderer.
+Without a central label override, conflicting inline labels on a shared input warn while retaining
+its first label. Preserve those findings instead of changing discovery admission to suit one editor
+or renderer.
 
 ## Exploratory observations
 

@@ -374,7 +374,7 @@ public sealed class MetadataTests
             <s:input key='' group='unknown'/><s:group key='' order='bad'/>
             <s:input key='unknown' order='bad'/><s:input key='rejected' label='Cannot rescue'/>
             <s:input key='a' group='' label='Valid'/>
-            """, Paint + "<text data-svt-text='rejected'/><text data-svt-text='rejected'/>"));
+            """, Paint + "<text data-svt-text='rejected'/><image data-svt-image='rejected'/>"));
         Sequence(result.Diagnostics.Select(d => d.Code).ToArray(), "svt.metadata.invalid", "svt.metadata.invalid", "svt.metadata.invalid", "svt.metadata.input", "svt.metadata.input", "svt.metadata.invalid", "svt.input.ambiguous");
         Assert.IsTrue(result.Diagnostics.Take(3).All(d => d.Key is null));
         Assert.HasCount(2, Template(result).Inputs);

@@ -161,7 +161,7 @@ public sealed class JsonDefaultsTests
     {
         using var w = new Workspace();
         w.Write("bindings.json", "{}");
-        w.Write("template.svg", CliTests.TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><text data-svt-text='bad'/></svg>", StringComparison.Ordinal));
+        w.Write("template.svg", CliTests.TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><image data-svt-image='bad'/></svg>", StringComparison.Ordinal));
         Assert.AreEqual(1, (await w.Bind()).ExitCode);
         w.Write("config.json", "{\"cli\":{\"inspection_errors\":\"allow_scoped\"}}");
         var recovered = await w.Bind("--configuration", "config.json");

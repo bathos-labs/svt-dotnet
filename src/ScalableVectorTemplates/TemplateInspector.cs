@@ -175,7 +175,7 @@ public static class TemplateInspector
             {
                 "svt.hook.target" => "The hook requires a compatible SVG element.",
                 "svt.hook.key" => "A hook key must not be empty.",
-                "svt.input.ambiguous" => "The key has incompatible or duplicate targets.",
+                "svt.input.ambiguous" => "The key is used for different input kinds.",
                 "svt.input.labels" => "Labels differ; the first target supplies the label.",
                 "svt.annotation.unknown" => "Unknown SVT annotation ignored.",
                 "svt.version.nested" => "Descendant version marker ignored.",
@@ -231,7 +231,7 @@ public static class TemplateInspector
             token.ThrowIfCancellationRequested();
             var first = group[0];
             var kind = Kind(first.Target.Hook);
-            if (group.Any(t => Kind(t.Target.Hook) != kind) || (kind != InputKind.Paint && group.Count > 1))
+            if (group.Any(t => Kind(t.Target.Hook) != kind))
             { Add("svt.input.ambiguous", DiagnosticSeverity.Error, key, first.Target.Location, group.Skip(1).Select(t => t.Target.Location)); continue; }
             admittedKeys.Add(key);
         }

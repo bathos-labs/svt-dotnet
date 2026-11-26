@@ -1,14 +1,8 @@
 # .NET processing policy
 
-This document preserves the .NET implementation's detailed behavior independently of the portable
-SVT format. It accompanies the specification's conforming-input simplification; it does not adopt a
-new canonical snapshot or change library behavior. The existing public API, regression tests and
-accepted snapshot remain authoritative for this implementation.
-
-The following policies were previously described by the accepted specification material. They are
-now documented here so future spec changes do not remove the .NET promises. Other implementations
-need not reproduce our diagnostic codes, source coordinates, scoped recovery, budget accounting or
-cancellation mechanics. The [inspection API](inspection-api.md), [binding API](binding-api.md) and
+The .NET library specifies its diagnostics, source coordinates, scoped recovery, budget accounting
+and cancellation behavior independently of the portable SVT contract. The
+[inspection API](inspection-api.md), [binding API](binding-api.md) and
 [interpretation API](interpretation-api.md) define their .NET representations. Resource and
 malformed-input tests remain implementation obligations.
 
@@ -112,9 +106,9 @@ resolution is complete; a central label suppresses them, a description-only decl
 Process known hooks in document preorder, with hook order `text`, `image`, `fill`, `stroke` within
 an element, independent of XML attribute order. Check target compatibility, then key presence. A
 hook failing either check produces one error and is excluded before grouping. Group the remaining
-hooks by exact key. Duplicate text/image targets or mixed kinds reject every member of that group.
-Report one ambiguity error at its first hook, with the other hook locations as related locations.
-Retain unrelated valid inputs.
+hooks by exact key. Each group with one input kind is admitted as one input, regardless of the
+number of targets. Mixed kinds reject every member of the group. Report one ambiguity error at its
+first hook, with the other hook locations as related locations. Retain unrelated valid inputs.
 
 Inputs appear in first-valid-target order. Targets within an input retain discovery order. The
 separate
@@ -196,8 +190,8 @@ searches per declaration. Cancellation also applies during metadata resolution a
 
 ## Binding request policy
 
-Omission preserves original content, including differing defaults across shared paint targets. Empty
-strings are explicit replacements. There is no default/unassigned sentinel, completeness
+Omission preserves original content, including differing defaults across targets of a shared input.
+Empty strings are explicit replacements. There is no default/unassigned sentinel, completeness
 requirement, silent overwrite policy or general continue-on-error mode.
 
 Bind operates only on admitted inputs. Unrelated scoped inspection errors do not prevent binding. An

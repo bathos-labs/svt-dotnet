@@ -5,6 +5,10 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+- Allow one text or image input to update any number of matching SVG targets, as paint inputs
+  already can. Inspection exposes one input per key and preserves each target’s authored default.
+  Mixing input kinds under one key remains an error.
+
 ## [1.0.0-rc.2] - 2026-11-24
 
 - Rename the library package, assembly, and .NET namespace to `ScalableVectorTemplates`, and the CLI

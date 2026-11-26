@@ -39,6 +39,9 @@ test("invalid source identity or digest cannot attest a snapshot", async () => {
       s.specification_version = "latest";
     },
     (s) => {
+      s.specification_version = "1.0.0-rc.02";
+    },
+    (s) => {
       s.specification_version = "1.1.0";
     },
     (s) => {

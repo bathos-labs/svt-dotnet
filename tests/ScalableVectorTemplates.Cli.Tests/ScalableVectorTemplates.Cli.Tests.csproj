@@ -5,6 +5,7 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../PortableObservations.cs" Link="PortableObservations.cs" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="coverlet.MTP" PrivateAssets="all" />
     <ProjectReference Include="../../src/ScalableVectorTemplates.Cli/ScalableVectorTemplates.Cli.csproj" />

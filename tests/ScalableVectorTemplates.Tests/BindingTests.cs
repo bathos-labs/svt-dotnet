@@ -2,8 +2,8 @@ using System.Buffers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using System.Xml.Linq;
+using ScalableVectorTemplates.Testing;
 
 namespace ScalableVectorTemplates.Tests;
 
@@ -15,7 +15,6 @@ public sealed class BindingTests
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
     private static InspectedTemplate Template(string content)
     {
@@ -73,7 +72,7 @@ public sealed class BindingTests
     public void ScopedAdmissionAndDiagnostics()
     {
         var template = Template("<text data-svt-text='shared'><g/></text><text data-svt-text='shared'>old</text>" +
-            "<text data-svt-text='bad'/><text data-svt-text='bad'/><g data-svt-fill='p'/>");
+            "<text data-svt-text='bad'/><image data-svt-image='bad'/><g data-svt-fill='p'/>");
         var root = XElement.Parse(Success(template.Bind([TemplateBinding.Text("shared", "new")])).Xml);
         Assert.IsTrue(root.Elements().First().HasElements);
         Assert.AreEqual("new", root.Elements().ElementAt(1).Value);
@@ -213,13 +212,14 @@ public sealed class BindingTests
         Assert.ThrowsExactly<OperationCanceledException>(() => EncodedImage.Create(source, "image/png", cancellationToken: duringAccess.Token));
     }
 
-    /// <summary>Counts emitted expansion, including shared paint and duplicated image attributes.</summary>
+    /// <summary>Counts emitted expansion, including repeated text, paint, image content and duplicated image attributes.</summary>
     [TestMethod]
     public void ExpandedOutputLimitsAndRejectedLocations()
     {
         var template = Template("<g data-svt-fill='p' data-svt-stroke='p'/><g data-svt-fill='p'/>" +
-            "<image xmlns:x='http://www.w3.org/1999/xlink' data-svt-image='i' x:href='old'/>");
-        TemplateBinding[] bindings = [TemplateBinding.Paint("p", "<&😀"), TemplateBinding.ImageContent("i", Image(new byte[20000]))];
+            "<text data-svt-text='t'/><tspan data-svt-text='t'/>" +
+            "<image data-svt-image='i'/><image xmlns:x='http://www.w3.org/1999/xlink' data-svt-image='i' x:href='old'/>");
+        TemplateBinding[] bindings = [TemplateBinding.Text("t", "<&😀"), TemplateBinding.Paint("p", "<&😀"), TemplateBinding.ImageContent("i", Image(new byte[20000]))];
         var length = Success(template.Bind(bindings)).ToUtf8Bytes().Length;
         Success(template.Bind(bindings, new(new() { MaxOutputBytes = length })));
         Failure(template.Bind(bindings, new(new() { MaxOutputBytes = length - 1 })), "svt.limit.exceeded", "MaxOutputBytes");
@@ -355,10 +355,12 @@ public sealed class BindingTests
     [TestMethod]
     public void ConformanceFixtures()
     {
-        var directories = Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "BindingFixtures"));
-        Assert.IsGreaterThanOrEqualTo(3, directories.Length);
-        foreach (var directory in directories)
+        var cases = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "BindingFixtures"), "expected.json", SearchOption.AllDirectories);
+        Assert.IsGreaterThanOrEqualTo(3, cases.Length);
+        foreach (var expectedFile in cases)
         {
+            var directory = Path.GetDirectoryName(expectedFile);
+            Assert.IsNotNull(directory);
             var inspection = TemplateInspector.Inspect(File.ReadAllBytes(Path.Combine(directory, "input.svg")));
             Assert.IsNotNull(inspection.Template);
             var request = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "bindings.json")));
@@ -387,12 +389,11 @@ public sealed class BindingTests
             {
                 FormatVersion = 0,
                 DocumentAvailable = result.Document is not null,
-                Diagnostics = result.Diagnostics.Select(d => new { d.Code, d.Severity, d.Key, d.Location, d.RelatedLocations, d.Limit }),
             }, JsonOptions);
-            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "expected.json"))), actual), directory);
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse(File.ReadAllText(expectedFile)), actual), directory);
             if (result.Document is { } output)
             {
-                Assert.IsTrue(XNode.DeepEquals(XDocument.Parse(File.ReadAllText(Path.Combine(directory, "output.svg")), LoadOptions.PreserveWhitespace), XDocument.Parse(output.Xml, LoadOptions.PreserveWhitespace)), directory);
+                Assert.IsTrue(XNode.DeepEquals(PortableObservations.Xml(File.ReadAllText(Path.Combine(directory, "output.svg"))), PortableObservations.Xml(output.Xml)), directory);
                 BoundSvgTests.AssertExports(output);
             }
         }

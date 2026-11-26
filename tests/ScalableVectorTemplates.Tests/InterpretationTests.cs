@@ -10,7 +10,6 @@ namespace ScalableVectorTemplates.Tests;
 public sealed class InterpretationTests
 {
     private static readonly XNamespace Svg = "http://www.w3.org/2000/svg";
-    private static readonly JsonSerializerOptions Options = new() { UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow };
 
     /// <summary>Portable grammar, recovery and reference cases retain exact target evidence.</summary>
     [TestMethod]
@@ -23,23 +22,21 @@ public sealed class InterpretationTests
             var raw = item.GetProperty("raw").GetString();
             var image = item.GetProperty("hook").GetString() == "image";
             var target = Target(raw, image ? TargetHook.Image : TargetHook.Fill);
-            var options = item.GetProperty("options").Deserialize<InterpretationOptions>(Options);
             var kind = item.GetProperty("kind").GetString();
-            var limit = item.GetProperty("exceeded_limit").GetString();
             if (image)
             {
-                var result = DefaultInterpreter.InterpretImage(target, options);
+                var result = DefaultInterpreter.InterpretImage(target);
                 Assert.AreSame(target, result.Target);
                 Assert.AreEqual(kind, result.Kind.ToString(), raw);
-                Assert.AreEqual(limit, result.ExceededLimit?.ToString(), raw);
+                Assert.IsNull(result.ExceededLimit, raw);
                 Assert.AreEqual(item.GetProperty("declared_media_type").GetString(), result.DeclaredMediaType, raw);
             }
             else
             {
-                var result = DefaultInterpreter.InterpretPaint(target, options);
+                var result = DefaultInterpreter.InterpretPaint(target);
                 Assert.AreSame(target, result.Target);
                 Assert.AreEqual(kind, result.Kind.ToString(), raw);
-                Assert.AreEqual(limit, result.ExceededLimit?.ToString(), raw);
+                Assert.IsNull(result.ExceededLimit, raw);
                 var color = item.GetProperty("color");
                 if (color.ValueKind == JsonValueKind.Null) Assert.IsNull(result.Color, raw);
                 else Color(result.Color, color.EnumerateArray().Select(v => v.GetDouble()).ToArray());
