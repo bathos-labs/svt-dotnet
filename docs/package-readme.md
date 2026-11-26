@@ -3,8 +3,10 @@
 A BCL-only .NET 10 library for inspecting SVG template annotations and atomically replacing text,
 paint, and image values. Templates remain ordinary SVG artwork with authored preview content.
 
-This is a prerelease package. Pin its exact version while evaluating it; the API and specification
-may change before a stable release. Code and repository-authored examples are MIT-licensed.
+This prerelease implements the
+[SVT 1.0 specification](https://github.com/svt-project/svt-spec/releases/tag/v1.0.0). Pin its exact
+package version while evaluating the .NET API. Code and repository-authored examples are
+MIT-licensed.
 
 ## Lifecycle
 
