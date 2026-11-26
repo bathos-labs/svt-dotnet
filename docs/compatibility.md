@@ -63,9 +63,10 @@ contents, dependencies or runtime requirements still need compatibility review.
 The portable
 [format identity and versioning contract](https://github.com/svt-project/svt-spec/blob/master/spec/versions.md)
 defines the SVG marker, metadata namespace and fixture envelope independently of package versions.
-The implementation supports template format `1.0`, defined by specification edition `1.0.0`, and
-JSON `format_version: 0`. The implementation's CLI separately guarantees that omitted versions in
-binding/configuration JSON select format 0 permanently, never the latest format.
+The implementation supports template format `1.0` from the
+[accepted specification snapshot](conformance.md) and JSON `format_version: 0`. The implementation's
+CLI separately guarantees that omitted versions in binding/configuration JSON select format 0
+permanently, never the latest format.
 
 Throughout package 1.x, supported format-1.0 templates and format-0 JSON requests retain their
 documented meaning. Template marker `0` is unsupported. An incompatible format requires a new

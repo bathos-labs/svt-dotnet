@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using ScalableVectorTemplates.Testing;
 
 namespace ScalableVectorTemplates.Tests;
 
@@ -17,34 +18,17 @@ public sealed class InspectionTests
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
     };
 
-    private static readonly JsonSerializerOptions FixtureOptions = new()
-    {
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-    };
-
     /// <summary>Runs every portable fixture against the public API.</summary>
     [TestMethod]
     public void ConformanceFixtures()
     {
-        var directories = Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Fixtures"));
-        Assert.IsGreaterThanOrEqualTo(4, directories.Length);
-        foreach (var directory in directories)
+        var cases = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "Fixtures"), "expected.json", SearchOption.AllDirectories);
+        Assert.IsGreaterThanOrEqualTo(4, cases.Length);
+        foreach (var expectedFile in cases)
         {
-            var optionsPath = Path.Combine(directory, "options.json");
-            InspectionOptions? options = null;
-            if (File.Exists(optionsPath))
-            {
-                var document = JsonNode.Parse(File.ReadAllText(optionsPath));
-                Assert.IsNotNull(document);
-                Assert.AreEqual(0, document["format_version"]?.GetValue<int>());
-                var properties = document.AsObject();
-                properties.Remove("format_version");
-                options = properties.Deserialize<InspectionOptions>(FixtureOptions);
-                Assert.IsNotNull(options);
-            }
-            var input = Directory.GetFiles(directory, "input.*");
-            Assert.HasCount(1, input);
-            var result = TemplateInspector.Inspect(File.ReadAllBytes(input[0]), options);
+            var directory = Path.GetDirectoryName(expectedFile);
+            Assert.IsNotNull(directory);
+            var result = TemplateInspector.Inspect(File.ReadAllBytes(Path.Combine(directory, "input.svg")));
             var actual = JsonSerializer.SerializeToNode(new
             {
                 FormatVersion = 0,
@@ -58,10 +42,10 @@ public sealed class InspectionTests
                     group.Order,
                     InputKeys = group.Inputs.Select(input => input.Key),
                 }).ToArray() ?? [],
-                Diagnostics = result.Diagnostics.Select(d => new { d.Code, d.Severity, d.Key, d.Location, d.RelatedLocations, d.Limit }),
             }, JsonOptions);
-            var expected = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "expected.json")));
-            Assert.IsTrue(JsonNode.DeepEquals(expected, actual), $"{Path.GetFileName(directory)}\nExpected: {expected}\nActual: {actual}");
+            var expected = JsonNode.Parse(File.ReadAllText(expectedFile));
+            Assert.IsNotNull(actual);
+            Assert.IsTrue(JsonNode.DeepEquals(expected, PortableObservations.Inspection(actual)), $"{Path.GetFileName(directory)}\nExpected: {expected}\nActual: {actual}");
         }
     }
 
@@ -224,15 +208,21 @@ public sealed class InspectionTests
             "<g data-svt-fill=' spaced '/><g data-svt-fill='spaced'/>" +
             "<image data-svt-image='missing'/><image xmlns:x='http://www.w3.org/1999/xlink' data-svt-image='fallback' x:href='preview.svg'/>");
         Assert.IsNotNull(result.Template);
-        Assert.HasCount(2, result.Diagnostics);
-        Assert.IsTrue(result.Diagnostics.All(d => d.Code == "svt.input.ambiguous"));
-        Assert.AreEqual(InputDefaultState.Absent, result.Template.Inputs[0].Default.State);
-        Assert.AreEqual(InputDefaultState.Common, result.Template.Inputs[1].Default.State);
-        Assert.AreEqual("", result.Template.Inputs[1].Default.Raw);
-        Assert.AreEqual(" spaced ", result.Template.Inputs[2].Key);
-        Assert.AreEqual("spaced", result.Template.Inputs[3].Key);
-        Assert.IsNull(result.Template.Inputs[4].Targets[0].Default.Source);
-        Assert.AreEqual(DefaultSource.XLinkHref, result.Template.Inputs[5].Targets[0].Default.Source);
+        var diagnostic = result.Diagnostics.Single();
+        Assert.AreEqual("svt.input.ambiguous", diagnostic.Code);
+        Assert.AreEqual("x", diagnostic.Key);
+        Assert.HasCount(1, diagnostic.RelatedLocations);
+        var repeatedImage = result.Template.Inputs[0];
+        Assert.AreEqual("y", repeatedImage.Key);
+        Assert.HasCount(2, repeatedImage.Targets);
+        Assert.AreEqual(InputDefaultState.Absent, repeatedImage.Default.State);
+        Assert.AreEqual(InputDefaultState.Absent, result.Template.Inputs[1].Default.State);
+        Assert.AreEqual(InputDefaultState.Common, result.Template.Inputs[2].Default.State);
+        Assert.AreEqual("", result.Template.Inputs[2].Default.Raw);
+        Assert.AreEqual(" spaced ", result.Template.Inputs[3].Key);
+        Assert.AreEqual("spaced", result.Template.Inputs[4].Key);
+        Assert.IsNull(result.Template.Inputs[5].Targets[0].Default.Source);
+        Assert.AreEqual(DefaultSource.XLinkHref, result.Template.Inputs[6].Targets[0].Default.Source);
     }
 
     /// <summary>Diagnostic source ordering is independent of hook discovery order.</summary>
@@ -332,7 +322,7 @@ public sealed class InspectionTests
         Limited(Encoding.UTF8.GetBytes(xml), new(), "MaxElementDepth");
         Accepted(Encoding.UTF8.GetBytes(xml), new() { MaxElementDepth = 66 });
         xml = Start + "<g data-svt-fill='p' data-svt-label='A'/><g data-svt-fill='p' data-svt-label='B'/>" +
-            "<g data-svt-image='i'/><g data-svt-image='i'/></svg>";
+            "<g data-svt-image='i'/><g data-svt-text='i'/></svg>";
         Accepted(Encoding.UTF8.GetBytes(xml), new() { MaxDiagnostics = 2 });
         Limited(Encoding.UTF8.GetBytes(xml), new() { MaxDiagnostics = 1 }, "MaxDiagnostics");
     }

@@ -8,7 +8,10 @@ const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 export async function verifySnapshot(directory) {
   const snapshot = JSON.parse(await readFile(resolve(directory, "snapshot.json"), "utf8"));
   assert.equal(snapshot.manifest_version, 1);
-  assert.match(snapshot.specification_version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+  const edition = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(snapshot.specification_version);
+  assert.ok(edition && edition[0] === snapshot.specification_version, "Invalid specification edition");
+  for (const identifier of edition[4]?.split(".") ?? [])
+    assert.ok(!/^0\d+$/.test(identifier), "Invalid numeric prerelease identifier");
   assert.equal(snapshot.template_format, "1.0", "Unsupported reference template format");
   assert.equal(
     snapshot.template_format,

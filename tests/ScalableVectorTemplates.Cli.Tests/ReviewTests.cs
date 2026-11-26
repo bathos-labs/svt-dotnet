@@ -130,7 +130,7 @@ public sealed class ReviewTests
     public async Task PreparationFailureRetainsEarlierFindings()
     {
         using var w = new Workspace();
-        w.Write("template.svg", CliTests.TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><text data-svt-text='bad'/></svg>", StringComparison.Ordinal));
+        w.Write("template.svg", CliTests.TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><image data-svt-image='bad'/></svg>", StringComparison.Ordinal));
         w.Bindings(new { key = "i", kind = "image_content", file = "missing.png", media_type = "image/png" });
         var result = await w.Bind("--inspection-errors", "allow-scoped");
         Assert.AreEqual(3, result.ExitCode);

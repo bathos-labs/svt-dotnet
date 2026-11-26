@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
+using ScalableVectorTemplates.Testing;
 
 namespace ScalableVectorTemplates.Cli.Tests;
 
@@ -19,31 +20,17 @@ public sealed class CliTests
     {
         using var workspace = new Workspace();
         var root = Path.Combine(AppContext.BaseDirectory, "Fixtures", "inspection");
-        foreach (var folder in Directory.GetDirectories(root))
+        foreach (var expectedFile in Directory.GetFiles(root, "expected.json", SearchOption.AllDirectories))
         {
-            var input = Path.Combine(folder, File.Exists(Path.Combine(folder, "input.svg")) ? "input.svg" : "input.bin");
-            var args = new List<string> { "inspect", input, "--format", "json", "--diagnostics", "json" };
-            if (File.Exists(Path.Combine(folder, "options.json")))
-            {
-                var inspection = new JsonObject();
-                var options = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(folder, "options.json")))?.AsObject();
-                Assert.IsNotNull(options);
-                foreach (var option in options)
-                    if (option.Key != "format_version") inspection[JsonNamingPolicy.SnakeCaseLower.ConvertName(option.Key)] = option.Value?.DeepClone();
-                var config = workspace.Write("configuration.json", new JsonObject { ["format_version"] = 0, ["inspection"] = inspection }.ToJsonString());
-                args.AddRange(["--configuration", config]);
-            }
-            var result = await workspace.Process(args.ToArray());
-            var expected = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(folder, "expected.json")));
+            var folder = Path.GetDirectoryName(expectedFile);
+            Assert.IsNotNull(folder);
+            var result = await workspace.Process("inspect", Path.Combine(folder, "input.svg"), "--format", "json", "--diagnostics", "json");
+            var expected = JsonNode.Parse(await File.ReadAllTextAsync(expectedFile));
             Assert.IsNotNull(expected);
             var report = JsonNode.Parse(result.Output);
             Assert.IsNotNull(report);
-            Assert.IsTrue(JsonNode.DeepEquals(expected["inputs"], report["inputs"]), folder);
-            Assert.IsTrue(JsonNode.DeepEquals(expected["input_groups"], report["input_groups"]), folder);
-            Assert.IsTrue(JsonNode.DeepEquals(expected["template_available"], report["template_available"]), folder);
-            CheckDiagnostics(expected["diagnostics"], result.Diagnostics);
-            var expectedExit = expected["diagnostics"]?.AsArray().Any(d => (string?)d?["severity"] == "error") == true ? 1 : 0;
-            Assert.AreEqual(expectedExit, result.ExitCode, folder);
+            Assert.IsTrue(JsonNode.DeepEquals(expected, PortableObservations.Inspection(report)), folder);
+            Assert.AreEqual((bool?)expected["template_available"] == true ? 0 : 1, result.ExitCode, folder);
         }
     }
 
@@ -120,33 +107,19 @@ public sealed class CliTests
     public async Task SubstitutionFixturesThroughProcess()
     {
         using var workspace = new Workspace();
-        foreach (var folder in Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "Fixtures", "substitution")))
+        var root = Path.Combine(AppContext.BaseDirectory, "Fixtures", "substitution");
+        foreach (var expectedFile in Directory.GetFiles(root, "expected.json", SearchOption.AllDirectories))
         {
+            var folder = Path.GetDirectoryName(expectedFile);
+            Assert.IsNotNull(folder);
             var result = await workspace.Process("bind", Path.Combine(folder, "input.svg"), "--bindings", Path.Combine(folder, "bindings.json"),
                 "--output", "-", "--diagnostics", "json");
-            var expected = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(folder, "expected.json")));
+            var expected = JsonNode.Parse(await File.ReadAllTextAsync(expectedFile));
             Assert.IsNotNull(expected);
-            CheckDiagnostics(expected["diagnostics"], result.Diagnostics);
-            if ((bool?)expected["document_available"] == true)
-            {
-                Assert.AreEqual(0, result.ExitCode);
-                Assert.IsTrue(XNode.DeepEquals(XDocument.Parse(await File.ReadAllTextAsync(Path.Combine(folder, "output.svg")), LoadOptions.PreserveWhitespace),
-                    XDocument.Parse(result.Output, LoadOptions.PreserveWhitespace)), folder);
-            }
-            else { Assert.AreEqual(1, result.ExitCode); Assert.AreEqual("", result.Output); }
-        }
-    }
-    private static void CheckDiagnostics(JsonNode? expected, JsonArray actual)
-    {
-        Assert.IsNotNull(expected);
-        var array = expected.AsArray();
-        Assert.AreEqual(array.Count, actual.Count);
-        for (var i = 0; i < array.Count; i++)
-        {
-            var expectedEntry = array[i];
-            Assert.IsNotNull(expectedEntry);
-            foreach (var field in expectedEntry.AsObject())
-                Assert.IsTrue(JsonNode.DeepEquals(field.Value, actual[i]?[field.Key]), field.Key);
+            Assert.AreEqual(true, (bool?)expected["document_available"]);
+            Assert.AreEqual(0, result.ExitCode, folder);
+            Assert.IsTrue(XNode.DeepEquals(PortableObservations.Xml(await File.ReadAllTextAsync(Path.Combine(folder, "output.svg"))),
+                PortableObservations.Xml(result.Output)), folder);
         }
     }
 
@@ -265,7 +238,7 @@ public sealed class CliTests
     public async Task InspectionPoliciesAndDiagnosticSources()
     {
         using var w = new Workspace();
-        w.Write("template.svg", TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><text data-svt-text='bad'/></svg>", StringComparison.Ordinal));
+        w.Write("template.svg", TemplateText.Replace("</svg>", "<text data-svt-text='bad'/><image data-svt-image='bad'/></svg>", StringComparison.Ordinal));
         w.Bindings(new { key = "t", kind = "text", value = "new" });
         var strict = await w.Bind();
         Assert.AreEqual(1, strict.ExitCode);

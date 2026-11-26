@@ -6,7 +6,7 @@ Specification updates do not change this checkout automatically.
 
 ## Snapshot provenance
 
-The accepted specification edition is **1.0.0**, defining template format **1.0**.
+The accepted specification working edition is **1.0.0-rc.2**, defining template format **1.0**.
 `conformance/snapshot.json` records the source repository, specification edition, template format,
 full specification commit, asset-set digest, license and full accepted file inventory.
 `node eng/conformance/check.mjs` verifies the local bytes and detects missing, changed or extra
@@ -24,9 +24,10 @@ reviewed change. Retain LICENSE and any applicable notices; record exclusions ex
 this snapshot). Run the full gate and relevant package/native checks before accepting the update.
 Never fetch a floating specification revision during builds or tests.
 
-The .NET implementation uses the accepted reference budget profiles as its current defaults; changes
-remain subject to [compatibility policy](compatibility.md). Cancellation maps to the exceptions in
-the API documentation; CLI transport and publication rules are implementation-owned.
+The [processing policy](processing-policy.md) defines .NET diagnostics, scoped recovery and resource
+budgets. Changes remain subject to [compatibility policy](compatibility.md). Cancellation maps to
+the exceptions in the API documentation; CLI transport and publication rules are
+implementation-owned.
 
 ## Runner coverage
 
@@ -39,9 +40,9 @@ documentation wording tests.
 ## CLI validation
 
 The CLI test project also executes the inspection and substitution fixtures through the real command
-entry point. It compares discovery data, structured diagnostics and semantic XML output, while
-checking exit status and separating stdout results from stderr diagnostics. Fixture options are
-translated explicitly into CLI configuration; the fixture envelope is not an additional CLI format.
+entry point. Both API and CLI runners compare portable discovery data, presentation order, typed raw
+defaults and substituted XML. Separate .NET tests assert diagnostics, source positions and recovery
+for malformed input. The fixture envelope is independent of the CLI response format.
 
 Additional tests generate small isolated requests for strict JSON and Unicode, configuration
 precedence, stdin ownership, relative image acquisition, admission policies, resource limits and
@@ -56,15 +57,3 @@ The [authoring corpus](../examples/authoring/README.md) adds independently autho
 raw inventories and expected SVGs. The API/CLI tests exercise these alongside portable conformance.
 The [native runner](../eng/visual/README.md) separately records editor round trips, resource
 readiness and rendered comparisons; its reports are not portable conformance fixtures.
-
-## Conforming-input candidate review
-
-The specification is preparing candidate `1.0.0-rc.2` with portable observations separated from
-implementation diagnostics, source locations, recovery and budgets. This checkout has not adopted
-that candidate: its snapshot stamp and runner remain unchanged. Existing tests retain all stronger
-.NET behavior. [Processing policy](processing-policy.md) records those implementation commitments.
-
-A future adoption updates the portable observation projection and stamped assets together. Retain
-policy-only cases as local regressions rather than deleting malformed-input, ambiguity, recovery,
-budget or cancellation coverage. Candidate conformance can be evaluated independently before that
-explicit adoption; it does not relabel the accepted snapshot.
