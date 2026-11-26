@@ -1,7 +1,7 @@
 # CLI packaging and release contract
 
 The library and CLI are packaged separately at a shared version. The installation examples below use
-`1.0.0-rc.2`. The [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit
+`1.0.0-rc.3`. The [CLI contract](cli.md) continues to own commands, diagnostics, streams and exit
 codes.
 
 ## Release unit
@@ -48,7 +48,7 @@ with no SVT auto-update behavior.
 For regular personal use:
 
 ```sh
-dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.2
+dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.3
 svt inspect template.svg
 ```
 
@@ -60,7 +60,7 @@ For a project, create a manifest deliberately and commit it:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.2
+dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.3
 ```
 
 Restore and run from the project's trusted directory. The manifest selects the exact tool version;
@@ -69,7 +69,7 @@ use `dotnet tool run svt` to select the local tool rather than a global PATH com
 For a quick trial:
 
 ```sh
-dnx ScalableVectorTemplates.Cli@1.0.0-rc.2 -- inspect template.svg
+dnx ScalableVectorTemplates.Cli@1.0.0-rc.3 -- inspect template.svg
 ```
 
 The equivalent SDK entry point is `dotnet tool exec`. One-off execution may acquire packages and

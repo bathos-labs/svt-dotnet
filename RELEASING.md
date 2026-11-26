@@ -1,20 +1,10 @@
 # Releasing
 
-The library and CLI release together with matching versions and source commits. Prepare `1.0.0-rc.2`
-under the `ScalableVectorTemplates` and `ScalableVectorTemplates.Cli` identities. The previous
-`1.0.0-rc.1` packages were published under `Bathos.Graphics.SvgTemplates` and
-`Bathos.Graphics.SvgTemplates.Cli`; their artifacts and tags remain immutable. A version in source
-or a changelog is not publication authorization. Consumer and production-template acceptance must be
-renewed for the renamed RC. SVG templates require marker 1.0; independent JSON envelopes retain
-version 0.
-
-Before freezing RC.2, complete the formal separation of portable specification, conformance data and
-authoring content from .NET API, CLI and release policy. Track acceptance in the
-[coordinator extraction issue](https://github.com/svt-project/.github/issues/2). Record the exact
-authoritative specification/fixture revision used by the candidate, verify clean-checkout
-consumption and documentation links, and rerun validation after integration. A successful URI-change
-build alone does not satisfy this gate. The approved metadata URI is
-`https://svt-project.github.io/ns/svt`; acceptance must include templates updated to that namespace.
+The library and CLI release together. Version `1.0.0-rc.3` uses the stable
+[SVT 1.0 specification](https://github.com/svt-project/svt-spec/releases/tag/v1.0.0), including
+shared text, image and paint keys. The [conformance snapshot](conformance/snapshot.json) identifies
+the accepted revision and assets. SVG templates use marker `1.0` and the metadata namespace
+`https://svt-project.github.io/ns/svt`. Independent JSON envelopes use version 0.
 
 ## Release set
 
@@ -55,9 +45,10 @@ unpushed commits, failed fetches, dirty trees, and mismatched metadata fail clos
 
 ## Stable acceptance and support
 
-RC integration acceptance and production-template acceptance are separate. Validate the renamed
-`1.0.0-rc.2` packages and installation examples before approval. Record consumer-specific evidence
-in the consumer's tracking and a generic outcome in issue #1.
+Start the implementation cooling-off period when the RC.3 library and CLI have both been verified
+from NuGet. It ends at the earlier of successful local validation of the production flow using the
+published candidates or two weeks after public verification. Keep consumer-specific evidence in the
+consuming project and record the outcome without identifying the application.
 
 Before preparing stable `1.0.0`, complete production-template acceptance and review the accepted
 surface against the [implemented API/package baseline](eng/compatibility/README.md), then update
@@ -99,7 +90,7 @@ file invalidates the recorded source fingerprint.
 Review bundles use separate development identities and record uncommitted source. They validate
 packaging and behavior but are not the tagged RC or publishable evidence. After review and merge,
 rerun the gate and hosted rehearsal on master for clean-source Ubuntu/Windows/macOS evidence.
-`task release:check TAG=v1.0.0-rc.2` is a read-only metadata/tree/branch check; it intentionally
+`task release:check TAG=v1.0.0-rc.3` is a read-only metadata/tree/branch check; it intentionally
 fails on an uncommitted feature branch and does not replace tests or verify NuGet account
 permissions. Leave tag creation and publication for the explicitly authorized release steps below.
 

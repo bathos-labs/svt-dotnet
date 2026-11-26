@@ -5,9 +5,13 @@ exact package version while evaluating them.
 
 ## [Unreleased]
 
+## [1.0.0-rc.3] - 2026-11-26
+
 - Allow one text or image input to update any number of matching SVG targets, as paint inputs
   already can. Inspection exposes one input per key and preserves each target’s authored default.
   Mixing input kinds under one key remains an error.
+- Adopt the stable SVT 1.0 specification for the library and CLI. Templates continue to use
+  `data-svt-version="1.0"`.
 
 ## [1.0.0-rc.2] - 2026-11-24
 
@@ -92,7 +96,8 @@ hosts own resource acquisition, decoding, fonts, CSS interpretation, fitting, an
 evidence covers named tools and environments, not universal SVG rendering. The template marker and
 JSON envelopes remain version 0 independently of the package version.
 
-[Unreleased]: https://github.com/svt-project/svt-dotnet/compare/v1.0.0-rc.2...HEAD
+[Unreleased]: https://github.com/svt-project/svt-dotnet/compare/v1.0.0-rc.3...HEAD
+[1.0.0-rc.3]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v1.0.0-rc.1
 [0.1.0-beta.1]: https://github.com/svt-project/svt-dotnet/releases/tag/v0.1.0-beta.1
