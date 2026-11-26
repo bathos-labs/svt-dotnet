@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { simulatePublication } from "./simulation.mjs";
 import { hash } from "../package/common.mjs";
-import { publishRelease, publicationOrder } from "./publication.mjs";
+import { publishRelease, publicationOrder, recordedUploadState } from "./publication.mjs";
 
 function fixture() {
   const archive = Buffer.from("retained candidate and visual evidence");
@@ -38,8 +38,7 @@ for (const stop of [
   "archive:candidate.zip",
   "archive:sealed",
   ...publicationOrder.map((key) => "upload:" + key),
-  "verification:public",
-  "verification:retained",
+  "acceptance:retained",
   "release:published",
 ]) {
   test(`recovery reuses exact bytes after ${stop}`, async () => {
@@ -70,17 +69,13 @@ test("all registry states are checked before uploading another product", async (
     assert.equal(state.published, false);
   }
 });
-test("uncertain upload, indexing and authentication failures cannot become success", async () => {
-  for (const failure of ["timeout", "indexing", "authentication"]) {
+test("uncertain upload and authentication failures cannot become success", async () => {
+  for (const failure of ["timeout", "authentication"]) {
     const { input, state, remote } = fixture();
     if (failure === "timeout")
       remote.upload = async (artifact) => {
         state.registry.set(artifact.key, "pending");
         throw new Error("timeout");
-      };
-    if (failure === "indexing")
-      remote.verifyPublic = async () => {
-        throw new Error("indexing");
       };
     if (failure === "authentication")
       remote.state = async () => {
@@ -94,6 +89,50 @@ test("uncertain upload, indexing and authentication failures cannot become succe
       assert.equal(state.events.filter((e) => e.state === "upload-started").length, 1);
     }
   }
+});
+test("recovery distinguishes matching accepted receipts from an unconfirmed attempt", () => {
+  const { input } = fixture();
+  const artifact = input.artifacts[0];
+  const started = {
+    identity_sha256: input.expectedIdentity,
+    artifact: artifact.key,
+    state: "upload-started",
+    sha256: artifact.sha256,
+  };
+  const accepted = { ...started, state: "accepted" };
+  const classify = (rows) => recordedUploadState(rows, artifact, input.expectedIdentity);
+  assert.equal(classify([]), "absent");
+  assert.equal(classify([started]), "pending");
+  assert.equal(classify([accepted, started]), "accepted");
+  assert.equal(classify([started, accepted]), "accepted");
+  assert.throws(() => classify([{ ...accepted, sha256: "wrong" }]));
+  assert.throws(() => classify([{ ...accepted, identity_sha256: "wrong" }]));
+});
+
+test("recorded acceptance survives an interruption while both feeds are indexing", async () => {
+  const { input, state, remote } = fixture();
+  const upload = remote.upload;
+  remote.upload = async (artifact) => {
+    await upload(artifact);
+    state.registry.set(artifact.key, "accepted");
+  };
+  await assert.rejects(
+    publishRelease({
+      ...input,
+      boundary: async (point) => {
+        if (point === "upload:cli-package") throw new Error("interrupted");
+      },
+    }),
+    /interrupted/,
+  );
+  await publishRelease(input);
+  assert.deepEqual(state.uploads, publicationOrder);
+  assert.deepEqual(
+    state.completion.artifacts,
+    Object.fromEntries(input.artifacts.map((a) => [a.key, a.sha256])),
+  );
+  assert.equal(state.completion.status, "accepted");
+  assert.equal(state.published, true);
 });
 test("changed or missing sealed evidence and foreign approval stop recovery", async () => {
   for (const mutation of [
@@ -122,15 +161,15 @@ test("changed or missing sealed evidence and foreign approval stop recovery", as
     if (mutation === "approval") input.expectedIdentity = "d".repeat(64);
     if (mutation === "completion")
       state.completion = {
-        status: "verified",
+        status: "accepted",
         identity_sha256: input.expectedIdentity,
-        verification: "fabricated",
+        artifacts: {},
       };
     await assert.rejects(publishRelease(input));
     assert.deepEqual(state.uploads, []);
   }
 });
-test("finalization failure retries only GitHub publication with retained verification", async () => {
+test("finalization failure retries only GitHub publication with retained acceptance", async () => {
   const { input, state, remote } = fixture();
   const finalize = remote.finalize;
   remote.finalize = async () => {
@@ -175,7 +214,7 @@ test("concurrent recovery cannot acquire an active tag lock", async () => {
   }
   assert.deepEqual(state.uploads, publicationOrder);
 });
-test("an existing published release without verified completion is rejected", async () => {
+test("an existing published release without acceptance evidence is rejected", async () => {
   const { input, state } = fixture();
   state.published = true;
   await assert.rejects(publishRelease(input));

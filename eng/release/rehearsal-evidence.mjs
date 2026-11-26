@@ -46,8 +46,7 @@ export async function rehearseArchive(content, retained, bundle, manifest, manif
     "archive:candidate.zip",
     "archive:sealed",
     ...publicationOrder.map((key) => "upload:" + key),
-    "verification:public",
-    "verification:retained",
+    "acceptance:retained",
     "release:published",
   ]) {
     const { input, state } = simulatePublication(identity, archive, artifacts);

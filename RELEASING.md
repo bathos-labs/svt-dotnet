@@ -13,9 +13,8 @@ version/commit, with symbols for both. The CLI bundles the same library DLL/PDB.
 remains `svt`. See the [packaging contract](docs/tool-distribution.md).
 
 Archive and verify the candidate and its portable/platform/native evidence in a draft GitHub release
-before the first NuGet upload. Publish that draft only after both products pass public consumption,
-signature/content, symbols and Source Link checks. A draft stores evidence; it does not authorize
-publication.
+before the first NuGet upload. Finalize the draft when NuGet has accepted the library, CLI and both
+symbol packages. Public feeds can take longer to serve them.
 
 ## Version and branch policy
 
@@ -143,10 +142,9 @@ permissions. Leave tag creation and publication for the explicitly authorized re
    conflicts or uncertain state stop publication.
 8. Upload missing artifacts in order: library package, CLI package, library symbols, CLI symbols.
    Primary pushes disable implicit symbol publication. Per-attempt write-ahead receipts distinguish
-   accepted or ambiguous uploads from never-attempted ones. Public verification uses fresh caches,
-   repository signatures, unchanged original contents, installed execution, symbols and Source Link.
-9. Retain the completion receipt and publish the existing draft using the changelog and appropriate
-   prerelease flag. Consumer application validation remains separate.
+   accepted uploads from attempts with an unknown outcome.
+9. Retain the acceptance receipt with all four candidate artifact hashes and publish the draft using
+   the changelog and appropriate prerelease flag. Consumer application validation remains separate.
 10. After public verification, review and promote the compatibility baseline: move accepted API
     additions into the shipped declarations and pin the newly published package and verified digest.
     Complete this before further development so additions in each release remain protected.
@@ -229,20 +227,28 @@ the fix for creating the draft restore's parent directory on a fresh runner; its
 stops before registry writes. Keep the original candidate artifacts available for this recovery
 path.
 
-Accepted uploads can take time to index. Verification uses bounded calls and fails visibly while
-availability is unresolved. Wait for registry indexing, then resume with the same identity. An
-ambiguous upload leaves write-ahead evidence and blocks automatic resending until its state is
-reconciled; contact registry support if it never resolves. `--skip-duplicate` is a transport aid,
-not proof of identity. If the archive or identity cannot be recovered, use a new version for both
-products. Unlisting does not undo consumers' restores.
+A retained acceptance receipt lets recovery skip an accepted upload while indexing is pending. An
+attempt with an unknown outcome still requires reconciliation before any more uploads. If
+finalization fails, retry against the same candidate and acceptance receipt.
 
-If public verification passed but GitHub finalization failed, recovery validates the retained
-completion receipt and retries only release finalization. An already-published release is accepted
-only after identity and completion checks. The nonpublishing rehearsal tests each archival/upload/
-verification boundary and finalization failure without real remote mutations.
+## Verify public distribution on demand
 
-Candidate/native CI artifacts last 30 days; publication verification lasts 90 days. Retain draft
-assets beyond those windows. A green portable gate or successful upload alone is not a completed
-release. Local rehearsals identify their actual host; Windows package execution and Ubuntu native
-checks need their own runs. Visual review and external integration remain explicit. No universal
-SVG/editor compatibility or Windows native rendering is claimed.
+After indexing, run the following from the release checkout using a fresh output directory:
+
+```sh
+dotnet build eng/PackageValidation/PackageValidation.csproj -c Release
+gh release download 'v<version>' --pattern candidate.zip --dir artifacts/public-check
+unzip artifacts/public-check/candidate.zip 'transfer/bundle/*' -d artifacts/public-check
+task release:verify -- artifacts/public-check/transfer/bundle
+```
+
+This checks fresh restores and installed execution for both products, signed package contents,
+public PDBs and Source Link. A symbol server 404 can indicate indexing is still in progress. Rerun
+the verification command against the same bundle once the feeds catch up. Publication runs
+independently of this check. The RC.3 tag and earlier tags retain their original release workflows.
+
+Candidate/native CI artifacts last 30 days; publication receipts last 90 days. Retain draft assets
+beyond those windows. A green portable gate or successful upload alone is not a completed release.
+Local rehearsals identify their actual host; Windows package execution and Ubuntu native checks need
+their own runs. Visual review and external integration remain explicit. No universal SVG/editor
+compatibility or Windows native rendering is claimed.

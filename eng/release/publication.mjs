@@ -18,6 +18,22 @@ export const publicationOrder = [
   "cli-symbols",
 ];
 
+// Consult the retained journal only when the registry cannot yet serve this artifact.
+export function recordedUploadState(rows, artifact, identity) {
+  let state = "absent";
+  for (const row of rows) {
+    assert.equal(row.identity_sha256, identity, "Foreign publication attempt");
+    if (row.artifact !== artifact.key) continue;
+    assert.equal(row.sha256, artifact.sha256, "Foreign artifact digest in publication attempt");
+    if (row.state === "accepted" || row.state === "verified") state = "accepted";
+    else {
+      assert.equal(row.state, "upload-started", "Unknown artifact receipt");
+      if (state === "absent") state = "pending";
+    }
+  }
+  return state;
+}
+
 // This is the only publication state machine. Production and nonpublishing rehearsal supply
 // different transports; no rehearsal flag can accidentally activate a production write.
 export async function publishRelease({
@@ -73,11 +89,14 @@ export async function publishRelease({
       identity_sha256: expectedIdentity,
     });
     await boundary("archive:sealed");
+    const receipt = {
+      status: "accepted",
+      identity_sha256: expectedIdentity,
+      artifacts: Object.fromEntries(artifacts.map(({ key, sha256 }) => [key, sha256])),
+    };
     const completion = await remote.completion();
     if (completion) {
-      assert.equal(completion.identity_sha256, expectedIdentity);
-      assert.equal(completion.status, "verified");
-      await remote.verifyCompletion(completion);
+      assert.deepEqual(completion, receipt, "Retained acceptance differs from the candidate");
       if (!release.published) await remote.finalize(identity, completion);
       await record({
         status: "complete",
@@ -92,16 +111,17 @@ export async function publishRelease({
     for (const artifact of artifacts) {
       const state = await remote.state(artifact);
       assert.ok(
-        ["absent", "matching", "pending"].includes(state),
+        ["absent", "matching", "accepted", "pending"].includes(state),
         `Unverified registry state: ${artifact.key}`,
       );
       states.push(state);
     }
     assert.ok(
       !states.includes("pending"),
-      "Publication incomplete: reconcile accepted or ambiguous uploads before retrying",
+      "Publication incomplete: reconcile an upload with an unknown outcome before retrying",
     );
     for (const [index, artifact] of artifacts.entries()) {
+      if (states[index] === "accepted") continue;
       if (states[index] === "matching") {
         await record({ artifact: artifact.key, state: "verified", sha256: artifact.sha256 });
         continue;
@@ -112,11 +132,9 @@ export async function publishRelease({
       await record({ artifact: artifact.key, state: "accepted", sha256: artifact.sha256 });
       await boundary("upload:" + artifact.key);
     }
-    const verification = await remote.verifyPublic();
-    await boundary("verification:public");
-    const receipt = { status: "verified", identity_sha256: expectedIdentity, verification };
     await remote.saveCompletion(receipt);
-    await boundary("verification:retained");
+    assert.deepEqual(await remote.completion(), receipt, "Acceptance receipt was not retained");
+    await boundary("acceptance:retained");
     await remote.finalize(identity, receipt);
     await boundary("release:published");
     await record({ status: "complete", identity_sha256: expectedIdentity });

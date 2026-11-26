@@ -10,8 +10,12 @@ import {
   verifyBundle,
   fileHash,
 } from "../package/common.mjs";
-import { publishRelease, identityHash, publicationOrder } from "./publication.mjs";
-import { validatePublicCompletion } from "./public-evidence.mjs";
+import {
+  publishRelease,
+  identityHash,
+  publicationOrder,
+  recordedUploadState,
+} from "./publication.mjs";
 import { github } from "./github.mjs";
 
 assert.equal(
@@ -81,18 +85,17 @@ async function record(event) {
     assert.equal(hash(await api.readAsset(release, name)), hash(bytes));
   }
 }
-async function priorUpload(key) {
-  for (let page = 1; ; page++) {
-    const assets = await api.request(`/releases/${release.id}/assets?per_page=100&page=${page}`);
-    for (const asset of assets.filter(
-      (a) => a.name.startsWith("attempt-") && a.name.endsWith(".json"),
-    )) {
-      const row = JSON.parse(await api.readAsset(release, asset.name));
-      assert.equal(row.identity_sha256, expected, "Foreign publication attempt");
-      if (row.artifact === key && ["upload-started", "accepted"].includes(row.state)) return true;
-    }
-    if (assets.length < 100) return false;
+let priorAttempts;
+async function priorUploadState(artifact) {
+  if (!priorAttempts) {
+    const assets = (await api.assets(release)).filter(
+      (asset) => asset.name.startsWith("attempt-") && asset.name.endsWith(".json"),
+    );
+    priorAttempts = [];
+    for (const asset of assets)
+      priorAttempts.push(JSON.parse(await api.readAsset(release, asset.name)));
   }
+  return recordedUploadState(priorAttempts, artifact, expected);
 }
 async function download(url, headers = {}) {
   const response = await fetch(url, { headers, signal: AbortSignal.timeout(60000) });
@@ -106,7 +109,7 @@ async function state(artifact) {
     const bytes = await download(
       `https://api.nuget.org/v3-flatcontainer/${id}/${manifest.version}/${id}.${manifest.version}.nupkg`,
     );
-    if (!bytes) return (await priorUpload(artifact.key)) ? "pending" : "absent";
+    if (!bytes) return priorUploadState(artifact);
     const path = resolve(directory, "attempt", `${id}.nupkg`);
     await writeFile(path, bytes);
     await command("dotnet", ["nuget", "verify", path, "--all"]);
@@ -125,12 +128,7 @@ async function state(artifact) {
     if (!bytes) absent = true;
     else assert.equal(hash(bytes), inspection.pdb_sha256, "Public symbols differ");
   }
-  return absent ? ((await priorUpload(artifact.key)) ? "pending" : "absent") : "matching";
-}
-function verifyCompletion(receipt) {
-  assert.equal(receipt.identity_sha256, expected);
-  assert.equal(receipt.status, "verified");
-  validatePublicCompletion(receipt.verification, manifest, identity.manifest_sha256);
+  return absent ? priorUploadState(artifact) : "matching";
 }
 const remote = {
   async authorize() {
@@ -166,7 +164,6 @@ const remote = {
     const bytes = await api.readAsset(release, "publication-complete.json");
     return bytes ? JSON.parse(bytes) : null;
   },
-  verifyCompletion,
   state,
   async upload(artifact) {
     const args = [
@@ -193,15 +190,7 @@ const remote = {
       );
     }
   },
-  async verifyPublic() {
-    await command(process.execPath, ["eng/package/consume.mjs", bundle, "--published"]);
-    const current = JSON.parse(await readFile("artifacts/package-consumption-current.json"));
-    const report = JSON.parse(await readFile(current.report));
-    verifyCompletion({ identity_sha256: expected, status: "verified", verification: report });
-    return report;
-  },
   async saveCompletion(receipt) {
-    verifyCompletion(receipt);
     await api.writeAsset(
       release,
       "publication-complete.json",
@@ -209,7 +198,6 @@ const remote = {
     );
   },
   async finalize(_, receipt) {
-    verifyCompletion(receipt);
     const retained = JSON.parse(await api.readAsset(release, "publication-complete.json"));
     assert.deepEqual(retained, receipt);
     const changelog = await readFile("CHANGELOG.md", "utf8");

@@ -175,10 +175,9 @@ bundle. Re-running only a failed publication job is also valid if it retains tha
 evidence. Do not rerun successful preparation, move a tag or choose a new candidate to finish an
 existing release.
 
-The draft remains unpublished until the release set passes public verification. If publishing the
-GitHub release fails after NuGet verification, retry that finalization with the same assets and
-recorded verification; do not rebuild or repeat successful NuGet uploads. If the release is already
-published, verify its identity and completion evidence before reporting success.
+Once all four uploads are accepted or matched to existing public artifacts, retain the candidate
+identity and artifact hashes in the completion receipt and finalize the GitHub release. Retrying
+finalization checks this receipt against the candidate.
 
 ## Publication and partial completion
 
@@ -189,37 +188,24 @@ another product. Upload missing artifacts in a fixed order: library `.nupkg`, CL
 operation has one recorded outcome. Both products remain one release even though uploads are not
 atomic.
 
-| Observed state                                                 | Required action                                                                             |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Package absent, with no unresolved earlier upload              | Upload the retained artifact and record the outcome.                                        |
-| Existing package matches                                       | Verify its repository signature and original contents; record verification and skip upload. |
-| Upload accepted, timed out ambiguously, or indexing incomplete | Record an unresolved state and reconcile availability. Do not infer absence or completion.  |
-| Existing package or public PDB differs                         | Stop before further uploads. Changed binaries require a new version and tag for the pair.   |
-| Registry state cannot be established                           | Stop visibly. Authentication, transport and service failures are not evidence of absence.   |
+| Observed state                                        | Required action                                                                             |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Package absent, with no unresolved earlier upload     | Upload the retained artifact and record the outcome.                                        |
+| Existing package matches                              | Verify its repository signature and original contents; record verification and skip upload. |
+| Upload accepted, public artifact still indexing       | Use the retained acceptance for that exact artifact and continue.                           |
+| Upload started, outcome unknown, artifact unavailable | Reconcile availability before attempting further uploads.                                   |
+| Existing package or public PDB differs                | Stop before further uploads. Changed binaries require a new version and tag for the pair.   |
+| Registry state cannot be established                  | Stop visibly. Authentication, transport and service failures are not evidence of absence.   |
 
-Persist per-attempt outcomes independently for each package and symbol artifact, bound to the
-candidate manifest hash. A local journal helps recovery but is not registry truth: reconcile it with
-remote evidence on every attempt. A duplicate response is not proof of identity. `--skip-duplicate`,
-if used, is only a transport aid; public verification remains mandatory.
+Per-attempt receipts bind each upload to its artifact digest and the sealed candidate identity. A
+timeout or a duplicate response requires reconciliation. A release with four accepted uploads can
+complete while NuGet indexes the packages and symbols.
 
-NuGet repository signing changes archive bytes. Verify the signature and compare every original
-package entry against the unsigned candidate, recording the distributed hash separately. Confirm
-public PDB bytes by their debug identity/checksum and validate Source Link source retrieval. Shared
-library PDB identity must remain consistent across both products. Symbol-server 404 responses do not
-establish that a symbol upload never occurred.
-
-Bound network calls and verification attempts. Report unavailable or indexing-pending artifacts as
-incomplete with a nonzero result and retained diagnostics; elapsed time is not success. If an
-upload's outcome is uncertain, reconcile first. A controlled retry may resend only the identical
-retained bytes, and any conflict still requires identity verification. Never substitute a newly
-built artifact. Unlisting is not an automatic rollback for consumers who already restored.
-
-Public completion requires fresh-cache library consumption and installed-tool execution from
-nuget.org, verified original contents and assembly identities for both packages, matching public
-symbols and Source Link, and retained verification receipts. Then publish the existing draft with
-the correct prerelease flag. If the original candidate or its validation identity cannot be
-recovered, stop; a corrected release needs a new version for both products. Tag creation and actual
-registry publication still require explicit authorization.
+After indexing, use the
+[on-demand public check](../RELEASING.md#verify-public-distribution-on-demand) to restore and
+exercise both products from nuget.org. It verifies signatures, compares original package entries,
+retrieves the public PDBs and validates Source Link. It records distributed hashes separately
+because repository signing changes the archives.
 
 ## Acceptance evidence
 
@@ -231,10 +217,10 @@ Exercise the nonpublishing release rehearsal with both products and the pinned n
 recording actual environments and separate visual review.
 
 Test recovery without registry writes: inject interruption after each asset-upload, package-upload,
-symbol-upload and verification boundary. Cover partial draft archival, duplicate/conflicting
-artifacts, delayed indexing, ambiguous timeouts, authentication/service failures, missing or altered
-candidate evidence, wrong tags/identities, concurrent attempts and failed final GitHub publication.
-Verify retries reuse the candidate, preserve completed work, and never report a partial release as
+symbol-upload and receipt boundary. Cover partial draft archival, duplicate/conflicting artifacts,
+delayed indexing, ambiguous timeouts, authentication/service failures, missing or altered candidate
+evidence, wrong tags/identities, concurrent attempts and failed final GitHub publication. Verify
+retries reuse the candidate, preserve completed work, and never report a partial release as
 complete. The rehearsal uses controlled substitutes for remote mutation and cannot obtain NuGet
 publishing credentials, create release tags or publish a GitHub release.
 
