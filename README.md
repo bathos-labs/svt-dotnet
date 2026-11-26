@@ -8,7 +8,8 @@ Make editable SVG templates with replaceable text, colors and images. SVT keeps 
 ordinary SVG; your editor or viewer handles layout and rendering.
 
 Use the .NET library in an application, or the CLI to inspect a template and apply values from a
-JSON file. This project is public and prerelease. APIs and the specification may change.
+JSON file. The packages are release candidates implementing the
+[SVT 1.0 specification](https://github.com/svt-project/svt-spec/releases/tag/v1.0.0).
 
 [Template format](#what-does-an-svt-template-look-like) · [Library](#use-the-library) ·
 [CLI](#try-it) · [Authoring](#author-templates)
@@ -75,10 +76,10 @@ CLI.
 
 ## Use the library
 
-The library and CLI share version **1.0.0-rc.2**. Pin the library exactly:
+The library and CLI share version **1.0.0-rc.3**. Pin the library exactly:
 
 ```sh
-dotnet add package ScalableVectorTemplates --version '[1.0.0-rc.2]'
+dotnet add package ScalableVectorTemplates --version '[1.0.0-rc.3]'
 ```
 
 Start with the [package guide](docs/package-readme.md) for API usage and integration examples. See
@@ -88,14 +89,14 @@ separate from the SVG and JSON format markers.
 
 ## Try it
 
-The tool requires the .NET 10 SDK. The current release candidate is **1.0.0-rc.2**:
+The tool requires the .NET 10 SDK. The current release candidate is **1.0.0-rc.3**:
 
 ```sh
-dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.2
+dotnet tool install --global ScalableVectorTemplates.Cli --version 1.0.0-rc.3
 svt --version
 ```
 
-For a quick trial, use `dnx ScalableVectorTemplates.Cli@1.0.0-rc.2 -- inspect template.svg`. For
+For a quick trial, use `dnx ScalableVectorTemplates.Cli@1.0.0-rc.3 -- inspect template.svg`. For
 development, use the [source command](CONTRIBUTING.md#local-setup) or validate a
 [local package](eng/package/README.md).
 
@@ -159,7 +160,7 @@ Create a local tool manifest and pin the version:
 
 ```sh
 dotnet new tool-manifest
-dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.2
+dotnet tool install --local ScalableVectorTemplates.Cli --version 1.0.0-rc.3
 ```
 
 Commit `dotnet-tools.json`. In automation, initialize the SDK and run `dotnet tool restore` as
