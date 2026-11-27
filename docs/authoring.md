@@ -7,10 +7,74 @@ its target and an optional `data-svt-label` for display. See the
 
 ## Try a template first
 
-Follow the [inspect, bind and open walkthrough](../README.md#try-it) to change a heading and color.
-Open both SVGs in a browser or Inkscape to compare them. Then edit the source artwork, save it, and
-inspect it again before applying bindings. The
-[larger examples](../examples/authoring/README.md#try-an-example) cover shared colors and images.
+The [interactive SVT Authoring Guide](https://svt-project.github.io/cookbook/) includes a
+[fit-or-crop comparison](https://svt-project.github.io/cookbook/#image-fit), a
+[zoomed detail](https://svt-project.github.io/cookbook/#zoom-image-detail), and a
+[ticket with a shared text key](https://svt-project.github.io/cookbook/#repeat-a-label). Each
+example has a **Download template** link. The same SVG works in the .NET CLI.
+
+### Bind replacement artwork in two frames
+
+With the [.NET 10 CLI tool installed](../README.md#try-it), run these commands in an empty directory
+using a POSIX shell and curl. Download the two-frame template and the cookbook’s portrait beacon
+PNG. Keep the
+[site license](https://github.com/svt-project/svt-project.github.io/blob/master/LICENSE) with
+redistributed copies.
+
+```sh
+guide=https://svt-project.github.io/cookbook
+curl -fsSLo image-fit.svg "$guide/recipes/image-fit.svg"
+curl -fsSLo beacon.png "$guide/artwork/beacon.png"
+svt inspect image-fit.svg --format json
+```
+
+The inventory contains one image input, `artwork`, with two targets. Bind an empty request to see
+the authored landscape in both frames. Then assign the beacon once.
+
+```sh
+printf '%s\n' '{}' > defaults.json
+svt bind image-fit.svg --bindings defaults.json --output default.svg
+
+cat > beacon.json <<'JSON'
+{
+  "bindings": [
+    { "key": "artwork", "kind": "image_content", "file": "beacon.png", "media_type": "image/png" }
+  ]
+}
+JSON
+svt bind image-fit.svg --bindings beacon.json --output replacement.svg
+```
+
+Open `default.svg` and `replacement.svg` side by side. Omitting `artwork` preserves each original
+`href`. The explicit assignment embeds the same beacon bytes in both targets. The left frame shows
+the full portrait with space at its sides (`xMidYMid meet`). The right frame fills its bounds by
+cropping the top and bottom (`xMidYMid slice`). Both files can be opened without the companion PNG.
+Use fresh output names if you repeat the commands.
+
+For a comparison across browser engines and the limits of that evidence, see
+[Checking a template](https://svt-project.github.io/cookbook/#renderer-notes).
+
+### Reuse the image binding or change a shared ticket number
+
+In the same directory and shell, the zoom template accepts the same `artwork` assignment. Its two
+views reference one image in `<defs>`. The ticket instead exposes a text input named `ticket` on two
+separate elements.
+
+```sh
+curl -fsSLo zoom.svg "$guide/recipes/zoom-image-detail.svg"
+svt bind zoom.svg --bindings beacon.json --output beacon-detail.svg
+
+curl -fsSLo ticket.svg "$guide/recipes/repeat-a-label.svg"
+svt inspect ticket.svg
+printf '%s\n' '{"bindings":[{"key":"ticket","kind":"text","value":"FM-0091"}]}' > ticket.json
+svt bind ticket.svg --bindings ticket.json --output numbered-ticket.svg
+```
+
+Open `beacon-detail.svg` to compare the whole image and the enlarged region, or
+`numbered-ticket.svg` to see `FM-0091` on both the passenger ticket and the claim stub.
+
+The [local authoring examples](../examples/authoring/README.md#try-an-example) include more image
+and shared-paint bindings.
 
 ## Keep inputs editable
 
