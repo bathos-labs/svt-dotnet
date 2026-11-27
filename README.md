@@ -180,10 +180,11 @@ name, check `command -v svt` on macOS/Linux or `Get-Command svt` in PowerShell, 
 
 ## Author templates
 
-Add binding keys and optional labels to ordinary SVG elements. Start with the
-[authoring guide](docs/authoring.md) and [more examples](examples/authoring/README.md), or read the
-[specification](https://github.com/svt-project/svt-spec/blob/master/spec/README.md) for the full
-contract.
+Try the [interactive SVT Authoring Guide](https://svt-project.github.io/cookbook/) or
+[bind a downloaded two-frame template with the .NET CLI](docs/authoring.md#bind-replacement-artwork-in-two-frames).
+The [local examples](examples/authoring/README.md) include additional templates. The
+[specification](https://github.com/svt-project/svt-spec/blob/master/spec/README.md) defines the
+binding contract.
 
 SVT replaces values; it does not render, fetch images, fit text or compute CSS. Applications supply
 resources and choose how to display the result. `SVT` is a working format name, not an established
